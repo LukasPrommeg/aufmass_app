@@ -1,13 +1,13 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
-class MyPainter extends CustomPainter {
+class LinePainter extends CustomPainter {
   final List<Offset> _points = [];
   final List<int> firstIndexOfArea = [];
 
-  MyPainter() {
+  LinePainter() {
     firstIndexOfArea.add(0);
-  }
+}
 
   void addPoint(Offset newPos) {
     if (_points.length != firstIndexOfArea.last &&
@@ -38,16 +38,17 @@ class MyPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final pointMode = ui.PointMode.lines;
+    const pointMode = ui.PointMode.lines;
     final paint = Paint()
       ..color = Colors.black
       ..strokeWidth = 4
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.fill;
     canvas.drawPoints(pointMode, _points, paint);
   }
 
   @override
-  bool shouldRepaint(MyPainter old) {
-    return true;
+  bool shouldRepaint(LinePainter old) {
+    return false;
   }
 }

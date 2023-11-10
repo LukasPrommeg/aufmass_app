@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'painter.dart';
+import 'package:flutter_test_diplom/paintcontroller.dart';
+import 'plancanvas.dart';
 
 class PlanPage extends StatefulWidget {
   const PlanPage({super.key});
@@ -9,10 +10,9 @@ class PlanPage extends StatefulWidget {
 }
 
 class PlanPageContent extends State<PlanPage> {
-  int _selectedNavBarItem = 0;
+  //int _selectedNavBarItem = 0;
   final _trafoCont = TransformationController();
-  final _paintKey = GlobalKey();
-  MyPainter _planPainter = MyPainter();
+  PaintController _paintController = PaintController();
   String _title = "-";
 
   void tapUP(TapUpDetails details) {
@@ -23,7 +23,7 @@ class PlanPageContent extends State<PlanPage> {
   void handleContextMenu(final details) {
     updateTitle(
         "CONTEXT AT " + _trafoCont.toScene(details.localPosition).toString());
-    addPoint(details.localPosition);
+    addPoint(_trafoCont.toScene(details.localPosition));
   }
 
   void updateTitle(String title) {
@@ -33,23 +33,23 @@ class PlanPageContent extends State<PlanPage> {
   }
 
   void addPoint(Offset pos) {
-    _planPainter.addPoint(pos);
+    _paintController.drawPoint(pos);
     setState(() {});
   }
 
   void finishArea() {
-    _planPainter.finishArea();
+    _paintController.finishArea();
   }
 
   void undo() {
-    _planPainter.undo();
+    _paintController.undo();
   }
 
-  void switchBottomNavbarItem(int targetIndex) {
+  /*void switchBottomNavbarItem(int targetIndex) {
     setState(() {
       _selectedNavBarItem = targetIndex;
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -96,9 +96,8 @@ class PlanPageContent extends State<PlanPage> {
               Center(
                 child: Text("Debug " + _title),
               ),
-              CustomPaint(
-                key: _paintKey,
-                painter: _planPainter,
+              PlanCanvas(
+                paintController: _paintController,
               ),
               Image.asset(
                 "assets/BG.jpg",

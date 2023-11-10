@@ -1,92 +1,44 @@
 import 'package:flutter/material.dart';
-import 'painter.dart';
+import 'linepainter.dart';
 
-class Zeichenflaeche extends StatefulWidget {
-  const Zeichenflaeche({super.key});
+class PlanCanvas extends StatefulWidget {
+  PlanCanvas({
+    super.key,
+    required this.linePainter,
+    required this.polyPainter,
+    });
+  
+  final LinePainter linePainter;
+  final LinePainter polyPainter;
+  
+
 
   @override
-  State<Zeichenflaeche> createState() => _ZeichenflaecheState();
+  State<PlanCanvas> createState() => _PlanCanvasState(linePainter, polyPainter);
 }
 
-class _ZeichenflaecheState extends State<Zeichenflaeche> {
-  final _trafoCont = TransformationController();
-  final _paintKey = GlobalKey();
-  MyPainter _planPainter = MyPainter();
-  String _title = "-";
+class _PlanCanvasState extends State<PlanCanvas> {
+  LinePainter _linePainter = LinePainter();
+  LinePainter _polyPainter = LinePainter();
 
-  void tapUP(TapUpDetails details) {
-    updateTitle(
-        "TAP AT " + _trafoCont.toScene(details.localPosition).toString());
-  }
-
-  void handleContextMenu(final details) {
-    updateTitle(
-        "CONTEXT AT " + _trafoCont.toScene(details.localPosition).toString());
-    addPoint(details.localPosition);
-  }
-
-  void updateTitle(String title) {
-    setState(() {
-      _title = title;
-    });
-  }
-
-  void addPoint(Offset pos) {
-    _planPainter.addPoint(pos);
-    setState(() {});
-  }
-
-  void finishArea() {
-    _planPainter.finishArea();
+  _PlanCanvasState(LinePainter line, LinePainter poly) {
+    this._linePainter = line;
+    this._polyPainter = poly;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      GestureDetector(
-        onTapUp: tapUP,
-        onLongPressStart: handleContextMenu,
-        onSecondaryTapUp: handleContextMenu,
-        child: InteractiveViewer(
-          transformationController: _trafoCont,
-          minScale: 0.1,
-          maxScale: 10,
-          child: Stack(
-            children: [
-              Center(
-                child: Text("Debug " + _title),
-              ),
-              CustomPaint(
-                key: _paintKey,
-                painter: _planPainter,
-              ),
-              Image.asset(
-                "assets/BG.jpg",
-                fit: BoxFit.cover,
-                height: double.infinity,
-                width: double.infinity,
-                alignment: Alignment.center,
-                opacity: const AlwaysStoppedAnimation(0.25),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ]);
-  }
-
-  Widget floatingButton() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Stack(
       children: [
-        FloatingActionButton(
-          child: Icon(
-            Icons.flag,
-          ),
-          onPressed: finishArea,
+        CustomPaint(
+          painter: _linePainter, 
+        ),
+        CustomPaint(
+          painter: _polyPainter,
         ),
       ],
     );
   }
+
+  
 }
