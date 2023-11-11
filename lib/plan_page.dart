@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/paintcontroller.dart';
-import 'plancanvas.dart';
+import 'package:flutter_test_diplom/paint/linepainter.dart';
+import 'package:flutter_test_diplom/paint/paintcontroller.dart';
+import 'package:flutter_test_diplom/paint/polypainter.dart';
+import 'package:flutter_test_diplom/paint/plancanvas.dart';
 
 class PlanPage extends StatefulWidget {
   const PlanPage({super.key});
@@ -12,12 +14,14 @@ class PlanPage extends StatefulWidget {
 class PlanPageContent extends State<PlanPage> {
   //int _selectedNavBarItem = 0;
   final _trafoCont = TransformationController();
-  PaintController _paintController = PaintController();
+  final PaintController _paintController =
+      PaintController(polyPainter: PolyPainter(), linePainter: LinePainter());
   String _title = "-";
 
   void tapUP(TapUpDetails details) {
     updateTitle(
         "TAP AT " + _trafoCont.toScene(details.localPosition).toString());
+    _paintController.tap(_trafoCont.toScene(details.localPosition));
   }
 
   void handleContextMenu(final details) {
@@ -84,6 +88,7 @@ class PlanPageContent extends State<PlanPage> {
   Widget zeichenflaeche() {
     return Stack(children: [
       GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTapUp: tapUP,
         onLongPressStart: handleContextMenu,
         onSecondaryTapUp: handleContextMenu,
@@ -93,12 +98,6 @@ class PlanPageContent extends State<PlanPage> {
           maxScale: 10,
           child: Stack(
             children: [
-              Center(
-                child: Text("Debug " + _title),
-              ),
-              PlanCanvas(
-                paintController: _paintController,
-              ),
               Image.asset(
                 "assets/BG.jpg",
                 fit: BoxFit.cover,
@@ -106,6 +105,12 @@ class PlanPageContent extends State<PlanPage> {
                 width: double.infinity,
                 alignment: Alignment.center,
                 opacity: const AlwaysStoppedAnimation(0.25),
+              ),
+              PlanCanvas(
+                paintController: _paintController,
+              ),
+              Center(
+                child: Text("Debug " + _title),
               ),
             ],
           ),
@@ -120,19 +125,19 @@ class PlanPageContent extends State<PlanPage> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         FloatingActionButton(
-          child: Icon(
+          onPressed: finishArea,
+          child: const Icon(
             Icons.flag,
           ),
-          onPressed: finishArea,
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         FloatingActionButton(
-          child: Icon(
+          onPressed: undo,
+          child: const Icon(
             Icons.undo,
           ),
-          onPressed: undo,
         ),
       ],
     );
