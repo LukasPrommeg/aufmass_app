@@ -5,6 +5,7 @@ import 'dart:math';
 
 class PolyPainter extends CustomPainter {
   List<Flaeche> flaechen = [];
+  double scale = 1;
 
   void drawFlaechen(List<Flaeche> newFlaechen) {
     flaechen = List.from(newFlaechen);
@@ -36,8 +37,14 @@ class PolyPainter extends CustomPainter {
 
       canvas.drawPoints(PointMode.points, [flaeche.center], paint);
 
-      const textSpan = TextSpan(
-        text: "NAME\nFLÄCHE",
+      //calculateP
+      //canvas.drawRect(flaeche.path.getBounds(), paint);
+
+      final textSpan = TextSpan(
+        text: flaeche.name +
+            "\nFLÄCHE: " +
+            (flaeche.area / scale / 100).toStringAsFixed(2) +
+            "mm²",
         style: textStyle,
       );
       final textPainter = TextPainter(
@@ -46,13 +53,15 @@ class PolyPainter extends CustomPainter {
       );
       textPainter.layout();
 
-      textPainter.paint(canvas, flaeche.center - Offset((textPainter.width / 2), textPainter.height / 2));
-
+      textPainter.paint(
+          canvas,
+          flaeche.center -
+              Offset((textPainter.width / 2), textPainter.height / 2));
 
       //TODO: qm der Fläche statt Punkt anzeigen
 
-      List<Offset> areaWithEnd = List.from(flaeche.area);
-      areaWithEnd.add(flaeche.area.first);
+      List<Offset> areaWithEnd = List.from(flaeche.corners);
+      areaWithEnd.add(flaeche.corners.first);
       for (int i = 0; i < areaWithEnd.length - 1; i++) {
         Offset center = (areaWithEnd[i + 1] + areaWithEnd[i]) / 2;
         canvas.drawPoints(PointMode.points, [center], paint);
@@ -69,8 +78,8 @@ class PolyPainter extends CustomPainter {
         canvas.rotate(angle);
         canvas.translate(-center.dx, -center.dy);
 
-        const textSpan = TextSpan(
-          text: "LÄNGE",
+        final textSpan = TextSpan(
+          text: (flaeche.lengths[i] / scale).toStringAsFixed(2) + "mm",
           style: textStyle,
         );
         final textPainter = TextPainter(

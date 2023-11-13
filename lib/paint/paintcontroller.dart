@@ -6,9 +6,11 @@ import 'package:flutter_test_diplom/paint/polypainter.dart';
 class PaintController {
   final PolyPainter polyPainter;
   final LinePainter linePainter;
-  int scale = 1;
+  double scale = 1;
 
-  PaintController({required this.polyPainter, required this.linePainter});
+  PaintController({required this.polyPainter, required this.linePainter}) {
+    polyPainter.scale = 1;
+  }
 
   List<Flaeche> flaechen = [];
 
@@ -27,7 +29,7 @@ class PaintController {
       }
       if (result != null) {
         flaechen.remove(result);
-        linePainter.drawFinishedArea(result.area);
+        linePainter.drawFinishedArea(result.corners);
         polyPainter.drawFlaechen(flaechen);
       }
     }
@@ -36,7 +38,7 @@ class PaintController {
   void finishArea() {
     List<Offset> area = linePainter.finishArea();
     if (area.isNotEmpty) {
-      flaechen.add(Flaeche(area: area));
+      flaechen.add(Flaeche(corners: area));
       switch (flaechen.length) {
         case 1:
           flaechen.last.color = Colors.blue;

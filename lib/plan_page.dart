@@ -99,7 +99,7 @@ class PlanPageContent extends State<PlanPage> {
           child: Stack(
             children: [
               Image.asset(
-                "assets/BG.jpg",
+                "assets/BG.png",
                 fit: BoxFit.cover,
                 height: double.infinity,
                 width: double.infinity,
