@@ -4,6 +4,7 @@ import 'package:flutter_test_diplom/flaeche.dart';
 import 'dart:math';
 
 class PolyPainter extends CustomPainter {
+  PolyPainter({required Listenable repaint}) : super(repaint: repaint);
   List<Flaeche> flaechen = [];
   double scale = 1;
 

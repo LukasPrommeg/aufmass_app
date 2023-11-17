@@ -14,19 +14,26 @@ class PlanPage extends StatefulWidget {
 class PlanPageContent extends State<PlanPage> {
   //int _selectedNavBarItem = 0;
   final _trafoCont = TransformationController();
-  final PaintController _paintController =
-      PaintController(polyPainter: PolyPainter(), linePainter: LinePainter());
+  late PaintController _paintController;
   String _title = "-";
+  final _repaint = ValueNotifier<int>(0);
+
+  PlanPageContent() {
+    _paintController = PaintController(
+        polyPainter: PolyPainter(repaint: _repaint),
+        linePainter: LinePainter(repaint: _repaint),
+        repaint: _repaint);
+  }
 
   void tapUP(TapUpDetails details) {
-    updateTitle(
-        "TAP AT " + _trafoCont.toScene(details.localPosition).toString());
+    _repaint.value++;
+    //updateTitle("TAP AT " + _trafoCont.toScene(details.localPosition).toString());
     _paintController.tap(_trafoCont.toScene(details.localPosition));
   }
 
   void handleContextMenu(final details) {
-    updateTitle(
-        "CONTEXT AT " + _trafoCont.toScene(details.localPosition).toString());
+    _repaint.value++;
+    //updateTitle("CONTEXT AT " + _trafoCont.toScene(details.localPosition).toString());
     addPoint(_trafoCont.toScene(details.localPosition));
   }
 
@@ -90,8 +97,13 @@ class PlanPageContent extends State<PlanPage> {
       GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTapUp: tapUP,
-        onLongPressStart: handleContextMenu,
-        onSecondaryTapUp: handleContextMenu,
+        onLongPressStart: /*handleContextMenu*/
+            (LongPressStartDetails details) {
+          _paintController.displayTextInputDialog(context);
+        },
+        onSecondaryTapUp: (TapUpDetails details) {
+          _paintController.displayTextInputDialog(context);
+        },
         child: InteractiveViewer(
           transformationController: _trafoCont,
           minScale: 0.1,
@@ -109,9 +121,7 @@ class PlanPageContent extends State<PlanPage> {
               PlanCanvas(
                 paintController: _paintController,
               ),
-              Center(
-                child: Text("Debug " + _title),
-              ),
+              //Text("Debug " + _title),
             ],
           ),
         ),

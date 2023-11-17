@@ -1,0 +1,22 @@
+{
+    "name": "RAUM1",
+    "color": "",
+    "borders": [
+        {
+            "length": 10,
+            "angle": 90
+        },
+        {
+            "length": 10,
+            "angle": 180
+        },
+        {
+            "length": 10,
+            "angle": 270
+        },
+        {
+            "length": 10,
+            "angle": 0
+        }
+    ]
+}

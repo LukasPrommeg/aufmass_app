@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_diplom/flaeche.dart';
+import 'package:flutter_test_diplom/paint/addpopupcontroller.dart';
 import 'package:flutter_test_diplom/paint/linepainter.dart';
 import 'package:flutter_test_diplom/paint/polypainter.dart';
 
 class PaintController {
   final PolyPainter polyPainter;
   final LinePainter linePainter;
+  final AddPopUpController popUpController = AddPopUpController();
+  Listenable repaint;
   double scale = 1;
+  Offset? drawFromPoint;
 
-  PaintController({required this.polyPainter, required this.linePainter}) {
+  PaintController(
+      {required this.polyPainter,
+      required this.linePainter,
+      required this.repaint}) {
     polyPainter.scale = 1;
   }
 
   List<Flaeche> flaechen = [];
 
   void drawPoint(Offset pos) {
-    linePainter.addPoint(pos);
+    drawfinishedArea(linePainter.drawPoint(pos));
   }
 
   void tap(Offset pos) {
@@ -37,7 +44,11 @@ class PaintController {
 
   void finishArea() {
     List<Offset> area = linePainter.finishArea();
-    if (area.isNotEmpty) {
+    drawfinishedArea(area);
+  }
+
+  void drawfinishedArea(List<Offset>? area) {
+    if (area != null && area.isNotEmpty) {
       flaechen.add(Flaeche(corners: area));
       switch (flaechen.length) {
         case 1:
@@ -82,4 +93,10 @@ class PaintController {
   int updateScale() {
     return 1;
   }
+
+  Future<void> displayTextInputDialog(BuildContext context) async {
+    return popUpController.displayTextInputDialog(context);
+  }
+
+  void roomFromJSON() {}
 }

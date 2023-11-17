@@ -16,7 +16,11 @@ class Flaeche {
       double length = sqrt((diffx * diffx) + (diffy * diffy));
       lengths.add(length);
     }
-    area /= 2;
+    if (area < 0) {
+      area /= -2;
+    } else {
+      area /= 2;
+    }
 
     path.moveTo(corners.first.dx, corners.first.dy);
     corners.removeAt(0);
@@ -27,7 +31,7 @@ class Flaeche {
     center = Offset(center.dx / corners.length, center.dy / corners.length);
   }
 
-  final List<Offset> corners;
+  List<Offset> corners;
   Path path = Path();
   Color color = Colors.black;
   String name = "unnamed";
@@ -37,9 +41,9 @@ class Flaeche {
   //bool hasBeschriftung = true;
 
   Map toJson() => {
+        'name': name,
+        'color': color,
         'area': corners,
         'path': path,
-        'color': color,
-        'name': name,
       };
 }
