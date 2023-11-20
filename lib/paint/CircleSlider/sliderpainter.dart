@@ -1,26 +1,48 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class SliderPainter extends CustomPainter {
-  final double radius;
-  final double centerAngle;
-  final double maxAngle;
+  /*final*/ double radius;
+  /*final*/ double centerAngle;
+  /*final*/ double maxAngle;
   Path path = Path();
 
   SliderPainter({this.radius = 50, this.centerAngle = 0, this.maxAngle = 150}) {
     final arcRadius = Radius.circular(radius);
-    /*
-    path.moveTo(radius, 0);
-    path.arcToPoint(Offset((2 * radius), radius), radius: arcRadius);
-    path.arcToPoint(Offset(radius, (2 * radius)), radius: arcRadius);
-    path.arcToPoint(Offset(0, radius), radius: arcRadius);
-    path.arcToPoint(Offset(radius, 0), radius: arcRadius);*/
-    path.moveTo(0, 0);
-    path.arcToPoint(Offset(0, (2 * radius)), radius: arcRadius);
-    path.arcToPoint(Offset(0, 0), radius: arcRadius);
-    /*path.arcToPoint(Offset(radius, radius), radius: arcRadius);
-    path.arcToPoint(Offset(0, (2 * radius)), radius: arcRadius);
-    path.arcToPoint(Offset(-radius, radius), radius: arcRadius);
-    path.arcToPoint(Offset(0, 0), radius: arcRadius);*/
+    
+    //x = sin
+    double centerX = sin(centerAngle * (pi / 180)) * radius * - 1;
+    //y = cos
+    double centerY = cos(centerAngle * (pi / 180)) * radius * - 1;
+
+    //print("start - X|" + centerX.toString() + " Y|" + centerY.toString());
+
+    path.moveTo(centerX, centerY);
+
+    //x = sin
+    double x = sin((centerAngle + maxAngle) * (pi / 180)) * radius * - 1;
+    //y = cos
+    double y = cos((centerAngle + maxAngle) * (pi / 180)) * radius * - 1;
+
+    //print("count - X|" + x.toString() + " Y|" + y.toString());
+
+    path.arcToPoint(Offset(x,  y), radius: arcRadius, clockwise: false);
+
+    path.moveTo(centerX, centerY);
+
+    //x = sin
+    x = sin((centerAngle - maxAngle) * (pi / 180)) * radius * - 1;
+    //y = cos
+    y = cos((centerAngle - maxAngle) * (pi / 180)) * radius * - 1;
+
+    //print("clock - X|" + x.toString() + " Y|" + y.toString());
+
+    path.arcToPoint(Offset(x,  y), radius: arcRadius);
+
+    path.moveTo(centerX, centerY);
+
+    path.lineTo(centerX / 2, centerY / 2);
+
   }
 
   @override

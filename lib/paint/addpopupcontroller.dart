@@ -149,7 +149,7 @@ class AddPopUpController {
           return AlertDialog(
             title: const Text('Wand hinzufügen'),
             content: SizedBox(
-              height: 250,
+              height: 210,
               child: Column(
                 children: [
                   TextField(
@@ -163,7 +163,7 @@ class AddPopUpController {
                   const SizedBox(
                     height: 50,
                   ),
-                  const CircleSlider(),
+                  CircleSlider(radius: 75, centerAngle: 0, maxAngle: sliderRange / 2),
                   //slider,
                 ],
               ),
