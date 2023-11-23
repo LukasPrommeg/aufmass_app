@@ -3,6 +3,7 @@ import 'package:flutter_test_diplom/flaeche.dart';
 import 'package:flutter_test_diplom/paint/addpopupcontroller.dart';
 import 'package:flutter_test_diplom/paint/linepainter.dart';
 import 'package:flutter_test_diplom/paint/polypainter.dart';
+import 'package:flutter_test_diplom/paint/wall.dart';
 
 class PaintController {
   final PolyPainter polyPainter;
@@ -17,12 +18,17 @@ class PaintController {
       required this.linePainter,
       required this.repaint}) {
     polyPainter.scale = 1;
+    popUpController.addWallEvent.subscribe((args) => addWall(args));
   }
 
   List<Flaeche> flaechen = [];
 
   void drawPoint(Offset pos) {
     drawfinishedArea(linePainter.drawPoint(pos));
+  }
+
+  void addWall(Wall? wall) {
+    if (wall != null) {}
   }
 
   void tap(Offset pos) {
@@ -95,6 +101,7 @@ class PaintController {
   }
 
   Future<void> displayTextInputDialog(BuildContext context) async {
+    //popUpController.init(lastWallAngle, isFirstWall);
     return popUpController.displayTextInputDialog(context);
   }
 

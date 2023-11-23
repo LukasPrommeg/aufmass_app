@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sleek_circular_slider : ^2.0.1
+  event: ^2.1.2
 
 
 dev_dependencies:

@@ -1,146 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_diplom/paint/CircleSlider/circleslider.dart';
-//import 'package:sleek_circular_slider/sleek_circular_slider.dart';
+import 'package:event/event.dart';
+import 'package:flutter_test_diplom/paint/wall.dart';
 
 class AddPopUpController {
   final TextEditingController _textFieldController = TextEditingController();
 
-  double sliderRange = 300;
+  final double sliderRange;
+  double lastWallAngle = 0;
+  bool isFirstWall = true;
+  final addWallEvent = Event<Wall>();
+  final finishAreaEvent = Event();
   final progressBarColors = [
     const Color.fromARGB(255, 89, 0, 121),
     const Color.fromARGB(255, 255, 0, 187),
     const Color.fromARGB(255, 89, 0, 121),
   ];
-  /* final customWidths = CustomSliderWidths(
-    trackWidth: 2,
-    progressBarWidth: 0,
-    handlerSize: 7.5,
-    shadowWidth: 0,
-  );
-  final infoProperties = InfoProperties(
-    bottomLabelText: "Grad",
-    topLabelText: "Winkel",
-  );
-  late SleekCircularSlider slider;*/
 
-  AddPopUpController() {
-    init();
+  AddPopUpController({
+    this.sliderRange = 300,
+  }) {
+    init(0, true);
   }
 
-  void init() {
-    /*slider = SleekCircularSlider(
-      min: 0,
-      max: sliderRange,
-      initialValue: 0,
-      appearance: CircularSliderAppearance(
-        infoProperties: infoProperties,
-        customWidths: customWidths,
-        customColors: CustomSliderColors(
-          progressBarColors: progressBarColors,
-          gradientStartAngle: 90 + ((360 - sliderRange) / 2),
-          gradientEndAngle: 90 + ((360 - sliderRange) / 2) + sliderRange,
-          //gradientEndAngle: 360,
-        ),
-        angleRange: 360,
-        startAngle: 270,
-      ),
-      onChange: (value) {},
-      onChangeStart: (value) {},
-      onChangeEnd: (value) {},
-      innerWidget: (double value) {
-        final TextEditingController controller = TextEditingController();
-
-        controller.text = value.toStringAsFixed(0);
-        return Center(
-          child: SizedBox(
-            width: 50,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextField(
-                  keyboardType: TextInputType.number,
-                  onChanged: (text) {
-                    //value = double.parse(text);
-                  },
-                  controller: controller,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(hintText: "Winkel"),
-                ),
-                const Text(
-                  "Winkel",
-                  style: TextStyle(),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );*/
+  void init(double lastWallAngle, bool isFirstWall) {
+    this.lastWallAngle = lastWallAngle;
+    this.isFirstWall = isFirstWall;
   }
-/*
-  SleekCircularSlider setupSlider(double lastWallAngle) {
-    SleekCircularSlider newSlider = SleekCircularSlider(
-      min: 0,
-      max: sliderRange,
-      initialValue: sliderRange / 2,
-      appearance: CircularSliderAppearance(
-        infoProperties: infoProperties,
-        customWidths: customWidths,
-        customColors: CustomSliderColors(
-          progressBarColors: progressBarColors,
-          gradientStartAngle: 90 + ((360 - sliderRange) / 2),
-          gradientEndAngle: 90 + ((360 - sliderRange) / 2) + sliderRange,
-          //gradientEndAngle: 360,
-        ),
-        angleRange: sliderRange,
-        startAngle: 90 + ((360 - sliderRange) / 2) + lastWallAngle,
-      ),
-      onChange: (value) {},
-      onChangeStart: (value) {},
-      onChangeEnd: (value) {},
-      innerWidget: (double value) {
-        final TextEditingController controller = TextEditingController();
-        value -= sliderRange / 2;
-
-        if (value < 0) {
-          value *= -1;
-        }
-
-        controller.text = value.toStringAsFixed(0);
-        return Center(
-          child: SizedBox(
-            width: 50,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextField(
-                  keyboardType: TextInputType.number,
-                  onChanged: (text) {
-                    //value = double.parse(text);
-                  },
-                  controller: controller,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(hintText: "Winkel"),
-                ),
-                const Text(
-                  "Winkel",
-                  style: TextStyle(),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
-    return newSlider;
-  }*/
 
   Future<void> displayTextInputDialog(BuildContext context) async {
     return showDialog(
@@ -149,7 +35,7 @@ class AddPopUpController {
           return AlertDialog(
             title: const Text('Wand hinzufügen'),
             content: SizedBox(
-              height: 210,
+              height: 280,
               child: Column(
                 children: [
                   TextField(
@@ -161,9 +47,24 @@ class AddPopUpController {
                         const InputDecoration(hintText: "Länge der Wand"),
                   ),
                   const SizedBox(
-                    height: 50,
+                    height: 40,
+                    width: 150,
+                    child: Stack(alignment: Alignment.bottomLeft, children: [
+                      Text(
+                        'Winkel: ',
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 90, 90, 90),
+                            decoration: TextDecoration.underline),
+                        textAlign: TextAlign.center,
+                      ),
+                    ]),
                   ),
-                  CircleSlider(radius: 75, centerAngle: 0, maxAngle: sliderRange / 2),
+                  CircleSlider(
+                    radius: 75,
+                    centerAngle: 90,
+                    maxAngle: sliderRange / 2,
+                    hitboxSize: 0.1,
+                  ),
                   //slider,
                 ],
               ),
@@ -174,9 +75,16 @@ class AddPopUpController {
                 textColor: Colors.white,
                 child: const Text('CANCEL'),
                 onPressed: () {
-                  //setState(() {
                   Navigator.pop(context);
-                  //});
+                },
+              ),
+              MaterialButton(
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: const Text('Finish'),
+                onPressed: () {
+                  finishAreaEvent.broadcast();
+                  Navigator.pop(context);
                 },
               ),
               MaterialButton(
@@ -184,10 +92,8 @@ class AddPopUpController {
                 textColor: Colors.white,
                 child: const Text('OK'),
                 onPressed: () {
-                  //setState(() {
-                  //codeDialog = valueText;
+                  addWallEvent.broadcast();
                   Navigator.pop(context);
-                  //});
                 },
               ),
             ],

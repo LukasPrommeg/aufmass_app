@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test_diplom/paint/corner.dart';
+import 'package:flutter_test_diplom/paint/wall.dart';
 
 class LinePainter extends CustomPainter {
   LinePainter({required Listenable repaint}) : super(repaint: repaint);
@@ -24,12 +25,14 @@ class LinePainter extends CustomPainter {
       selectedCorner = clickedCorner;
       return finishArea();
     } else {
-      selectedCorner = addWall(location, selectedCorner?.center);
+      selectedCorner = addCorner(location, selectedCorner?.center);
     }
     return null;
   }
 
-  Corner? addWall(Offset to, Offset? from) {
+  void addWall(Wall wall) {}
+
+  Corner? addCorner(Offset to, Offset? from) {
     if (_points.isEmpty) {
       isDrawing = true;
       _points.add(to);

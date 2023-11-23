@@ -41,6 +41,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.2"
+  event:
+    dependency: "direct main"
+    description:
+      name: event
+      sha256: eb4814de94cbf6a10da9c4f652bc654087d7066e33566b5036822e6c0b24befb
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.2"
   fake_async:
     dependency: transitive
     description:
@@ -112,14 +120,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
-  sleek_circular_slider:
-    dependency: "direct main"
-    description:
-      name: sleek_circular_slider
-      sha256: "8844d036269a13e60dda4e16534d30d27cacaff8d2f10d042d9d61d111468b13"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
   source_span:
     dependency: transitive
     description:
@@ -186,4 +186,3 @@ packages:
     version: "0.1.4-beta"
 sdks:
   dart: ">=3.1.3 <4.0.0"
-  flutter: ">=2.0.0"
