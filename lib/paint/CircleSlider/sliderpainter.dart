@@ -24,8 +24,9 @@ class SliderPainter extends CustomPainter {
       this.maxAngle = 150,
       this.isFirstWall = false})
       : super(repaint: repaint) {
+        centerAngle = 270;
     centerAngle = -centerAngle;
-    val = centerAngle;
+    //val = centerAngle;
 
     hitBox = SliderHitBox(
         radius: radius,
@@ -40,38 +41,19 @@ class SliderPainter extends CustomPainter {
       path.arcToPoint(Offset(0, radius), radius: arcRadius);
       path.arcToPoint(Offset(0, -radius), radius: arcRadius);
     } else {
-      //x = sin
-      double centerX = sin(centerAngle * (pi / 180)) * radius * -1;
-      //y = cos
-      double centerY = cos(centerAngle * (pi / 180)) * radius * -1;
+      Offset center = hitBox.calcPointFromAngle(centerAngle, radius);
+      path.moveTo(center.dx, center.dy);
 
-      //print("start - X|" + centerX.toString() + " Y|" + centerY.toString());
+      Offset endCClockwise = hitBox.calcPointFromAngle((centerAngle + maxAngle), radius);
+      path.arcToPoint(endCClockwise, radius: arcRadius, clockwise: false);
 
-      path.moveTo(centerX, centerY);
+      path.moveTo(center.dx, center.dy);
+      
+      Offset endClockwise = hitBox.calcPointFromAngle((centerAngle - maxAngle), radius);
+      path.arcToPoint(endClockwise, radius: arcRadius);
 
-      //x = sin
-      double x = sin((centerAngle + maxAngle) * (pi / 180)) * radius * -1;
-      //y = cos
-      double y = cos((centerAngle + maxAngle) * (pi / 180)) * radius * -1;
-
-      //print("count - X|" + x.toString() + " Y|" + y.toString());
-
-      path.arcToPoint(Offset(x, y), radius: arcRadius, clockwise: false);
-
-      path.moveTo(centerX, centerY);
-
-      //x = sin
-      x = sin((centerAngle - maxAngle) * (pi / 180)) * radius * -1;
-      //y = cos
-      y = cos((centerAngle - maxAngle) * (pi / 180)) * radius * -1;
-
-      //print("clock - X|" + x.toString() + " Y|" + y.toString());
-
-      path.arcToPoint(Offset(x, y), radius: arcRadius);
-
-      path.moveTo(centerX, centerY);
-
-      path.lineTo(centerX / 2, centerY / 2);
+      path.moveTo(center.dx, center.dy);
+      path.lineTo(center.dx / 2, center.dy / 2);
     }
   }
 
@@ -83,14 +65,10 @@ class SliderPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
     canvas.drawPath(path, paint);
 
-    //canvas.drawPath(hitBox.innerCircle, paint);
-    //canvas.drawPath(hitBox.outerCircle, paint);
-
     paint = Paint()
       ..color = Colors.red.withOpacity(0.1)
       ..strokeWidth = 2
       ..style = PaintingStyle.fill;
-    // canvas.drawPath(hitBox.innerCircle, paint);
     canvas.drawPath(hitBox.outerCircle, paint);
 
     paint = Paint()
@@ -99,17 +77,13 @@ class SliderPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     canvas.drawPoints(
-        PointMode.points, [hitBox.calcPointFromAngle(val, radius)], paint);
+        PointMode.points, [hitBox.calcPointFromAngle(val + centerAngle, radius)], paint);
   }
 
   void updateValueWithPoint(Offset point) {
-    //print(point);
-    //points.add(point);
-
     repaint.value++;
 
     if (isInsideBounds(point)) {
-      //print("inside");
       PathMetrics pathMetrics = path.computeMetrics();
 
       double minDistance = double.infinity;
@@ -126,7 +100,6 @@ class SliderPainter extends CustomPainter {
             double distance = sqrt(dx * dx + dy * dy).abs();
 
             if (distance < minDistance) {
-              //print(distance);
               minDistance = distance;
               minPOS = pos;
             }
@@ -135,13 +108,17 @@ class SliderPainter extends CustomPainter {
       });
       double angle = atan(minPOS.dx / minPOS.dy);
       val = angle * (180 / pi);
+      print(val);
       val = val.roundToDouble();
+      print(val);
+
       if (minPOS.dy >= 0) {
         val -= 180;
         if (minPOS.dx < 0) {
           val = val + 360;
         }
       }
+      val -= centerAngle;
     }
   }
 
@@ -150,7 +127,7 @@ class SliderPainter extends CustomPainter {
   }
 
   void updateValueWithAngle(double angle) {
-    val = -angle;
+    val = -(angle);
   }
 
   @override

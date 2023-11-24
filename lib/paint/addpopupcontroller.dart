@@ -10,7 +10,6 @@ class AddPopUpController {
   double lastWallAngle = 0;
   bool isFirstWall = true;
   final addWallEvent = Event<Wall>();
-  final finishAreaEvent = Event();
   final progressBarColors = [
     const Color.fromARGB(255, 89, 0, 121),
     const Color.fromARGB(255, 255, 0, 187),
@@ -83,7 +82,7 @@ class AddPopUpController {
                 textColor: Colors.white,
                 child: const Text('Finish'),
                 onPressed: () {
-                  finishAreaEvent.broadcast();
+                  addWallEvent.broadcast();
                   Navigator.pop(context);
                 },
               ),

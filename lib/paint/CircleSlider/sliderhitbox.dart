@@ -21,8 +21,6 @@ class SliderHitBox {
 
     double maxVal = (range / 2) + (range / 2 * hitBoxSize);
 
-    print(maxVal);
-
     Offset startInner = calcPointFromAngle((centerAngle + maxVal), innerRadius);
 
     Offset centerInner = calcPointFromAngle(centerAngle, innerRadius);

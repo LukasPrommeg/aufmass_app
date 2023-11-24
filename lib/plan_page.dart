@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/paint/linepainter.dart';
 import 'package:flutter_test_diplom/paint/paintcontroller.dart';
-import 'package:flutter_test_diplom/paint/polypainter.dart';
 import 'package:flutter_test_diplom/paint/plancanvas.dart';
 
 class PlanPage extends StatefulWidget {
@@ -14,25 +12,17 @@ class PlanPage extends StatefulWidget {
 class PlanPageContent extends State<PlanPage> {
   //int _selectedNavBarItem = 0;
   final _trafoCont = TransformationController();
-  late PaintController _paintController;
+  final PaintController _paintController = PaintController();
   String _title = "-";
   final _repaint = ValueNotifier<int>(0);
 
-  PlanPageContent() {
-    _paintController = PaintController(
-        polyPainter: PolyPainter(repaint: _repaint),
-        linePainter: LinePainter(repaint: _repaint),
-        repaint: _repaint);
-  }
-
   void tapUP(TapUpDetails details) {
-    _repaint.value++;
     //updateTitle("TAP AT " + _trafoCont.toScene(details.localPosition).toString());
     _paintController.tap(_trafoCont.toScene(details.localPosition));
+    _repaint.value++;
   }
 
   void handleContextMenu(final details) {
-    _repaint.value++;
     //updateTitle("CONTEXT AT " + _trafoCont.toScene(details.localPosition).toString());
     addPoint(_trafoCont.toScene(details.localPosition));
   }
@@ -45,7 +35,7 @@ class PlanPageContent extends State<PlanPage> {
 
   void addPoint(Offset pos) {
     _paintController.drawPoint(pos);
-    setState(() {});
+    _repaint.value++;
   }
 
   void finishArea() {
@@ -97,13 +87,8 @@ class PlanPageContent extends State<PlanPage> {
       GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTapUp: tapUP,
-        onLongPressStart: /*handleContextMenu*/
-            (LongPressStartDetails details) {
-          _paintController.displayTextInputDialog(context);
-        },
-        onSecondaryTapUp: (TapUpDetails details) {
-          _paintController.displayTextInputDialog(context);
-        },
+        onLongPressStart: handleContextMenu,
+        onSecondaryTapUp: handleContextMenu,
         child: InteractiveViewer(
           transformationController: _trafoCont,
           minScale: 0.1,
@@ -135,9 +120,11 @@ class PlanPageContent extends State<PlanPage> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         FloatingActionButton(
-          onPressed: finishArea,
+          onPressed: () {
+            _paintController.displayTextInputDialog(context);
+          },
           child: const Icon(
-            Icons.flag,
+            Icons.add,
           ),
         ),
         const SizedBox(

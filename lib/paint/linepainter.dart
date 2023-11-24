@@ -36,13 +36,13 @@ class LinePainter extends CustomPainter {
     if (_points.isEmpty) {
       isDrawing = true;
       _points.add(to);
-      return Corner(path: Path(), center: to);
+      return Corner(center: to);
     } else if (from != null && from == _points.first) {
       _points.insert(0, to);
-      return Corner(path: Path(), center: to);
+      return Corner(center: to);
     } else if (from != null && from == _points.last) {
       _points.add(to);
-      return Corner(path: Path(), center: to);
+      return Corner(center: to);
     } else {
       print("THIS SHOULDNT BE POSSIBLE");
       //_points.add(to);
@@ -107,7 +107,6 @@ class LinePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     canvas.drawPoints(pointMode, _points, paint);
 
-    const radius = Radius.circular(10);
 
     _ends.clear();
 
@@ -124,15 +123,9 @@ class LinePainter extends CustomPainter {
           ..style = PaintingStyle.stroke;
       }
 
-      Path path = Path();
-      path.moveTo(point.dx, point.dy - 10);
-      path.arcToPoint(Offset(point.dx + 10, point.dy), radius: radius);
-      path.arcToPoint(Offset(point.dx, point.dy + 10), radius: radius);
-      path.arcToPoint(Offset(point.dx - 10, point.dy), radius: radius);
-      path.arcToPoint(Offset(point.dx, point.dy - 10), radius: radius);
+      _ends.add(Corner(center: point));
 
-      canvas.drawPath(path, paint);
-      _ends.add(Corner(path: path, center: point));
+      canvas.drawPath(_ends.last.path, paint);
     }
 
     paint = Paint()

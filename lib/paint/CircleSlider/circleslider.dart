@@ -121,6 +121,6 @@ class CircleSlider extends StatelessWidget {
 
     sliderPainter.updateValueWithPoint(point - (offset / 2));
     centerTextFieldController.value =
-        TextEditingValue(text: sliderPainter.val.abs().toStringAsFixed(0));
+        TextEditingValue(text: sliderPainter.val/*.abs()*/.toStringAsFixed(0));
   }
 }

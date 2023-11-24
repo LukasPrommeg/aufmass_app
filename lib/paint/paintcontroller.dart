@@ -6,103 +6,122 @@ import 'package:flutter_test_diplom/paint/polypainter.dart';
 import 'package:flutter_test_diplom/paint/wall.dart';
 
 class PaintController {
-  final PolyPainter polyPainter;
-  final LinePainter linePainter;
-  final AddPopUpController popUpController = AddPopUpController();
-  Listenable repaint;
+  late PolyPainter polyPainter;
+  late LinePainter linePainter;
+  final AddPopUpController _popUpController = AddPopUpController();
+  final ValueNotifier<int> _repaint = ValueNotifier<int>(0);
   double scale = 1;
-  Offset? drawFromPoint;
+  List<Flaeche> _flaechen = [];
+  Wall? first;
+  
 
-  PaintController(
-      {required this.polyPainter,
-      required this.linePainter,
-      required this.repaint}) {
+  PaintController() {
+    polyPainter = PolyPainter(repaint: _repaint);
+    linePainter = LinePainter(repaint: _repaint);
     polyPainter.scale = 1;
-    popUpController.addWallEvent.subscribe((args) => addWall(args));
+    _popUpController.addWallEvent.subscribe((args) => addWall(args));
   }
 
-  List<Flaeche> flaechen = [];
+  void repaint () {
+    _repaint.value++;
+  }
 
   void drawPoint(Offset pos) {
-    drawfinishedArea(linePainter.drawPoint(pos));
+    _drawfinishedArea(linePainter.drawPoint(pos));
+    repaint();
   }
 
   void addWall(Wall? wall) {
-    if (wall != null) {}
+    if (wall != null) {
+      if(first == null) {
+        first = wall;
+      }
+      else {
+
+      }
+    }
+    else {
+      finishArea();
+    }
+    repaint();
   }
 
   void tap(Offset pos) {
     if (!linePainter.isDrawing) {
       Flaeche? result;
-      for (Flaeche flaeche in flaechen.reversed) {
+      for (Flaeche flaeche in _flaechen.reversed) {
         if (flaeche.path.contains(pos)) {
           result = flaeche;
           break;
         }
       }
       if (result != null) {
-        flaechen.remove(result);
+        _flaechen.remove(result);
         linePainter.drawFinishedArea(result.corners);
-        polyPainter.drawFlaechen(flaechen);
+        polyPainter.drawFlaechen(_flaechen);
       }
     }
+    repaint();    
   }
 
   void finishArea() {
     List<Offset> area = linePainter.finishArea();
-    drawfinishedArea(area);
+    _drawfinishedArea(area);
+    repaint();
   }
 
-  void drawfinishedArea(List<Offset>? area) {
+  void _drawfinishedArea(List<Offset>? area) {
     if (area != null && area.isNotEmpty) {
-      flaechen.add(Flaeche(corners: area));
-      switch (flaechen.length) {
+      _flaechen.add(Flaeche(corners: area));
+      switch (_flaechen.length) {
         case 1:
-          flaechen.last.color = Colors.blue;
+          _flaechen.last.color = Colors.blue;
           break;
         case 2:
-          flaechen.last.color = Colors.green;
+          _flaechen.last.color = Colors.green;
           break;
         case 3:
-          flaechen.last.color = Colors.red;
+          _flaechen.last.color = Colors.red;
           break;
         case 4:
-          flaechen.last.color = Colors.yellow;
+          _flaechen.last.color = Colors.yellow;
           break;
         case 5:
-          flaechen.last.color = Colors.white;
+          _flaechen.last.color = Colors.white;
           break;
         case 6:
-          flaechen.last.color = Colors.brown;
+          _flaechen.last.color = Colors.brown;
           break;
         case 7:
-          flaechen.last.color = Colors.orange;
+          _flaechen.last.color = Colors.orange;
           break;
         case 8:
-          flaechen.last.color = Colors.pink;
+          _flaechen.last.color = Colors.pink;
           break;
         case 9:
-          flaechen.last.color = Colors.purple;
+          _flaechen.last.color = Colors.purple;
           break;
         case 10:
-          flaechen.last.color = Colors.lightGreen;
+          _flaechen.last.color = Colors.lightGreen;
           break;
       }
-      polyPainter.drawFlaechen(flaechen);
+      polyPainter.drawFlaechen(_flaechen);
     }
   }
 
   void undo() {
     linePainter.undo();
+    repaint();
   }
 
-  int updateScale() {
+  int _updateScale() {
+    repaint();
     return 1;
   }
 
   Future<void> displayTextInputDialog(BuildContext context) async {
     //popUpController.init(lastWallAngle, isFirstWall);
-    return popUpController.displayTextInputDialog(context);
+    return _popUpController.displayTextInputDialog(context);
   }
 
   void roomFromJSON() {}
