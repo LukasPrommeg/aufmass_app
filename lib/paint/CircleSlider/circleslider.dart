@@ -85,6 +85,11 @@ class CircleSlider extends StatelessWidget {
                             if (angle >= 0 && angle <= maxAngle ||
                                 angle < 0 && angle >= (maxAngle * -1)) {
                               sliderPainter.updateValueWithAngle(angle);
+                              centerTextFieldController.value =
+                                  TextEditingValue(
+                                      text: sliderPainter.val
+                                          .abs()
+                                          .toStringAsFixed(0));
                             } else {
                               //Change Style
                             }
@@ -121,6 +126,6 @@ class CircleSlider extends StatelessWidget {
 
     sliderPainter.updateValueWithPoint(point - (offset / 2));
     centerTextFieldController.value =
-        TextEditingValue(text: sliderPainter.val/*.abs()*/.toStringAsFixed(0));
+        TextEditingValue(text: sliderPainter.val.abs().toStringAsFixed(0));
   }
 }

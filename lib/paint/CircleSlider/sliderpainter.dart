@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'dart:math';
-
 import 'package:flutter_test_diplom/paint/CircleSlider/sliderHitbox.dart';
 
 class SliderPainter extends CustomPainter {
@@ -15,16 +15,18 @@ class SliderPainter extends CustomPainter {
   Path path = Path();
   late SliderHitBox hitBox;
   double val = 0;
+  late Offset sliderCenter;
 
-  SliderPainter(
-      {required this.repaint,
-      this.radius = 50,
-      this.hitboxSize = 0.1,
-      this.centerAngle = 0,
-      this.maxAngle = 150,
-      this.isFirstWall = false})
-      : super(repaint: repaint) {
-        centerAngle = 270;
+  SliderPainter({
+    required this.repaint,
+    this.radius = 50,
+    this.hitboxSize = 0.1,
+    this.centerAngle = 0,
+    this.maxAngle = 150,
+    this.isFirstWall = false,
+  }) : super(repaint: repaint) {
+    centerAngle = 405;
+
     centerAngle = -centerAngle;
     //val = centerAngle;
 
@@ -41,19 +43,21 @@ class SliderPainter extends CustomPainter {
       path.arcToPoint(Offset(0, radius), radius: arcRadius);
       path.arcToPoint(Offset(0, -radius), radius: arcRadius);
     } else {
-      Offset center = hitBox.calcPointFromAngle(centerAngle, radius);
-      path.moveTo(center.dx, center.dy);
+      sliderCenter = hitBox.calcPointFromAngle(centerAngle, radius);
+      path.moveTo(sliderCenter.dx, sliderCenter.dy);
 
-      Offset endCClockwise = hitBox.calcPointFromAngle((centerAngle + maxAngle), radius);
+      Offset endCClockwise =
+          hitBox.calcPointFromAngle((centerAngle + maxAngle), radius);
       path.arcToPoint(endCClockwise, radius: arcRadius, clockwise: false);
 
-      path.moveTo(center.dx, center.dy);
-      
-      Offset endClockwise = hitBox.calcPointFromAngle((centerAngle - maxAngle), radius);
+      path.moveTo(sliderCenter.dx, sliderCenter.dy);
+
+      Offset endClockwise =
+          hitBox.calcPointFromAngle((centerAngle - maxAngle), radius);
       path.arcToPoint(endClockwise, radius: arcRadius);
 
-      path.moveTo(center.dx, center.dy);
-      path.lineTo(center.dx / 2, center.dy / 2);
+      path.moveTo(sliderCenter.dx, sliderCenter.dy);
+      path.lineTo(sliderCenter.dx / 2, sliderCenter.dy / 2);
     }
   }
 
@@ -76,8 +80,8 @@ class SliderPainter extends CustomPainter {
       ..strokeWidth = 25
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawPoints(
-        PointMode.points, [hitBox.calcPointFromAngle(val + centerAngle, radius)], paint);
+    canvas.drawPoints(PointMode.points,
+        [hitBox.calcPointFromAngle(val + centerAngle, radius)], paint);
   }
 
   void updateValueWithPoint(Offset point) {
@@ -106,20 +110,75 @@ class SliderPainter extends CustomPainter {
           }
         }
       });
-      double angle = atan(minPOS.dx / minPOS.dy);
-      val = angle * (180 / pi);
-      print(val);
-      val = val.roundToDouble();
-      print(val);
 
-      if (minPOS.dy >= 0) {
-        val -= 180;
-        if (minPOS.dx < 0) {
-          val = val + 360;
-        }
+      double angle = atan(minPOS.dx / minPOS.dy);
+      angle = angle * (180 / pi);
+      angle = angle.roundToDouble();
+
+      if (minPOS.dy <= 0) {
+        angle -= 180;
       }
-      val -= centerAngle;
+
+      val = calcOffset(minPOS, angle);
     }
+  }
+
+  double calcOffset(Offset point, double angle) {
+    int umdrehungen = (centerAngle.abs() / 360).floor();
+    double angleInCurrentRotation = centerAngle.abs() - (360 * umdrehungen);
+    double offset = (centerAngle - 180) * -1;
+
+    offset -= (360 * umdrehungen);
+
+    umdrehungen++;
+
+    //  0  4+360
+    if (angleInCurrentRotation == 0) {
+      if (point.dx >= 0 && point.dy >= 0) {
+        offset -= 360;
+      }
+    }
+    // 45 -> ?
+    //  ->
+    //  <- 3,4+360
+    // 90 3,4+360
+    else if (angleInCurrentRotation > 0 && angleInCurrentRotation < 91) {
+      if (point.dy >= 0 && (sliderCenter.dx * -1) < point.dx) {
+        offset -= 360;
+      }
+    }
+    //135 -> ?
+    //  -> 4+360
+    //  <- 2,3,4+360
+    //180 2,3,4+360
+    //225 -> ?
+    //  -> 3,4+360
+    //  <- 1,2,3+360
+    //270 1,2,3,4+360
+    else if (angleInCurrentRotation > 90 && angleInCurrentRotation < 271) {
+      if (point.dy >= 0) {
+        offset -= 360;
+      } else if (point.dy <= 0 && (sliderCenter.dx * -1) > point.dx) {
+        offset -= 360;
+      }
+    }
+    //315 -> ?
+    //  -> 1,2+360 4+720
+    //  <- 2,3,4+360
+    //360 1,2,3+360 4+720
+    else if (angleInCurrentRotation > 270 && angleInCurrentRotation < 360) {
+      if (point.dy >= 0) {
+        offset -= 360;
+      }
+      if (point.dx >= sliderCenter.dx && point.dy <= (sliderCenter.dy * -1)) {
+        offset -= 360;
+      } else if (point.dy <= 0) {
+        offset -= 360;
+      }
+    }
+
+    angle += offset;
+    return angle;
   }
 
   bool isInsideBounds(Offset point) {
