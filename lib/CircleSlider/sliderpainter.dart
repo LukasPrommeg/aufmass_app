@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'dart:math';
-import 'package:flutter_test_diplom/paint/CircleSlider/sliderHitbox.dart';
+import 'package:flutter_test_diplom/CircleSlider/sliderhitbox.dart';
 
 class SliderPainter extends CustomPainter {
   final ValueNotifier<int> repaint;
@@ -25,16 +23,21 @@ class SliderPainter extends CustomPainter {
     this.maxAngle = 150,
     this.isFirstWall = false,
   }) : super(repaint: repaint) {
-    centerAngle = 405;
-
     centerAngle = -centerAngle;
-    //val = centerAngle;
 
-    hitBox = SliderHitBox(
-        radius: radius,
-        hitBoxSize: hitboxSize,
-        centerAngle: centerAngle,
-        range: maxAngle * 2);
+    if (isFirstWall) {
+      hitBox = SliderHitBox(
+          radius: radius,
+          hitBoxSize: hitboxSize,
+          centerAngle: centerAngle,
+          range: 360);
+    } else {
+      hitBox = SliderHitBox(
+          radius: radius,
+          hitBoxSize: hitboxSize,
+          centerAngle: centerAngle,
+          range: maxAngle * 2);
+    }
 
     final arcRadius = Radius.circular(radius);
 
@@ -132,41 +135,21 @@ class SliderPainter extends CustomPainter {
 
     umdrehungen++;
 
-    //  0  4+360
     if (angleInCurrentRotation == 0) {
       if (point.dx >= 0 && point.dy >= 0) {
         offset -= 360;
       }
-    }
-    // 45 -> ?
-    //  ->
-    //  <- 3,4+360
-    // 90 3,4+360
-    else if (angleInCurrentRotation > 0 && angleInCurrentRotation < 91) {
+    } else if (angleInCurrentRotation > 0 && angleInCurrentRotation < 91) {
       if (point.dy >= 0 && (sliderCenter.dx * -1) < point.dx) {
         offset -= 360;
       }
-    }
-    //135 -> ?
-    //  -> 4+360
-    //  <- 2,3,4+360
-    //180 2,3,4+360
-    //225 -> ?
-    //  -> 3,4+360
-    //  <- 1,2,3+360
-    //270 1,2,3,4+360
-    else if (angleInCurrentRotation > 90 && angleInCurrentRotation < 271) {
+    } else if (angleInCurrentRotation > 90 && angleInCurrentRotation < 271) {
       if (point.dy >= 0) {
         offset -= 360;
       } else if (point.dy <= 0 && (sliderCenter.dx * -1) > point.dx) {
         offset -= 360;
       }
-    }
-    //315 -> ?
-    //  -> 1,2+360 4+720
-    //  <- 2,3,4+360
-    //360 1,2,3+360 4+720
-    else if (angleInCurrentRotation > 270 && angleInCurrentRotation < 360) {
+    } else if (angleInCurrentRotation > 270 && angleInCurrentRotation < 360) {
       if (point.dy >= 0) {
         offset -= 360;
       }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/paint/CircleSlider/sliderpainter.dart';
+import 'package:flutter_test_diplom/CircleSlider/sliderpainter.dart';
 
 class CircleSlider extends StatelessWidget {
   final double radius;
@@ -36,27 +36,20 @@ class CircleSlider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     InputDecoration decoration = const InputDecoration(
-        counter: Center(),
-        border: OutlineInputBorder(
-          gapPadding: 0,
-        )
-        /*border: OutlineInputBorder(
-          //borderSide: BorderSide(color: Colors.red, width: 1.0),
-          //gapPadding: 2,
-          ),*/
-        );
+      counter: Center(),
+    );
 
     return GestureDetector(
       key: boxKey,
       behavior: HitTestBehavior.translucent,
       onTapUp: (details) {
-        updateValWithPoint(details.localPosition);
+        _updateValWithPoint(details.localPosition);
       },
       onPanStart: (details) {
-        updateValWithPoint(details.localPosition);
+        _updateValWithPoint(details.localPosition);
       },
       onPanUpdate: (details) {
-        updateValWithPoint(details.localPosition);
+        _updateValWithPoint(details.localPosition);
       },
       child: Theme(
         data: ThemeData(
@@ -67,7 +60,6 @@ class CircleSlider extends StatelessWidget {
           height: 2.5 * radius,
           width: 2.5 * radius,
           child: Stack(
-            //alignment: Alignment.center,
             children: [
               Center(
                 child: SizedBox(
@@ -91,9 +83,11 @@ class CircleSlider extends StatelessWidget {
                                           .abs()
                                           .toStringAsFixed(0));
                             } else {
-                              //Change Style
+                              //TODO: Change Style
                             }
-                          } catch (e) {}
+                          } catch (e) {
+                            //TODO: Change Style
+                          }
                         },
                         controller: centerTextFieldController,
                         textAlign: TextAlign.center,
@@ -118,7 +112,7 @@ class CircleSlider extends StatelessWidget {
     );
   }
 
-  void updateValWithPoint(Offset point) {
+  void _updateValWithPoint(Offset point) {
     RenderBox painterBox =
         boxKey.currentContext!.findRenderObject() as RenderBox;
 

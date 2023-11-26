@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 class SliderHitBox {
@@ -19,7 +18,12 @@ class SliderHitBox {
     innerRadius = radius - (3 * radius * hitBoxSize);
     Radius arcInnerRadius = Radius.circular(innerRadius);
 
-    double maxVal = (range / 2) + (range / 2 * hitBoxSize);
+    double maxVal;
+    if (range == 360) {
+      maxVal = (range / 2);
+    } else {
+      maxVal = (range / 2) + (range / 2 * hitBoxSize);
+    }
 
     Offset startInner = calcPointFromAngle((centerAngle + maxVal), innerRadius);
 

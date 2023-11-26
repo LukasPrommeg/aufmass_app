@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/paint/CircleSlider/circleslider.dart';
+import 'package:flutter_test_diplom/CircleSlider/circleslider.dart';
 import 'package:event/event.dart';
-import 'package:flutter_test_diplom/paint/wall.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
 class AddPopUpController {
   final TextEditingController _textFieldController = TextEditingController();
@@ -10,16 +10,11 @@ class AddPopUpController {
   double lastWallAngle = 0;
   bool isFirstWall = true;
   final addWallEvent = Event<Wall>();
-  final progressBarColors = [
-    const Color.fromARGB(255, 89, 0, 121),
-    const Color.fromARGB(255, 255, 0, 187),
-    const Color.fromARGB(255, 89, 0, 121),
-  ];
 
   AddPopUpController({
     this.sliderRange = 300,
   }) {
-    init(0, true);
+    init(0, false);
   }
 
   void init(double lastWallAngle, bool isFirstWall) {
@@ -38,7 +33,6 @@ class AddPopUpController {
               child: Column(
                 children: [
                   TextField(
-                    //onChanged: (value) {},
                     controller: _textFieldController,
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
@@ -60,11 +54,11 @@ class AddPopUpController {
                   ),
                   CircleSlider(
                     radius: 75,
-                    centerAngle: 90,
+                    centerAngle: 0,
                     maxAngle: sliderRange / 2,
                     hitboxSize: 0.1,
+                    isFirstWall: isFirstWall,
                   ),
-                  //slider,
                 ],
               ),
             ),

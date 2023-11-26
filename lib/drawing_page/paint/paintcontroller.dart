@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/flaeche.dart';
-import 'package:flutter_test_diplom/paint/addpopupcontroller.dart';
-import 'package:flutter_test_diplom/paint/linepainter.dart';
-import 'package:flutter_test_diplom/paint/polypainter.dart';
-import 'package:flutter_test_diplom/paint/wall.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/flaeche.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/addpopupcontroller.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/linepainter.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/polypainter.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
 class PaintController {
   late PolyPainter polyPainter;
@@ -11,9 +11,8 @@ class PaintController {
   final AddPopUpController _popUpController = AddPopUpController();
   final ValueNotifier<int> _repaint = ValueNotifier<int>(0);
   double scale = 1;
-  List<Flaeche> _flaechen = [];
+  final List<Flaeche> _flaechen = [];
   Wall? first;
-  
 
   PaintController() {
     polyPainter = PolyPainter(repaint: _repaint);
@@ -22,7 +21,7 @@ class PaintController {
     _popUpController.addWallEvent.subscribe((args) => addWall(args));
   }
 
-  void repaint () {
+  void repaint() {
     _repaint.value++;
   }
 
@@ -33,14 +32,10 @@ class PaintController {
 
   void addWall(Wall? wall) {
     if (wall != null) {
-      if(first == null) {
+      if (first == null) {
         first = wall;
-      }
-      else {
-
-      }
-    }
-    else {
+      } else {}
+    } else {
       finishArea();
     }
     repaint();
@@ -61,7 +56,7 @@ class PaintController {
         polyPainter.drawFlaechen(_flaechen);
       }
     }
-    repaint();    
+    repaint();
   }
 
   void finishArea() {

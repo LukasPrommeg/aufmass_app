@@ -1,5 +1,5 @@
 import 'package:event/event.dart';
-import 'package:flutter_test_diplom/paint/corner.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';
 
 class Wall extends EventArgs {
   Wall({required this.angle, required this.length});

@@ -3,9 +3,18 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class Flaeche {
+  List<Offset> corners;
+  Path path = Path();
+  Color color = Colors.black;
+  String name = "unnamed";
+  Offset posBeschriftung = const Offset(0, 0);
+  double area = 0;
+  List<double> lengths = [];
+  bool hasBeschriftung;
+
   Flaeche({
     required this.corners,
-    //this.hasBeschriftung
+    this.hasBeschriftung = true,
   }) {
     for (int i = 1; i < corners.length; i++) {
       area += corners[i - 1].dx * corners[i].dy;
@@ -26,19 +35,11 @@ class Flaeche {
     corners.removeAt(0);
     for (Offset point in corners) {
       path.lineTo(point.dx, point.dy);
-      center += point;
+      posBeschriftung += point;
     }
-    center = Offset(center.dx / corners.length, center.dy / corners.length);
+    posBeschriftung = Offset(posBeschriftung.dx / corners.length,
+        posBeschriftung.dy / corners.length);
   }
-
-  List<Offset> corners;
-  Path path = Path();
-  Color color = Colors.black;
-  String name = "unnamed";
-  Offset center = const Offset(0, 0);
-  double area = 0;
-  List<double> lengths = [];
-  //bool hasBeschriftung = true;
 
   Map toJson() => {
         'name': name,

@@ -1,16 +1,15 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/paint/corner.dart';
-import 'package:flutter_test_diplom/paint/wall.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
 class LinePainter extends CustomPainter {
   LinePainter({required Listenable repaint}) : super(repaint: repaint);
 
   List<Offset> _points = [];
-  List<Corner> _ends = [];
+  final List<Corner> _ends = [];
   bool isDrawing = false;
   Corner? selectedCorner;
-  //Event repaint;
 
   List<Offset>? drawPoint(Offset location) {
     Corner? clickedCorner = detectClickedCorner(location);
@@ -43,9 +42,6 @@ class LinePainter extends CustomPainter {
     } else if (from != null && from == _points.last) {
       _points.add(to);
       return Corner(center: to);
-    } else {
-      print("THIS SHOULDNT BE POSSIBLE");
-      //_points.add(to);
     }
     return null;
   }
@@ -106,7 +102,6 @@ class LinePainter extends CustomPainter {
       ..strokeWidth = 4
       ..strokeCap = StrokeCap.round;
     canvas.drawPoints(pointMode, _points, paint);
-
 
     _ends.clear();
 

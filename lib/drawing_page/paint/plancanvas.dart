@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/paint/paintcontroller.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
 
 class PlanCanvas extends StatelessWidget {
   const PlanCanvas({
