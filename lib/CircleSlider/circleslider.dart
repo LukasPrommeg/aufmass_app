@@ -33,6 +33,10 @@ class CircleSlider extends StatelessWidget {
     );
   }
 
+  double get value {
+    return sliderPainter.val;
+  }
+
   @override
   Widget build(BuildContext context) {
     InputDecoration decoration = const InputDecoration(
@@ -71,23 +75,24 @@ class CircleSlider extends StatelessWidget {
                         height: 6.5,
                       ),
                       TextField(
-                        onSubmitted: (value) {
+                        onChanged: (value) {
                           try {
                             double angle = double.parse(value);
                             if (angle >= 0 && angle <= maxAngle ||
-                                angle < 0 && angle >= (maxAngle * -1)) {
+                                angle < 0 && angle >= (maxAngle * -1) ||
+                                isFirstWall) {
                               sliderPainter.updateValueWithAngle(angle);
-                              centerTextFieldController.value =
-                                  TextEditingValue(
-                                      text: sliderPainter.val
-                                          .abs()
-                                          .toStringAsFixed(0));
                             } else {
-                              //TODO: Change Style
+                              //TODO: Change Style weil nicht in Range
                             }
                           } catch (e) {
-                            //TODO: Change Style
+                            //TODO: Change Style weil keine Nummer
                           }
+                        },
+                        onSubmitted: (value) {
+                          centerTextFieldController.value = TextEditingValue(
+                              text: (sliderPainter.val * -1) /*.abs()*/
+                                  .toStringAsFixed(0));
                         },
                         controller: centerTextFieldController,
                         textAlign: TextAlign.center,
@@ -119,7 +124,8 @@ class CircleSlider extends StatelessWidget {
     Offset offset = Offset(painterBox.size.width, painterBox.size.height);
 
     sliderPainter.updateValueWithPoint(point - (offset / 2));
-    centerTextFieldController.value =
-        TextEditingValue(text: sliderPainter.val.abs().toStringAsFixed(0));
+    centerTextFieldController.value = TextEditingValue(
+        text: (sliderPainter.val * -1) /*.abs()*/
+            .toStringAsFixed(0));
   }
 }

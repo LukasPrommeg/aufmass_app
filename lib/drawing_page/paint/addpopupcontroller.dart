@@ -7,19 +7,24 @@ class AddPopUpController {
   final TextEditingController _textFieldController = TextEditingController();
 
   final double sliderRange;
-  double lastWallAngle = 0;
-  bool isFirstWall = true;
   final addWallEvent = Event<Wall>();
+  late CircleSlider slider;
 
   AddPopUpController({
     this.sliderRange = 300,
   }) {
-    init(0, false);
+    init(0, true);
   }
 
   void init(double lastWallAngle, bool isFirstWall) {
-    this.lastWallAngle = lastWallAngle;
-    this.isFirstWall = isFirstWall;
+    _textFieldController.text = "";
+    slider = CircleSlider(
+      radius: 75,
+      centerAngle: lastWallAngle,
+      maxAngle: sliderRange / 2,
+      hitboxSize: 0.1,
+      isFirstWall: isFirstWall,
+    );
   }
 
   Future<void> displayTextInputDialog(BuildContext context) async {
@@ -52,13 +57,7 @@ class AddPopUpController {
                       ),
                     ]),
                   ),
-                  CircleSlider(
-                    radius: 75,
-                    centerAngle: 0,
-                    maxAngle: sliderRange / 2,
-                    hitboxSize: 0.1,
-                    isFirstWall: isFirstWall,
-                  ),
+                  slider,
                 ],
               ),
             ),
@@ -85,8 +84,16 @@ class AddPopUpController {
                 textColor: Colors.white,
                 child: const Text('OK'),
                 onPressed: () {
-                  addWallEvent.broadcast();
-                  Navigator.pop(context);
+                  try {
+                    double length = double.parse(_textFieldController.text);
+
+                    double angle = slider.centerAngle;
+                    angle += -slider.value;
+                    addWallEvent.broadcast(Wall(angle: angle, length: length));
+                    Navigator.pop(context);
+                  } catch (e) {
+                    //TODO: Fehler bei der Eingabe
+                  }
                 },
               ),
             ],

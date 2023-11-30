@@ -9,7 +9,11 @@ class LinePainter extends CustomPainter {
   List<Offset> _points = [];
   final List<Corner> _ends = [];
   bool isDrawing = false;
+
   Corner? selectedCorner;
+
+  Offset testCenter = Offset.zero;
+  Rect testRect = Rect.zero;
 
   List<Offset>? drawPoint(Offset location) {
     Corner? clickedCorner = detectClickedCorner(location);
@@ -29,7 +33,31 @@ class LinePainter extends CustomPainter {
     return null;
   }
 
-  void addWall(Wall wall) {}
+  void drawWalls(List<Wall> walls) {
+    _points.clear();
+    for (Wall wall in walls) {
+      addWall(wall);
+    }
+  }
+
+  void addWall(Wall wall, {bool addInfront = false}) {
+    if (_points.isEmpty) {
+      isDrawing = true;
+      _ends.clear();
+      _points.add(wall.scaledStart!.center);
+      _ends.add(wall.scaledStart as Corner);
+      _ends.add(wall.scaledEnd as Corner);
+    }
+    if (addInfront) {
+      //_points.insert(0, wall.scaledEnd!.center); //
+      _points.insert(0, wall.scaledStart!.center);
+      _ends[0] = wall.scaledStart as Corner;
+    } else {
+      //_points.add(wall.scaledStart!.center); //
+      _points.add(wall.scaledEnd!.center);
+      _ends[1] = wall.scaledEnd as Corner;
+    }
+  }
 
   Corner? addCorner(Offset to, Offset? from) {
     if (_points.isEmpty) {
@@ -103,10 +131,8 @@ class LinePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     canvas.drawPoints(pointMode, _points, paint);
 
-    _ends.clear();
-
-    for (Offset point in [_points.first, _points.last]) {
-      if (selectedCorner != null && point == selectedCorner?.center) {
+    for (Corner corner in _ends) {
+      if (selectedCorner != null && corner.center == selectedCorner?.center) {
         paint = Paint()
           ..color = Colors.green
           ..strokeWidth = 2
@@ -117,10 +143,7 @@ class LinePainter extends CustomPainter {
           ..strokeWidth = 2
           ..style = PaintingStyle.stroke;
       }
-
-      _ends.add(Corner(center: point));
-
-      canvas.drawPath(_ends.last.path, paint);
+      canvas.drawPath(corner.path, paint);
     }
 
     paint = Paint()
@@ -130,6 +153,18 @@ class LinePainter extends CustomPainter {
 
     canvas.drawPoints(
         ui.PointMode.points, [_points.first, _points.last], paint);
+
+    paint = Paint()
+      ..color = Colors.red
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawPoints(ui.PointMode.points, [testCenter], paint);
+
+    paint = Paint()
+      ..color = Color(0xff638965)
+      ..style = PaintingStyle.stroke;
+    canvas.drawRect(testRect, paint);
   }
 
   @override
