@@ -5,16 +5,15 @@ import 'dart:math';
 
 class PolyPainter extends CustomPainter {
   PolyPainter({required Listenable repaint}) : super(repaint: repaint);
-  List<Flaeche> flaechen = [];
-  double scale = 1;
+  List<Flaeche> _flaechen = [];
 
   void drawFlaechen(List<Flaeche> newFlaechen) {
-    flaechen = List.from(newFlaechen);
+    _flaechen = List.from(newFlaechen);
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (Flaeche flaeche in flaechen) {
+    for (Flaeche flaeche in _flaechen) {
       Paint paint = Paint()
         ..color = flaeche.color.withOpacity(0.25)
         ..style = PaintingStyle.fill;
@@ -40,7 +39,7 @@ class PolyPainter extends CustomPainter {
 
         final textSpan = TextSpan(
           text:
-              "${flaeche.name}\nFLÄCHE: ${(flaeche.area / scale / 100).toStringAsFixed(2)} mm²",
+              "${flaeche.name}\nFLÄCHE: ${(flaeche.area).toStringAsFixed(2)} {}²",
           style: textStyle,
         );
         final textPainter = TextPainter(
@@ -56,8 +55,11 @@ class PolyPainter extends CustomPainter {
 
         //TODO: qm der Fläche statt Punkt anzeigen
 
+        /*
+        
         List<Offset> areaWithEnd = List.from(flaeche.corners);
         areaWithEnd.add(flaeche.corners.first);
+
         for (int i = 0; i < areaWithEnd.length - 1; i++) {
           Offset center = (areaWithEnd[i + 1] + areaWithEnd[i]) / 2;
           canvas.drawPoints(PointMode.points, [center], paint);
@@ -75,7 +77,7 @@ class PolyPainter extends CustomPainter {
           canvas.translate(-center.dx, -center.dy);
 
           final textSpan = TextSpan(
-            text: "${(flaeche.lengths[i] / scale).toStringAsFixed(2)} mm",
+            text: "${(flaeche.walls[i].length).toStringAsFixed(2)} mm",
             style: textStyle,
           );
           final textPainter = TextPainter(
@@ -95,7 +97,7 @@ class PolyPainter extends CustomPainter {
           }
           textPainter.paint(canvas, center);
           canvas.restore();
-        }
+        }*/
       }
     }
   }

@@ -22,12 +22,25 @@ class PaintController {
   PaintController() {
     polyPainter = PolyPainter(repaint: _repaint);
     linePainter = LinePainter(repaint: _repaint);
-    polyPainter.scale = 1;
     _popUpController.addWallEvent.subscribe((args) => addWall(args));
   }
 
   set canvasSize(Size size) {
     _canvasSize = size;
+
+    if (walls.isEmpty) {
+      addWall(Wall(angle: 0, length: 2));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 90, length: 3));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 180, length: 2));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      /*addWall(Wall(angle: 270, length: 1));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 180, length: 1));
+      linePainter.selectedCorner = walls.last.scaledEnd;*/
+      //addWall(Wall(angle: 180, length: 1));
+    }
   }
 
   void repaint() {
@@ -88,9 +101,7 @@ class PaintController {
         }
       }
       if (result != null) {
-        _flaechen.remove(result);
-        linePainter.drawFinishedArea(result.corners);
-        polyPainter.drawFlaechen(_flaechen);
+        //TODO: EDIT
       }
     }
     repaint();
@@ -104,40 +115,11 @@ class PaintController {
 
   void _drawfinishedArea(List<Offset>? area) {
     if (area != null && area.isNotEmpty) {
-      _flaechen.add(Flaeche(corners: area));
-      switch (_flaechen.length) {
-        case 1:
-          _flaechen.last.color = Colors.blue;
-          break;
-        case 2:
-          _flaechen.last.color = Colors.green;
-          break;
-        case 3:
-          _flaechen.last.color = Colors.red;
-          break;
-        case 4:
-          _flaechen.last.color = Colors.yellow;
-          break;
-        case 5:
-          _flaechen.last.color = Colors.white;
-          break;
-        case 6:
-          _flaechen.last.color = Colors.brown;
-          break;
-        case 7:
-          _flaechen.last.color = Colors.orange;
-          break;
-        case 8:
-          _flaechen.last.color = Colors.pink;
-          break;
-        case 9:
-          _flaechen.last.color = Colors.purple;
-          break;
-        case 10:
-          _flaechen.last.color = Colors.lightGreen;
-          break;
-      }
+      Offset center = drawingRect.center;
+      center = (center * scale) - _canvasSize!.center(Offset.zero);
+      _flaechen.add(Flaeche(walls: walls, scale: scale, center: center));
       polyPainter.drawFlaechen(_flaechen);
+      walls.clear();
     }
   }
 

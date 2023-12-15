@@ -15,7 +15,7 @@ class LinePainter extends CustomPainter {
   Offset testCenter = Offset.zero;
   Rect testRect = Rect.zero;
 
-  List<Offset>? drawPoint(Offset location) {
+  /*List<Offset>? drawPoint(Offset location) {
     Corner? clickedCorner = detectClickedCorner(location);
 
     if (isDrawing && selectedCorner == null) {
@@ -32,6 +32,21 @@ class LinePainter extends CustomPainter {
     }
     return null;
   }
+  
+  Corner? addCorner(Offset to, Offset? from) {
+    if (_points.isEmpty) {
+      isDrawing = true;
+      _points.add(to);
+      return Corner(center: to);
+    } else if (from != null && from == _points.first) {
+      _points.insert(0, to);
+      return Corner(center: to);
+    } else if (from != null && from == _points.last) {
+      _points.add(to);
+      return Corner(center: to);
+    }
+    return null;
+  }*/
 
   void drawWalls(List<Wall> walls) {
     _points.clear();
@@ -49,29 +64,12 @@ class LinePainter extends CustomPainter {
       _ends.add(wall.scaledEnd as Corner);
     }
     if (addInfront) {
-      //_points.insert(0, wall.scaledEnd!.center); //
       _points.insert(0, wall.scaledStart!.center);
       _ends[0] = wall.scaledStart as Corner;
     } else {
-      //_points.add(wall.scaledStart!.center); //
       _points.add(wall.scaledEnd!.center);
       _ends[1] = wall.scaledEnd as Corner;
     }
-  }
-
-  Corner? addCorner(Offset to, Offset? from) {
-    if (_points.isEmpty) {
-      isDrawing = true;
-      _points.add(to);
-      return Corner(center: to);
-    } else if (from != null && from == _points.first) {
-      _points.insert(0, to);
-      return Corner(center: to);
-    } else if (from != null && from == _points.last) {
-      _points.add(to);
-      return Corner(center: to);
-    }
-    return null;
   }
 
   void drawFinishedArea(List<Offset> area) {
