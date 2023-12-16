@@ -11,28 +11,16 @@ class PlanPage extends StatefulWidget {
 
 class PlanPageContent extends State<PlanPage> {
   final PaintController _paintController = PaintController();
-  final String _title = "Raum 1";
+  final String _roomName = "Raum 1";
   late DrawingZone drawingZone;
+  late Widget floatingButton;
 
   PlanPageContent() {
     drawingZone = DrawingZone(paintController: _paintController);
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_title),
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.purple,
-      ),
-      body: drawingZone,
-      floatingActionButton: floatingButton(),
-    );
-  }
+    _paintController.updateDrawingState.subscribe((args) {switchFloating();});
 
-  Widget floatingButton() {
-    return Column(
+    floatingButton = Column(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -44,16 +32,66 @@ class PlanPageContent extends State<PlanPage> {
             Icons.add,
           ),
         ),
-        const SizedBox(
-          height: 10,
-        ),
-        FloatingActionButton(
-          onPressed: drawingZone.undo,
-          child: const Icon(
-            Icons.undo,
-          ),
-        ),
       ],
+    );
+  }
+
+  void switchFloating() {
+    setState(() {
+      if (_paintController.isDrawing) {
+        floatingButton = Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              onPressed: () {
+                _paintController.displayTextInputDialog(context);
+              },
+              child: const Icon(
+                Icons.add,
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            FloatingActionButton(
+              onPressed: drawingZone.undo,
+              child: const Icon(
+                Icons.undo,
+              ),
+            ),
+          ],
+        );
+      }
+      else {
+        floatingButton = Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              onPressed: () {
+                _paintController.displayTextInputDialog(context);
+              },
+              child: const Icon(
+                Icons.add,
+              ),
+            ),
+          ],
+        );
+      }
+    });
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_roomName),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.purple,
+      ),
+      body: drawingZone,
+      floatingActionButton: floatingButton,
     );
   }
 }

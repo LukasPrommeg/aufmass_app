@@ -1,7 +1,9 @@
+import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/flaeche.dart';
-import 'dart:math';
+import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
 class PolyPainter extends CustomPainter {
   PolyPainter({required Listenable repaint}) : super(repaint: repaint);
@@ -37,9 +39,22 @@ class PolyPainter extends CustomPainter {
 
         canvas.drawPoints(PointMode.points, [flaeche.posBeschriftung], paint);
 
+        double displayArea = flaeche.area;
+
+        switch (PaintController().selectedEinheit) {
+          case Einheit.m:
+            displayArea /= 1000000;
+            break;
+          case Einheit.cm:
+            displayArea /= 100;
+            break;
+          default:
+            break;
+        }
+
         final textSpan = TextSpan(
           text:
-              "${flaeche.name}\nFLÄCHE: ${(flaeche.area).toStringAsFixed(2)} {}²",
+              "${flaeche.name}\nFLÄCHE: ${(displayArea).toStringAsFixed(2)} ${PaintController().selectedEinheit.name}²",
           style: textStyle,
         );
         final textPainter = TextPainter(
@@ -53,31 +68,65 @@ class PolyPainter extends CustomPainter {
             flaeche.posBeschriftung -
                 Offset((textPainter.width / 2), textPainter.height / 2));
 
-        //TODO: qm der Fläche statt Punkt anzeigen
+        flaeche.walls.add(Wall(angle: 0, length: 0));
+        Offset end = Offset.zero;
 
-        /*
-        
-        List<Offset> areaWithEnd = List.from(flaeche.corners);
-        areaWithEnd.add(flaeche.corners.first);
+        for (Wall wall in flaeche.walls) {
+          if (wall == flaeche.walls.last) {
+            double length = sqrt((pow(end.dx, 2) + pow(end.dy, 2)));
+            wall = Wall(angle: 0, length: length);
+            wall.scaledStart = flaeche.walls[flaeche.walls.length - 2].scaledEnd;
+            wall.scaledEnd = flaeche.walls.first.scaledStart;
+          }
 
-        for (int i = 0; i < areaWithEnd.length - 1; i++) {
-          Offset center = (areaWithEnd[i + 1] + areaWithEnd[i]) / 2;
-          canvas.drawPoints(PointMode.points, [center], paint);
+          end += wall.end;
 
-          //TODO: m der Linie statt Punkt anzeigen
-          canvas.save();
-          canvas.translate(center.dx, center.dy);
+          Offset center =
+              (wall.scaledEnd!.center + wall.scaledStart!.center) / 2;
 
-          double diffx = areaWithEnd[i + 1].dx - areaWithEnd[i].dx;
-          double diffy = areaWithEnd[i + 1].dy - areaWithEnd[i].dy;
+          Offset diffFromAreaCenter = center - flaeche.posBeschriftung;
+
+          Offset centerLine = flaeche.posBeschriftung + diffFromAreaCenter;
+
+          canvas.drawPoints(PointMode.points, [centerLine], paint);
+
+          double diffx =
+              wall.scaledEnd!.center.dx - wall.scaledStart!.center.dx;
+          double diffy =
+              wall.scaledEnd!.center.dy - wall.scaledStart!.center.dy;
 
           double angle = atan(diffy / diffx);
 
+          Offset posMark = centerLine;
+          Offset offset = Offset.fromDirection(angle + (pi / 2), 15);
+
+          if (!flaeche.path.contains(posMark + offset)) {
+            posMark += offset;
+          } else {
+            posMark -= offset;
+          }
+
+          canvas.save();
+          canvas.translate(posMark.dx, posMark.dy);
+
           canvas.rotate(angle);
-          canvas.translate(-center.dx, -center.dy);
+          canvas.translate(-posMark.dx, -posMark.dy);
+
+          double displayLength = wall.length;
+          switch (PaintController().selectedEinheit) {
+            case Einheit.m:
+              displayLength /= 1000;
+              break;
+            case Einheit.cm:
+              displayLength /= 10;
+              break;
+            default:
+              break;
+          }
 
           final textSpan = TextSpan(
-            text: "${(flaeche.walls[i].length).toStringAsFixed(2)} mm",
+            text:
+                "${(displayLength).toStringAsFixed(2)} ${PaintController().selectedEinheit.name}",
             style: textStyle,
           );
           final textPainter = TextPainter(
@@ -85,22 +134,18 @@ class PolyPainter extends CustomPainter {
             textDirection: TextDirection.ltr,
           );
           textPainter.layout();
+          posMark -= Offset((textPainter.width / 2), textPainter.height * 0.5);
 
-          if (angle > 0 && center.dx < flaeche.posBeschriftung.dx) {
-            center -=
-                Offset((textPainter.width / 2), textPainter.height * -0.5);
-          } else if (angle < 0 && center.dx > flaeche.posBeschriftung.dx) {
-            center -=
-                Offset((textPainter.width / 2), textPainter.height * -0.5);
-          } else {
-            center -= Offset((textPainter.width / 2), textPainter.height * 1.5);
-          }
-          textPainter.paint(canvas, center);
+          textPainter.paint(canvas, posMark);
+
           canvas.restore();
-        }*/
+        }
+        flaeche.walls.removeLast();
       }
     }
   }
+
+  void rotateAndPrint(Canvas canvas, Offset pos, String text) {}
 
   @override
   bool shouldRepaint(PolyPainter oldDelegate) {

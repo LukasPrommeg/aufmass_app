@@ -16,9 +16,7 @@ class Flaeche {
     this.hasBeschriftung = true,
     required double scale,
     required Offset center,
-  }) {
-    init(scale, center);
-  }
+  });
 
   void init(double scale, Offset center) {
     Offset origin = Offset.zero - center;

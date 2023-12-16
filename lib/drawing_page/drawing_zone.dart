@@ -15,12 +15,7 @@ class DrawingZone extends StatelessWidget {
   }
 
   void handleContextMenu(final details) {
-    addPoint(_trafoCont.toScene(details.localPosition));
-  }
 
-  void addPoint(Offset pos) {
-    paintController.drawPoint(pos);
-    _repaint.value++;
   }
 
   void finishArea() {

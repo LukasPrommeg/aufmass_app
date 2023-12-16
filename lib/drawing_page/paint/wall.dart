@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';

@@ -1,61 +1,72 @@
 import 'dart:math';
+import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/flaeche.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/addpopupcontroller.dart';
+import 'package:flutter_test_diplom/PopUP/inputpopup.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/linepainter.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/polypainter.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
+enum Einheit { mm, cm, m }
+
 class PaintController {
+  static final PaintController _instance = PaintController._internal();
+
   late PolyPainter polyPainter;
   late LinePainter linePainter;
-  final AddPopUpController _popUpController = AddPopUpController();
+  final InputPopup _inputPopup = InputPopup();
   final ValueNotifier<int> _repaint = ValueNotifier<int>(0);
   double scale = 1;
   final List<Flaeche> _flaechen = [];
   late Size? _canvasSize;
   List<Wall> walls = [];
+  
+  
+  Set<Einheit> _einheitSelection = <Einheit>{Einheit.mm};
+  Einheit get selectedEinheit{
+    return _einheitSelection.first;
+  }
+  set selectedEinheit (Einheit newSel){
+    _einheitSelection = {newSel};
+    repaint();
+  }
+
+
+  final updateDrawingState = Event();
 
   Rect drawingRect = Rect.zero;
 
-  PaintController() {
+  factory PaintController() {
+    return _instance;
+  }
+
+  PaintController._internal() {
     polyPainter = PolyPainter(repaint: _repaint);
     linePainter = LinePainter(repaint: _repaint);
-    _popUpController.addWallEvent.subscribe((args) => addWall(args));
+    _inputPopup.addWallEvent.subscribe((args) => addWall(args));
   }
 
   set canvasSize(Size size) {
     _canvasSize = size;
+    _updateScaleAndCenter();
+  }
 
-    if (walls.isEmpty) {
-      addWall(Wall(angle: 0, length: 2));
-      linePainter.selectedCorner = walls.last.scaledEnd;
-      addWall(Wall(angle: 90, length: 3));
-      linePainter.selectedCorner = walls.last.scaledEnd;
-      addWall(Wall(angle: 180, length: 2));
-      linePainter.selectedCorner = walls.last.scaledEnd;
-      /*addWall(Wall(angle: 270, length: 1));
-      linePainter.selectedCorner = walls.last.scaledEnd;
-      addWall(Wall(angle: 180, length: 1));
-      linePainter.selectedCorner = walls.last.scaledEnd;*/
-      //addWall(Wall(angle: 180, length: 1));
-    }
+  bool get isDrawing {
+    return walls.isNotEmpty;
   }
 
   void repaint() {
     _repaint.value++;
   }
 
-  void drawPoint(Offset pos) {
-    //_drawfinishedArea(linePainter.drawPoint(pos));
-    repaint();
-  }
-
   void addWall(Wall? wall) {
     if (wall != null) {
+      wall = convertToMM(wall);
+
       if (walls.isEmpty) {
         walls.add(wall);
+        updateDrawingState.broadcast();
       } else {
         if (linePainter.selectedCorner == null) {
           //TODO: Fehlermeldung, sollte aber nicht erreichbar sein
@@ -68,25 +79,26 @@ class PaintController {
           walls.add(wall);
         }
       }
-      _updateScaleAndCenter();
       linePainter.selectedCorner = null;
     } else {
       finishArea();
+      updateDrawingState.broadcast();
     }
+    _updateScaleAndCenter();
   }
 
-  void setPositionsAroundCenter(Offset center) {
-    if (walls.isEmpty) {
-      return;
+  Wall convertToMM(Wall wall) {
+    switch (selectedEinheit) {
+      case Einheit.cm:
+        wall = Wall(angle: wall.angle, length: wall.length * 10);
+        break;
+      case Einheit.m:
+        wall = Wall(angle: wall.angle, length: wall.length * 1000);
+        break;
+      default:
+        break;
     }
-
-    for (Wall wall in walls) {
-      Offset start = wall.scaledStart!.center - center;
-      Offset end = wall.scaledEnd!.center - center;
-
-      wall.scaledStart = Corner(center: start);
-      wall.scaledEnd = Corner(center: end);
-    }
+    return wall;
   }
 
   void tap(Offset pos) {
@@ -109,18 +121,26 @@ class PaintController {
 
   void finishArea() {
     List<Offset> area = linePainter.finishArea();
-    _drawfinishedArea(area);
-    repaint();
-  }
-
-  void _drawfinishedArea(List<Offset>? area) {
     if (area != null && area.isNotEmpty) {
+
+      double length = sqrt((pow(walls.last.end.dx, 2) + pow(walls.last.end.dy, 2)));
+
+      //Offset direction = Offset.
+      double angle = atan(walls.last.end.dy / walls.last.end.dx); //* 180 / pi;
+
+      print(length);
+      print(angle);
+
+      Wall last = Wall(angle: angle, length: length);
+
       Offset center = drawingRect.center;
       center = (center * scale) - _canvasSize!.center(Offset.zero);
-      _flaechen.add(Flaeche(walls: walls, scale: scale, center: center));
+      _flaechen
+          .add(Flaeche(walls: List.from(walls), scale: scale, center: center));
       polyPainter.drawFlaechen(_flaechen);
       walls.clear();
     }
+    repaint();
   }
 
   void undo() {
@@ -131,7 +151,6 @@ class PaintController {
   void _updateScaleAndCenter() {
     if (_canvasSize != null) {
       Offset origin = Offset.zero;
-      drawingRect = Rect.fromCenter(center: origin, width: 0, height: 0);
       for (Wall wall in walls) {
         if (!drawingRect.contains(origin + wall.end)) {
           drawingRect = drawingRect.expandToInclude(
@@ -166,27 +185,30 @@ class PaintController {
       origin += (wall.end * scale);
       wall.scaledEnd = Corner(center: origin);
     }
+    for (Flaeche flaeche in _flaechen) {
+      flaeche.init(scale, center);
+    }
     linePainter.drawWalls(walls);
     repaint();
   }
 
   Future<void> displayTextInputDialog(BuildContext context) async {
     if (walls.isEmpty) {
-      _popUpController.init(0, true);
-      return _popUpController.displayTextInputDialog(context);
+      _inputPopup.init(0, true);
+      return _inputPopup.displayTextInputDialog(context);
     } else if (linePainter.selectedCorner != null) {
       if (linePainter.selectedCorner!.center ==
           walls.first.scaledStart!.center) {
         if (walls.first.angle <= 180) {
-          _popUpController.init(walls.first.angle + 180, false);
+          _inputPopup.init(walls.first.angle + 180, false);
         } else {
-          _popUpController.init(walls.first.angle - 180, false);
+          _inputPopup.init(walls.first.angle - 180, false);
         }
       } else if (linePainter.selectedCorner!.center ==
           walls.last.scaledEnd!.center) {
-        _popUpController.init(walls.last.angle, false);
+        _inputPopup.init(walls.last.angle, false);
       }
-      return _popUpController.displayTextInputDialog(context);
+      return _inputPopup.displayTextInputDialog(context);
     } else {
       //TODO: Fehlermeldung
     }
