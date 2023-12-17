@@ -148,7 +148,7 @@ class _PlanPageState extends State<PlanPage> {
                 tileColor: room == currentRoom ? Colors.grey[300] : null,
                 onTap: () {
                   switchRoom(room);
-                  Navigator.pop(context); // Close the drawer
+                  Navigator.pop(context);
                 },
               ),
             Divider(),
@@ -167,7 +167,7 @@ class _PlanPageState extends State<PlanPage> {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context); // Close the dialog
+                            Navigator.pop(context);
                           },
                           child: Text('Cancel'),
                         ),
@@ -200,7 +200,7 @@ class _PlanPageState extends State<PlanPage> {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context); // Close the dialog
+                            Navigator.pop(context);
                           },
                           child: Text('Cancel'),
                         ),
