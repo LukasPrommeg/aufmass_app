@@ -20,7 +20,7 @@ class PlanPage extends StatefulWidget {
 class _PlanPageState extends State<PlanPage> {
   late List<Room> rooms;
   late Room currentRoom;
-  late String selectedDropdownValue;// Added variable to track dropdown value
+  late String selectedDropdownValue;
   bool isRightColumnVisible = true;
 
   TextEditingController newRoomController = TextEditingController();
