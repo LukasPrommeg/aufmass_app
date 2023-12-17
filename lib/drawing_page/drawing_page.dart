@@ -20,6 +20,8 @@ class PlanPage extends StatefulWidget {
 class _PlanPageState extends State<PlanPage> {
   late List<Room> rooms;
   late Room currentRoom;
+  late String selectedDropdownValue; // Added variable to track dropdown value
+  bool isRightColumnVisible = true; // Track the visibility of the right column
 
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
@@ -35,11 +37,11 @@ class _PlanPageState extends State<PlanPage> {
         drawingZone: DrawingZone(paintController: PaintController()),
         paintController: PaintController(),
       ),
-      //todo; save and load rooms
-      // Add more rooms as needed
+      // todo: save and load rooms
     ];
 
     currentRoom = rooms.first; // Set the initial room
+    selectedDropdownValue = 'Option 1'; // Set the initial dropdown value
   }
 
   void switchRoom(Room newRoom) {
@@ -73,6 +75,12 @@ class _PlanPageState extends State<PlanPage> {
     }
   }
 
+  void toggleRightColumnVisibility() {
+    setState(() {
+      isRightColumnVisible = !isRightColumnVisible;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,8 +88,50 @@ class _PlanPageState extends State<PlanPage> {
         title: Text(currentRoom.name),
         foregroundColor: Colors.white,
         backgroundColor: Colors.purple,
+        actions: [
+          IconButton(
+            icon: Icon(isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
+            onPressed: toggleRightColumnVisibility,
+          ),
+        ],
       ),
-      body: currentRoom.drawingZone,
+      body: Row(
+        children: [
+          Expanded(
+            child: currentRoom.drawingZone,
+          ),
+          // Sidemenü rechts
+          Visibility(
+            visible: isRightColumnVisible,
+            child: Container(
+              width: 200,
+              color: Colors.grey[200],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Dropdown menü
+                  DropdownButton<String>(
+                    value: selectedDropdownValue,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedDropdownValue = newValue!;
+                      });
+                    },
+                    items: <String>['Option 1', 'Werkstoff 2', 'Option 3', 'Option 4'] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                  Text('Länge: TEST'),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: floatingButton(),
       drawer: Drawer(
         child: ListView(
@@ -96,6 +146,8 @@ class _PlanPageState extends State<PlanPage> {
             for (var room in rooms)
               ListTile(
                 title: Text(room.name),
+                // Highlight the selected room with a different color
+                tileColor: room == currentRoom ? Colors.grey[300] : null,
                 onTap: () {
                   switchRoom(room);
                   Navigator.pop(context); // Close the drawer
