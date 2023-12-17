@@ -20,8 +20,8 @@ class PlanPage extends StatefulWidget {
 class _PlanPageState extends State<PlanPage> {
   late List<Room> rooms;
   late Room currentRoom;
-  late String selectedDropdownValue; // Added variable to track dropdown value
-  bool isRightColumnVisible = true; // Track the visibility of the right column
+  late String selectedDropdownValue;// Added variable to track dropdown value
+  bool isRightColumnVisible = true;
 
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
@@ -29,8 +29,7 @@ class _PlanPageState extends State<PlanPage> {
   @override
   void initState() {
     super.initState();
-
-    // Initialize rooms with your desired data
+    
     rooms = [
       Room(
         name: 'Raum 1',
@@ -40,8 +39,8 @@ class _PlanPageState extends State<PlanPage> {
       // todo: save and load rooms
     ];
 
-    currentRoom = rooms.first; // Set the initial room
-    selectedDropdownValue = 'Option 1'; // Set the initial dropdown value
+    currentRoom = rooms.first; 
+    selectedDropdownValue = 'Option 1';
   }
 
   void switchRoom(Room newRoom) {
@@ -60,7 +59,7 @@ class _PlanPageState extends State<PlanPage> {
       ));
       switchRoom(rooms.last);
       newRoomController.clear();
-      Navigator.pop(context); // Close the drawer
+      Navigator.pop(context);
     }
   }
 
@@ -71,7 +70,7 @@ class _PlanPageState extends State<PlanPage> {
         currentRoom.name = newName;
       });
       renameRoomController.clear();
-      Navigator.pop(context); // Close the drawer
+      Navigator.pop(context);
     }
   }
 
@@ -111,13 +110,13 @@ class _PlanPageState extends State<PlanPage> {
                 children: [
                   // Dropdown menü
                   DropdownButton<String>(
-                    value: selectedDropdownValue,
+                    value: selectedDropdownValue,   //sollte selected.werkstoff werden
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedDropdownValue = newValue!;
                       });
                     },
-                    items: <String>['Option 1', 'Werkstoff 2', 'Option 3', 'Option 4'] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
+                    items: <String>['Option 1', 'Werkstoff 2', 'Werkstoff 3', 'Werkstoff 4'] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -146,7 +145,6 @@ class _PlanPageState extends State<PlanPage> {
             for (var room in rooms)
               ListTile(
                 title: Text(room.name),
-                // Highlight the selected room with a different color
                 tileColor: room == currentRoom ? Colors.grey[300] : null,
                 onTap: () {
                   switchRoom(room);
@@ -188,7 +186,6 @@ class _PlanPageState extends State<PlanPage> {
             ListTile(
               title: Text('Rename Room'),
               onTap: () {
-                // Set the initial text to the current room's name
                 renameRoomController.text = currentRoom.name;
 
                 showDialog(
