@@ -118,11 +118,20 @@ class SliderPainter extends CustomPainter {
       angle = angle * (180 / pi);
       angle = angle.roundToDouble();
 
-      if (minPOS.dy <= 0) {
-        angle -= 180;
+      if (isFirstWall) {
+        if (minPOS.dx <= 0 && minPOS.dy <= 0) {
+          angle -= 360;
+        }
+        if (minPOS.dy >= 0) {
+          angle -= 180;
+        }
+        val = angle;
+      } else {
+        if (minPOS.dy <= 0) {
+          angle -= 180;
+        }
+        val = calcOffset(minPOS, angle);
       }
-
-      val = calcOffset(minPOS, angle);
     }
   }
 
