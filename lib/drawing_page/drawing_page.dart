@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/drawing_page/drawing_zone.dart';
+import 'package:flutter_test_diplom/Misc/Room.dart';
+import 'package:flutter_test_diplom/Misc/einheitselector.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
 
-class Room {
-  String name;
-  final DrawingZone drawingZone;
-  final PaintController paintController;
-
-  Room({required this.name, required this.drawingZone, required this.paintController});
-}
-
 class PlanPage extends StatefulWidget {
-  const PlanPage({Key? key}) : super(key: key);
+  const PlanPage({super.key});
 
   @override
-  _PlanPageState createState() => _PlanPageState();
+  State<PlanPage> createState() => PlanPageContent();
 }
 
-class _PlanPageState extends State<PlanPage> {
-  late List<Room> rooms;
+class PlanPageContent extends State<PlanPage> {
+  late Widget floatingButton;
+  final List<Room> rooms = [];
   late Room currentRoom;
   late String selectedDropdownValue;
-  bool isRightColumnVisible = true;
+  bool isRightColumnVisible = false;
 
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
@@ -29,23 +23,42 @@ class _PlanPageState extends State<PlanPage> {
   @override
   void initState() {
     super.initState();
-    
-    rooms = [
-      Room(
-        name: 'Raum 1',
-        drawingZone: DrawingZone(paintController: PaintController()),
-        paintController: PaintController(),
-      ),
-      // todo: save and load rooms
-    ];
 
-    currentRoom = rooms.first; 
+    rooms.add(Room(
+      name: 'Raum 1',
+      paintController: PaintController(),
+    ));
+    //TODO: save and load rooms
+
+    currentRoom = rooms.first;
+    switchRoom(currentRoom);
+
     selectedDropdownValue = 'Option 1';
+
+    floatingButton = Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        FloatingActionButton(
+          onPressed: () {
+            currentRoom.paintController.displayTextInputDialog(context);
+          },
+          child: const Icon(
+            Icons.add,
+          ),
+        ),
+      ],
+    );
   }
 
   void switchRoom(Room newRoom) {
     setState(() {
+      newRoom.paintController.updateDrawingState.unsubscribe((args) {});
       currentRoom = newRoom;
+      currentRoom.paintController.updateDrawingState.subscribe((args) {
+        switchFloating();
+      });
+      switchFloating();
     });
   }
 
@@ -54,7 +67,6 @@ class _PlanPageState extends State<PlanPage> {
     if (newRoomName.isNotEmpty) {
       rooms.add(Room(
         name: newRoomName,
-        drawingZone: DrawingZone(paintController: PaintController()),
         paintController: PaintController(),
       ));
       switchRoom(rooms.last);
@@ -80,6 +92,51 @@ class _PlanPageState extends State<PlanPage> {
     });
   }
 
+  void switchFloating() {
+    setState(() {
+      if (currentRoom.paintController.isDrawing) {
+        floatingButton = Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              onPressed: () {
+                currentRoom.paintController.displayTextInputDialog(context);
+              },
+              child: const Icon(
+                Icons.add,
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            FloatingActionButton(
+              onPressed: currentRoom.paintController.undo,
+              child: const Icon(
+                Icons.undo,
+              ),
+            ),
+          ],
+        );
+      } else {
+        floatingButton = Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              onPressed: () {
+                currentRoom.paintController.displayTextInputDialog(context);
+              },
+              child: const Icon(
+                Icons.add,
+              ),
+            ),
+          ],
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,7 +146,8 @@ class _PlanPageState extends State<PlanPage> {
         backgroundColor: Colors.purple,
         actions: [
           IconButton(
-            icon: Icon(isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
+            icon: Icon(
+                isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
             onPressed: toggleRightColumnVisibility,
           ),
         ],
@@ -110,13 +168,19 @@ class _PlanPageState extends State<PlanPage> {
                 children: [
                   // Dropdown menü
                   DropdownButton<String>(
-                    value: selectedDropdownValue,   //sollte selected.werkstoff werden
+                    value:
+                        selectedDropdownValue, //sollte selected.werkstoff werden
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedDropdownValue = newValue!;
                       });
                     },
-                    items: <String>['Option 1', 'Werkstoff 2', 'Werkstoff 3', 'Werkstoff 4'] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
+                    items: <String>[
+                      'Option 1',
+                      'Werkstoff 2',
+                      'Werkstoff 3',
+                      'Werkstoff 4'
+                    ] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -125,20 +189,23 @@ class _PlanPageState extends State<PlanPage> {
                     }).toList(),
                   ),
                   Text('Länge: TEST'),
+                  EinheitSelector(
+                    setGlobal: true,
+                  ),
                 ],
               ),
             ),
           ),
         ],
       ),
-      floatingActionButton: floatingButton(),
+      floatingActionButton: floatingButton,
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.deepPurple,
               ),
               child: Text('Räume'),
             ),
@@ -153,29 +220,30 @@ class _PlanPageState extends State<PlanPage> {
               ),
             Divider(),
             ListTile(
-              title: Text('Add New Room'),
+              title: Text('Raum hinzufügen'),
               onTap: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text('Enter Room Name'),
+                      title: Text('Raum hinzufügen'),
                       content: TextField(
                         controller: newRoomController,
-                        decoration: InputDecoration(labelText: 'Room Name'),
+                        decoration:
+                            InputDecoration(labelText: 'Name des Raumes'),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text('Cancel'),
+                          child: Text('Abbrechen'),
                         ),
                         TextButton(
                           onPressed: () {
                             addNewRoom();
                           },
-                          child: Text('Add'),
+                          child: Text('Hinzufügen'),
                         ),
                       ],
                     );
@@ -184,7 +252,7 @@ class _PlanPageState extends State<PlanPage> {
               },
             ),
             ListTile(
-              title: Text('Rename Room'),
+              title: Text('Raum umbenennen'),
               onTap: () {
                 renameRoomController.text = currentRoom.name;
 
@@ -192,23 +260,24 @@ class _PlanPageState extends State<PlanPage> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text('Enter New Room Name'),
+                      title: Text('Raum umbenennen'),
                       content: TextField(
                         controller: renameRoomController,
-                        decoration: InputDecoration(labelText: 'New Room Name'),
+                        decoration:
+                            InputDecoration(labelText: 'Name des Raumes'),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text('Cancel'),
+                          child: Text('Abbrechen'),
                         ),
                         TextButton(
                           onPressed: () {
                             renameRoom();
                           },
-                          child: Text('Rename'),
+                          child: Text('Umbenennen'),
                         ),
                       ],
                     );
@@ -219,32 +288,6 @@ class _PlanPageState extends State<PlanPage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget floatingButton() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        FloatingActionButton(
-          onPressed: () {
-            currentRoom.paintController.displayTextInputDialog(context);
-          },
-          child: const Icon(
-            Icons.add,
-          ),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        FloatingActionButton(
-          onPressed: currentRoom.drawingZone.undo,
-          child: const Icon(
-            Icons.undo,
-          ),
-        ),
-      ],
     );
   }
 }
