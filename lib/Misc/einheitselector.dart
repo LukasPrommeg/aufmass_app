@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_diplom/Misc/einheitcontroller.dart';
 
+//ignore: must_be_immutable
 class EinheitSelector extends StatefulWidget {
   EinheitSelector({super.key, this.setGlobal = false}) {
     selected = controller.selectedEinheit;

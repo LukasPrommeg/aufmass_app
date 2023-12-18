@@ -11,15 +11,9 @@ class PlanCanvas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        Size canvasSize = Size(constraints.maxWidth, constraints.maxHeight);
-        paintController.canvasSize = canvasSize;
-        return CustomPaint(
-          painter: paintController.polyPainter,
-          foregroundPainter: paintController.linePainter,
-        );
-      },
+    return CustomPaint(
+      painter: paintController.polyPainter,
+      foregroundPainter: paintController.linePainter,
     );
   }
 }
