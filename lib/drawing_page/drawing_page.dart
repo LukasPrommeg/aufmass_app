@@ -4,10 +4,7 @@ import 'package:flutter_test_diplom/Misc/einheitselector.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
 
 class PlanPage extends StatefulWidget {
-  /*final List<Room> rooms = [];
-  late Room currentRoom;
-
-  PlanPage({super.key}) {}*/
+  const PlanPage({super.key});
 
   @override
   State<PlanPage> createState() => PlanPageContent();

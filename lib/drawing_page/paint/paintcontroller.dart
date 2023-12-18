@@ -9,18 +9,33 @@ import 'package:flutter_test_diplom/drawing_page/paint/linepainter.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/polypainter.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
+class Scale extends EventArgs {
+  final double value;
+
+  Scale({required this.value});
+}
+
 class PaintController {
-  final EinheitController _einheitController = EinheitController();
+  final ValueNotifier<int> _repaint = ValueNotifier<int>(0);
+
+  //Painter
   late PolyPainter polyPainter;
   late LinePainter linePainter;
+
+  //Controller
+  final EinheitController _einheitController = EinheitController();
   final InputPopup _inputPopup = InputPopup();
-  final ValueNotifier<int> _repaint = ValueNotifier<int>(0);
-  double scale = 1;
+
+  //Member
+  Scale scale = Scale(value: 1);
   final List<Flaeche> _flaechen = [];
   late Size? _canvasSize;
   List<Wall> walls = [];
-  final updateDrawingState = Event();
   Rect drawingRect = Rect.zero;
+
+  //Events
+  final updateScaleEvent = Event<Scale>();
+  final updateDrawingState = Event();
 
   PaintController() {
     polyPainter = PolyPainter(repaint: _repaint);
@@ -97,9 +112,9 @@ class PaintController {
     List<Offset> area = linePainter.finishArea();
     if (area.isNotEmpty) {
       Offset center = drawingRect.center;
-      center = (center * scale) - _canvasSize!.center(Offset.zero);
-      _flaechen
-          .add(Flaeche(walls: List.from(walls), scale: scale, center: center));
+      center = (center * scale.value) - _canvasSize!.center(Offset.zero);
+      _flaechen.add(
+          Flaeche(walls: List.from(walls), scale: scale.value, center: center));
       walls.clear();
       polyPainter.drawFlaechen(_flaechen);
     }
@@ -126,11 +141,13 @@ class PaintController {
 
       double maxScaleX = _canvasSize!.width / drawingRect.size.width.abs();
       double maxScaleY = _canvasSize!.height / drawingRect.size.height.abs();
-      scale = min(maxScaleX, maxScaleY) * 0.8;
+      scale = Scale(value: min(maxScaleX, maxScaleY) * 0.8);
+
+      updateScaleEvent.broadcast(scale);
 
       Offset center = drawingRect.center;
 
-      center = (center * scale) - _canvasSize!.center(Offset.zero);
+      center = (center * scale.value) - _canvasSize!.center(Offset.zero);
 
       _drawWallsWithScale(center);
     } else {
@@ -143,11 +160,11 @@ class PaintController {
 
     for (Wall wall in walls) {
       wall.scaledStart = Corner(center: origin);
-      origin += (wall.end * scale);
+      origin += (wall.end * scale.value);
       wall.scaledEnd = Corner(center: origin);
     }
     for (Flaeche flaeche in _flaechen) {
-      flaeche.init(scale, center);
+      flaeche.init(scale.value, center);
     }
     linePainter.drawWalls(walls);
     repaint();
