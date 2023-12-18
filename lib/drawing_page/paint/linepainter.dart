@@ -12,9 +12,6 @@ class LinePainter extends CustomPainter {
 
   Corner? selectedCorner;
 
-  Offset testCenter = Offset.zero;
-  Rect testRect = Rect.zero;
-
   void drawWalls(List<Wall> walls) {
     _points.clear();
     for (Wall wall in walls) {
@@ -104,13 +101,6 @@ class LinePainter extends CustomPainter {
       canvas.drawPath(corner.path, endArea);
       canvas.drawPath(corner.path, endStroke);
     }
-    /*
-    paint = Paint()
-      ..color = Colors.red
-      ..strokeWidth = 8
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawPoints(PointMode.points, [_points.first, _points.last], paint);*/
   }
 
   @override

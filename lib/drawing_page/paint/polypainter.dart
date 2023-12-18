@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_test_diplom/Misc/einheitcontroller.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/flaeche.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
 class PolyPainter extends CustomPainter {
@@ -15,6 +15,8 @@ class PolyPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    Einheit selectedEinheit = EinheitController().selectedEinheit;
+
     for (Flaeche flaeche in _flaechen) {
       Paint paint = Paint()
         ..color = flaeche.color.withOpacity(0.25)
@@ -41,7 +43,7 @@ class PolyPainter extends CustomPainter {
 
         double displayArea = flaeche.area;
 
-        switch (PaintController().selectedEinheit) {
+        switch (selectedEinheit) {
           case Einheit.m:
             displayArea /= 1000000;
             break;
@@ -54,7 +56,7 @@ class PolyPainter extends CustomPainter {
 
         final textSpan = TextSpan(
           text:
-              "${flaeche.name}\nFLÄCHE: ${(displayArea).toStringAsFixed(2)} ${PaintController().selectedEinheit.name}²",
+              "${flaeche.name}\nFLÄCHE: ${(displayArea).toStringAsFixed(2)} ${selectedEinheit.name}²",
           style: textStyle,
         );
         final textPainter = TextPainter(
@@ -75,7 +77,8 @@ class PolyPainter extends CustomPainter {
           if (wall == flaeche.walls.last) {
             double length = sqrt((pow(end.dx, 2) + pow(end.dy, 2)));
             wall = Wall(angle: 0, length: length);
-            wall.scaledStart = flaeche.walls[flaeche.walls.length - 2].scaledEnd;
+            wall.scaledStart =
+                flaeche.walls[flaeche.walls.length - 2].scaledEnd;
             wall.scaledEnd = flaeche.walls.first.scaledStart;
           }
 
@@ -113,7 +116,7 @@ class PolyPainter extends CustomPainter {
           canvas.translate(-posMark.dx, -posMark.dy);
 
           double displayLength = wall.length;
-          switch (PaintController().selectedEinheit) {
+          switch (selectedEinheit) {
             case Einheit.m:
               displayLength /= 1000;
               break;
@@ -126,7 +129,7 @@ class PolyPainter extends CustomPainter {
 
           final textSpan = TextSpan(
             text:
-                "${(displayLength).toStringAsFixed(2)} ${PaintController().selectedEinheit.name}",
+                "${(displayLength).toStringAsFixed(2)} ${selectedEinheit.name}",
             style: textStyle,
           );
           final textPainter = TextPainter(

@@ -10,13 +10,25 @@ class Flaeche {
   Offset posBeschriftung = const Offset(0, 0);
   double area = 0;
   bool hasBeschriftung;
+  Rect size = Rect.zero;
 
   Flaeche({
     required this.walls,
     this.hasBeschriftung = true,
     required double scale,
     required Offset center,
-  });
+  }) {
+    calcSize();
+  }
+
+  void calcSize() {
+    size = Rect.zero;
+    Offset origin = Offset.zero;
+    for (Wall wall in walls) {
+      origin += wall.end;
+      size = size.expandToInclude(Rect.fromPoints(origin, origin));
+    }
+  }
 
   void init(double scale, Offset center) {
     Offset origin = Offset.zero - center;
@@ -51,5 +63,6 @@ class Flaeche {
                 posBeschriftung.dy / (walls.length + 1)) *
             scale) -
         center;
+    calcSize();
   }
 }

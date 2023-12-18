@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_test_diplom/Misc/einheitcontroller.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/flaeche.dart';
 import 'package:flutter_test_diplom/PopUP/inputpopup.dart';
@@ -8,11 +9,8 @@ import 'package:flutter_test_diplom/drawing_page/paint/linepainter.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/polypainter.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
-enum Einheit { mm, cm, m }
-
 class PaintController {
-  static final PaintController _instance = PaintController._internal();
-
+  final EinheitController _einheitController = EinheitController();
   late PolyPainter polyPainter;
   late LinePainter linePainter;
   final InputPopup _inputPopup = InputPopup();
@@ -21,30 +19,16 @@ class PaintController {
   final List<Flaeche> _flaechen = [];
   late Size? _canvasSize;
   List<Wall> walls = [];
-  
-  
-  Set<Einheit> _einheitSelection = <Einheit>{Einheit.mm};
-  Einheit get selectedEinheit{
-    return _einheitSelection.first;
-  }
-  set selectedEinheit (Einheit newSel){
-    _einheitSelection = {newSel};
-    repaint();
-  }
-
-
   final updateDrawingState = Event();
-
   Rect drawingRect = Rect.zero;
 
-  factory PaintController() {
-    return _instance;
-  }
-
-  PaintController._internal() {
+  PaintController() {
     polyPainter = PolyPainter(repaint: _repaint);
     linePainter = LinePainter(repaint: _repaint);
     _inputPopup.addWallEvent.subscribe((args) => addWall(args));
+    _einheitController.updateEinheitEvent.subscribe((args) {
+      repaint();
+    });
   }
 
   set canvasSize(Size size) {
@@ -62,8 +46,6 @@ class PaintController {
 
   void addWall(Wall? wall) {
     if (wall != null) {
-      wall = convertToMM(wall);
-
       if (walls.isEmpty) {
         walls.add(wall);
         updateDrawingState.broadcast();
@@ -73,6 +55,12 @@ class PaintController {
           return;
         } else if (linePainter.selectedCorner!.center ==
             walls.first.scaledStart!.center) {
+          if (wall.angle <= 180) {
+            wall = Wall(angle: wall.angle + 180, length: wall.length);
+          } else {
+            wall = Wall(angle: wall.angle - 180, length: wall.length);
+          }
+          //wall.end *= -1;
           walls.insert(0, wall);
         } else if (linePainter.selectedCorner!.center ==
             walls.last.scaledEnd!.center) {
@@ -85,20 +73,6 @@ class PaintController {
       updateDrawingState.broadcast();
     }
     _updateScaleAndCenter();
-  }
-
-  Wall convertToMM(Wall wall) {
-    switch (selectedEinheit) {
-      case Einheit.cm:
-        wall = Wall(angle: wall.angle, length: wall.length * 10);
-        break;
-      case Einheit.m:
-        wall = Wall(angle: wall.angle, length: wall.length * 1000);
-        break;
-      default:
-        break;
-    }
-    return wall;
   }
 
   void tap(Offset pos) {
@@ -121,24 +95,13 @@ class PaintController {
 
   void finishArea() {
     List<Offset> area = linePainter.finishArea();
-    if (area != null && area.isNotEmpty) {
-
-      double length = sqrt((pow(walls.last.end.dx, 2) + pow(walls.last.end.dy, 2)));
-
-      //Offset direction = Offset.
-      double angle = atan(walls.last.end.dy / walls.last.end.dx); //* 180 / pi;
-
-      print(length);
-      print(angle);
-
-      Wall last = Wall(angle: angle, length: length);
-
+    if (area.isNotEmpty) {
       Offset center = drawingRect.center;
       center = (center * scale) - _canvasSize!.center(Offset.zero);
       _flaechen
           .add(Flaeche(walls: List.from(walls), scale: scale, center: center));
-      polyPainter.drawFlaechen(_flaechen);
       walls.clear();
+      polyPainter.drawFlaechen(_flaechen);
     }
     repaint();
   }
@@ -151,16 +114,15 @@ class PaintController {
   void _updateScaleAndCenter() {
     if (_canvasSize != null) {
       Offset origin = Offset.zero;
+      drawingRect = Rect.zero;
       for (Wall wall in walls) {
-        if (!drawingRect.contains(origin + wall.end)) {
-          drawingRect = drawingRect.expandToInclude(
-              Rect.fromPoints(origin + wall.end, origin + wall.end));
-        }
         origin += wall.end;
+        drawingRect =
+            drawingRect.expandToInclude(Rect.fromPoints(origin, origin));
       }
-
-      linePainter.testRect =
-          drawingRect.shift(_canvasSize!.center(Offset.zero));
+      for (Flaeche flaeche in _flaechen) {
+        drawingRect = drawingRect.expandToInclude(flaeche.size);
+      }
 
       double maxScaleX = _canvasSize!.width / drawingRect.size.width.abs();
       double maxScaleY = _canvasSize!.height / drawingRect.size.height.abs();
@@ -168,7 +130,6 @@ class PaintController {
 
       Offset center = drawingRect.center;
 
-      linePainter.testCenter = center + _canvasSize!.center(Offset.zero);
       center = (center * scale) - _canvasSize!.center(Offset.zero);
 
       _drawWallsWithScale(center);
