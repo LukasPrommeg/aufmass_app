@@ -68,7 +68,7 @@ class InputPopup {
                     decoration:
                         const InputDecoration(hintText: "Länge der Wand"),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   einheitSelector,
                   const SizedBox(
                     height: 40,

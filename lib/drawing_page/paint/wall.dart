@@ -10,6 +10,7 @@ class Wall extends EventArgs {
   late Offset end;
   Corner? scaledStart;
   Corner? scaledEnd;
+  int id = 0;
 
   Wall({required this.angle, required this.length}) {
     //x = sin

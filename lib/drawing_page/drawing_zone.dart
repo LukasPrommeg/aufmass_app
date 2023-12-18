@@ -10,13 +10,13 @@ class DrawingZone extends StatelessWidget {
   final _trafoCont = TransformationController();
 
   DrawingZone({super.key, required this.paintController}) {
-    paintController.updateScaleEvent
+    paintController.updateScaleRectEvent
         .subscribe((args) => updateDrawingScale(args));
   }
 
-  void updateDrawingScale(Scale? scale) {
+  void updateDrawingScale(ScalingData? scale) {
     if (scale != null) {
-      planBackground.updateScale(scale);
+      planBackground.updateScaleAndRect(scale);
     }
   }
 
@@ -57,7 +57,7 @@ class DrawingZone extends StatelessWidget {
                     height: double.infinity,
                     width: double.infinity,
                     alignment: Alignment.center,
-                    opacity: const AlwaysStoppedAnimation(0.25),
+                    opacity: const AlwaysStoppedAnimation(0),
                   ),
                   planBackground,
                   PlanCanvas(

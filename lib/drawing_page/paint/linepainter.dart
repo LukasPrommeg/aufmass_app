@@ -6,7 +6,7 @@ import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 class LinePainter extends CustomPainter {
   LinePainter({required Listenable repaint}) : super(repaint: repaint);
 
-  List<Offset> _points = [];
+  final List<Offset> _points = [];
   final List<Corner> _ends = [];
   bool isDrawing = false;
 

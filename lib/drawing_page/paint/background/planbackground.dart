@@ -15,12 +15,10 @@ class PlanBackground extends StatelessWidget {
     rasterPainter = RasterPainter(repaint: _repaint);
   }
 
-  void updateScale(Scale scale) {
-    if (scale.value.isFinite) {
-      linealPainter.scale = scale;
-      rasterPainter.scale = scale;
-
-      print(scale.value);
+  void updateScaleAndRect(ScalingData scale) {
+    if (scale.scale.isFinite) {
+      linealPainter.scalingData = scale;
+      rasterPainter.scalingData = scale;
     }
 
     _repaint.value++;
@@ -29,8 +27,6 @@ class PlanBackground extends StatelessWidget {
   void updateSize(Size size) {
     linealPainter.backgroundSize = size;
     rasterPainter.backgroundSize = size;
-
-    print(size);
 
     _repaint.value++;
   }

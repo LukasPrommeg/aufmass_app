@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/Misc/Room.dart';
+import 'package:flutter_test_diplom/Misc/room.dart';
 import 'package:flutter_test_diplom/Misc/einheitselector.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
 
@@ -188,7 +188,7 @@ class PlanPageContent extends State<PlanPage> {
                       );
                     }).toList(),
                   ),
-                  Text('Länge: TEST'),
+                  const Text('Länge: TEST'),
                   EinheitSelector(
                     setGlobal: true,
                   ),
@@ -218,32 +218,32 @@ class PlanPageContent extends State<PlanPage> {
                   Navigator.pop(context);
                 },
               ),
-            Divider(),
+            const Divider(),
             ListTile(
-              title: Text('Raum hinzufügen'),
+              title: const Text('Raum hinzufügen'),
               onTap: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text('Raum hinzufügen'),
+                      title: const Text('Raum hinzufügen'),
                       content: TextField(
                         controller: newRoomController,
                         decoration:
-                            InputDecoration(labelText: 'Name des Raumes'),
+                            const InputDecoration(labelText: 'Name des Raumes'),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text('Abbrechen'),
+                          child: const Text('Abbrechen'),
                         ),
                         TextButton(
                           onPressed: () {
                             addNewRoom();
                           },
-                          child: Text('Hinzufügen'),
+                          child: const Text('Hinzufügen'),
                         ),
                       ],
                     );
@@ -252,7 +252,7 @@ class PlanPageContent extends State<PlanPage> {
               },
             ),
             ListTile(
-              title: Text('Raum umbenennen'),
+              title: const Text('Raum umbenennen'),
               onTap: () {
                 renameRoomController.text = currentRoom.name;
 
@@ -260,24 +260,24 @@ class PlanPageContent extends State<PlanPage> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text('Raum umbenennen'),
+                      title: const Text('Raum umbenennen'),
                       content: TextField(
                         controller: renameRoomController,
                         decoration:
-                            InputDecoration(labelText: 'Name des Raumes'),
+                            const InputDecoration(labelText: 'Name des Raumes'),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text('Abbrechen'),
+                          child: const Text('Abbrechen'),
                         ),
                         TextButton(
                           onPressed: () {
                             renameRoom();
                           },
-                          child: Text('Umbenennen'),
+                          child: const Text('Umbenennen'),
                         ),
                       ],
                     );
