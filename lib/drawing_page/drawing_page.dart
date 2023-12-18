@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_diplom/Misc/Room.dart';
-import 'package:flutter_test_diplom/drawing_page/drawing_zone.dart';
+import 'package:flutter_test_diplom/Misc/einheitselector.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
 
 class PlanPage extends StatefulWidget {
@@ -11,15 +11,11 @@ class PlanPage extends StatefulWidget {
 }
 
 class PlanPageContent extends State<PlanPage> {
-  /*final PaintController _paintController = PaintController();
-  final String _roomName = "Raum 1";
-  late DrawingZone drawingZone;*/
   late Widget floatingButton;
-
-  late List<Room> rooms;
+  final List<Room> rooms = [];
   late Room currentRoom;
   late String selectedDropdownValue;
-  bool isRightColumnVisible = true;
+  bool isRightColumnVisible = false;
 
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
@@ -28,21 +24,16 @@ class PlanPageContent extends State<PlanPage> {
   void initState() {
     super.initState();
 
-    rooms = [
-      Room(
-        name: 'Raum 1',
-        drawingZone: DrawingZone(paintController: PaintController()),
-        paintController: PaintController(),
-      ),
-      // todo: save and load rooms
-    ];
+    rooms.add(Room(
+      name: 'Raum 1',
+      paintController: PaintController(),
+    ));
+    //TODO: save and load rooms
 
     currentRoom = rooms.first;
-    selectedDropdownValue = 'Option 1';
+    switchRoom(currentRoom);
 
-    currentRoom.paintController.updateDrawingState.subscribe((args) {
-      switchFloating();
-    });
+    selectedDropdownValue = 'Option 1';
 
     floatingButton = Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -62,8 +53,11 @@ class PlanPageContent extends State<PlanPage> {
 
   void switchRoom(Room newRoom) {
     setState(() {
+      newRoom.paintController.updateDrawingState.unsubscribe((args) {});
       currentRoom = newRoom;
-
+      currentRoom.paintController.updateDrawingState.subscribe((args) {
+        switchFloating();
+      });
       switchFloating();
     });
   }
@@ -73,7 +67,6 @@ class PlanPageContent extends State<PlanPage> {
     if (newRoomName.isNotEmpty) {
       rooms.add(Room(
         name: newRoomName,
-        drawingZone: DrawingZone(paintController: PaintController()),
         paintController: PaintController(),
       ));
       switchRoom(rooms.last);
@@ -98,13 +91,6 @@ class PlanPageContent extends State<PlanPage> {
       isRightColumnVisible = !isRightColumnVisible;
     });
   }
-
-  /*PlanPageContent() {
-
-    drawingZone = DrawingZone(paintController: _paintController);
-
-    
-  }*/
 
   void switchFloating() {
     setState(() {
@@ -203,6 +189,9 @@ class PlanPageContent extends State<PlanPage> {
                     }).toList(),
                   ),
                   Text('Länge: TEST'),
+                  EinheitSelector(
+                    setGlobal: true,
+                  ),
                 ],
               ),
             ),
@@ -216,7 +205,7 @@ class PlanPageContent extends State<PlanPage> {
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.deepPurple,
               ),
               child: Text('Räume'),
             ),
@@ -231,29 +220,30 @@ class PlanPageContent extends State<PlanPage> {
               ),
             Divider(),
             ListTile(
-              title: Text('Add New Room'),
+              title: Text('Raum hinzufügen'),
               onTap: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text('Enter Room Name'),
+                      title: Text('Raum hinzufügen'),
                       content: TextField(
                         controller: newRoomController,
-                        decoration: InputDecoration(labelText: 'Room Name'),
+                        decoration:
+                            InputDecoration(labelText: 'Name des Raumes'),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text('Cancel'),
+                          child: Text('Abbrechen'),
                         ),
                         TextButton(
                           onPressed: () {
                             addNewRoom();
                           },
-                          child: Text('Add'),
+                          child: Text('Hinzufügen'),
                         ),
                       ],
                     );
@@ -262,7 +252,7 @@ class PlanPageContent extends State<PlanPage> {
               },
             ),
             ListTile(
-              title: Text('Rename Room'),
+              title: Text('Raum umbenennen'),
               onTap: () {
                 renameRoomController.text = currentRoom.name;
 
@@ -270,23 +260,24 @@ class PlanPageContent extends State<PlanPage> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text('Enter New Room Name'),
+                      title: Text('Raum umbenennen'),
                       content: TextField(
                         controller: renameRoomController,
-                        decoration: InputDecoration(labelText: 'New Room Name'),
+                        decoration:
+                            InputDecoration(labelText: 'Name des Raumes'),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text('Cancel'),
+                          child: Text('Abbrechen'),
                         ),
                         TextButton(
                           onPressed: () {
                             renameRoom();
                           },
-                          child: Text('Rename'),
+                          child: Text('Umbenennen'),
                         ),
                       ],
                     );

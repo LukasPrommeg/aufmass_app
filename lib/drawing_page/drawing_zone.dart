@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/background/planbackground.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/plancanvas.dart';
 
 class DrawingZone extends StatelessWidget {
   final PaintController paintController;
+  final PlanBackground planBackground = const PlanBackground();
   final _repaint = ValueNotifier<int>(0);
   final _trafoCont = TransformationController();
 
-  DrawingZone({super.key, required this.paintController});
+  DrawingZone({super.key, required this.paintController}) {
+    paintController.updateScaleEvent
+        .subscribe((args) => updateDrawingScale(args));
+  }
+
+  void updateDrawingScale(Scale? scale) {
+    if (scale != null) {
+      planBackground.updateScale(scale);
+    }
+  }
 
   void tapUP(TapUpDetails details) {
     paintController.tap(_trafoCont.toScene(details.localPosition));
@@ -42,6 +53,7 @@ class DrawingZone extends StatelessWidget {
                 alignment: Alignment.center,
                 opacity: const AlwaysStoppedAnimation(0.25),
               ),
+              planBackground,
               PlanCanvas(
                 paintController: paintController,
               ),
