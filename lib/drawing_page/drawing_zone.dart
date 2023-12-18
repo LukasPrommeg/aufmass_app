@@ -14,16 +14,10 @@ class DrawingZone extends StatelessWidget {
     _repaint.value++;
   }
 
-  void handleContextMenu(final details) {
-
-  }
+  void handleContextMenu(final details) {}
 
   void finishArea() {
     paintController.finishArea();
-  }
-
-  void undo() {
-    paintController.undo();
   }
 
   @override
