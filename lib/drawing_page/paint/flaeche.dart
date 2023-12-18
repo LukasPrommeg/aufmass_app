@@ -1,50 +1,68 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';
+import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
 class Flaeche {
-  List<Offset> corners;
+  List<Wall> walls;
   Path path = Path();
   Color color = Colors.black;
-  String name = "unnamed";
+  String name = "UNNAMED";
   Offset posBeschriftung = const Offset(0, 0);
   double area = 0;
-  List<double> lengths = [];
   bool hasBeschriftung;
+  Rect size = Rect.zero;
 
   Flaeche({
-    required this.corners,
+    required this.walls,
     this.hasBeschriftung = true,
+    required double scale,
+    required Offset center,
   }) {
-    for (int i = 1; i < corners.length; i++) {
-      area += corners[i - 1].dx * corners[i].dy;
-      area -= corners[i - 1].dy * corners[i].dx;
-
-      num diffx = corners[i].dx - corners[i - 1].dx;
-      num diffy = corners[i].dy - corners[i - 1].dy;
-      double length = sqrt((diffx * diffx) + (diffy * diffy));
-      lengths.add(length);
-    }
-    if (area < 0) {
-      area /= -2;
-    } else {
-      area /= 2;
-    }
-
-    path.moveTo(corners.first.dx, corners.first.dy);
-    corners.removeAt(0);
-    for (Offset point in corners) {
-      path.lineTo(point.dx, point.dy);
-      posBeschriftung += point;
-    }
-    posBeschriftung = Offset(posBeschriftung.dx / corners.length,
-        posBeschriftung.dy / corners.length);
+    calcSize();
   }
 
-  Map toJson() => {
-        'name': name,
-        'color': color,
-        'area': corners,
-        'path': path,
-      };
+  void calcSize() {
+    size = Rect.zero;
+    Offset origin = Offset.zero;
+    for (Wall wall in walls) {
+      origin += wall.end;
+      size = size.expandToInclude(Rect.fromPoints(origin, origin));
+    }
+  }
+
+  void init(double scale, Offset center) {
+    Offset origin = Offset.zero - center;
+    posBeschriftung = Offset.zero;
+
+    path = Path();
+    path.moveTo(origin.dx, origin.dy);
+
+    Offset end = walls.first.end;
+
+    for (int i = 0; i < walls.length; i++) {
+      if (i > 0) {
+        area += end.dx * (end + walls[i].end).dy;
+        area -= end.dy * (end + walls[i].end).dx;
+
+        posBeschriftung += end;
+        end += walls[i].end;
+        if (i == walls.length - 1) {
+          posBeschriftung += end;
+        }
+      }
+      walls[i].scaledStart = Corner(center: origin);
+      origin += (walls[i].end * scale);
+      walls[i].scaledEnd = Corner(center: origin);
+      path.lineTo(walls[i].scaledEnd!.center.dx, walls[i].scaledEnd!.center.dy);
+    }
+    area = area.abs() / 2;
+    path.lineTo(
+        walls.first.scaledStart!.center.dx, walls.first.scaledStart!.center.dy);
+
+    posBeschriftung = (Offset(posBeschriftung.dx / (walls.length + 1),
+                posBeschriftung.dy / (walls.length + 1)) *
+            scale) -
+        center;
+    calcSize();
+  }
 }

@@ -1,25 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_diplom/CircleSlider/circleslider.dart';
 import 'package:event/event.dart';
+import 'package:flutter_test_diplom/Misc/einheitcontroller.dart';
+import 'package:flutter_test_diplom/Misc/einheitselector.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
-class AddPopUpController {
+class InputPopup {
   final TextEditingController _textFieldController = TextEditingController();
 
   final double sliderRange;
-  double lastWallAngle = 0;
-  bool isFirstWall = true;
   final addWallEvent = Event<Wall>();
+  late EinheitSelector einheitSelector = EinheitSelector(
+    setGlobal: false,
+  );
+  late CircleSlider slider;
 
-  AddPopUpController({
+  //TODO: Zuletzt gewählte Einheit in DB speichern
+
+  InputPopup({
     this.sliderRange = 300,
   }) {
-    init(0, false);
+    init(0, true);
   }
 
   void init(double lastWallAngle, bool isFirstWall) {
-    this.lastWallAngle = lastWallAngle;
-    this.isFirstWall = isFirstWall;
+    _textFieldController.text = "";
+    einheitSelector = EinheitSelector(
+      setGlobal: false,
+    );
+    slider = CircleSlider(
+      radius: 75,
+      centerAngle: lastWallAngle,
+      maxAngle: sliderRange / 2,
+      hitboxSize: 0.1,
+      isFirstWall: isFirstWall,
+    );
+  }
+
+  Wall convertToMM(Wall wall) {
+    switch (einheitSelector.selected) {
+      case Einheit.cm:
+        wall = Wall(angle: wall.angle, length: wall.length * 10);
+        break;
+      case Einheit.m:
+        wall = Wall(angle: wall.angle, length: wall.length * 1000);
+        break;
+      default:
+        break;
+    }
+    return wall;
   }
 
   Future<void> displayTextInputDialog(BuildContext context) async {
@@ -29,7 +58,7 @@ class AddPopUpController {
           return AlertDialog(
             title: const Text('Wand hinzufügen'),
             content: SizedBox(
-              height: 280,
+              height: 320,
               child: Column(
                 children: [
                   TextField(
@@ -39,6 +68,8 @@ class AddPopUpController {
                     decoration:
                         const InputDecoration(hintText: "Länge der Wand"),
                   ),
+                  SizedBox(height: 10),
+                  einheitSelector,
                   const SizedBox(
                     height: 40,
                     width: 150,
@@ -52,41 +83,38 @@ class AddPopUpController {
                       ),
                     ]),
                   ),
-                  CircleSlider(
-                    radius: 75,
-                    centerAngle: 0,
-                    maxAngle: sliderRange / 2,
-                    hitboxSize: 0.1,
-                    isFirstWall: isFirstWall,
-                  ),
+                  slider,
                 ],
               ),
             ),
             actions: <Widget>[
-              MaterialButton(
-                color: Colors.red,
-                textColor: Colors.white,
-                child: const Text('CANCEL'),
+              /*
+              ElevatedButton(
+                child: const Text('X'),
                 onPressed: () {
                   Navigator.pop(context);
                 },
-              ),
-              MaterialButton(
-                color: Colors.blue,
-                textColor: Colors.white,
-                child: const Text('Finish'),
+              ),*/
+              ElevatedButton(
+                child: const Text('Fertigstellen'),
                 onPressed: () {
                   addWallEvent.broadcast();
                   Navigator.pop(context);
                 },
               ),
-              MaterialButton(
-                color: Colors.green,
-                textColor: Colors.white,
-                child: const Text('OK'),
+              ElevatedButton(
+                child: const Text('Zeichnen'),
                 onPressed: () {
-                  addWallEvent.broadcast();
-                  Navigator.pop(context);
+                  try {
+                    double length = double.parse(_textFieldController.text);
+                    double angle = slider.centerAngle;
+                    angle += -slider.value;
+                    Wall wall = convertToMM(Wall(angle: angle, length: length));
+                    addWallEvent.broadcast(wall);
+                    Navigator.pop(context);
+                  } catch (e) {
+                    //TODO: Fehler bei der Eingabe
+                  }
                 },
               ),
             ],
