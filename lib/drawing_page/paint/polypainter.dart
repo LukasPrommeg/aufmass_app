@@ -81,7 +81,10 @@ class PolyPainter extends CustomPainter {
             wall.scaledStart =
                 flaeche.walls[flaeche.walls.length - 2].scaledEnd;
             wall.scaledEnd = flaeche.walls.first.scaledStart;
+
+            wall.scaledEnd!.paint(canvas);
           }
+          wall.scaledStart!.paint(canvas);
 
           end += wall.end;
 
@@ -143,6 +146,9 @@ class PolyPainter extends CustomPainter {
           textPainter.paint(canvas, posMark);
 
           canvas.restore();
+        }
+        for (Wall wall in flaeche.walls) {
+          wall.paint(canvas);
         }
         flaeche.walls.removeLast();
       }

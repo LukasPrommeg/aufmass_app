@@ -35,7 +35,7 @@ class PaintController {
   late Size? _canvasSize;
   List<Wall> walls = [];
   int _wallCount = 0;
-  String roomName = "";
+  String _roomName = "";
 
   //Events
   final updateScaleRectEvent = Event<ScalingData>();
@@ -48,6 +48,13 @@ class PaintController {
     _einheitController.updateEinheitEvent.subscribe((args) {
       repaint();
     });
+  }
+
+  set roomName(String string) {
+    _roomName = string;
+    if (_flaechen.isNotEmpty) {
+      _flaechen.first.name = string;
+    }
   }
 
   set canvasSize(Size size) {
@@ -126,7 +133,7 @@ class PaintController {
       center = (center * scalingData.scale) - _canvasSize!.center(Offset.zero);
       Flaeche flaeche = Flaeche(
           walls: List.from(walls), scale: scalingData.scale, center: center);
-      flaeche.name = roomName;
+      flaeche.name = _roomName;
       _flaechen.add(flaeche);
       walls.clear();
       polyPainter.drawFlaechen(_flaechen);
