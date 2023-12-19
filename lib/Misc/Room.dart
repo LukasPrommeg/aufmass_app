@@ -10,6 +10,7 @@ class Room {
     required this.name,
     required this.paintController,
   }) {
+    paintController.roomName = name;
     drawingZone = DrawingZone(paintController: paintController);
   }
 }

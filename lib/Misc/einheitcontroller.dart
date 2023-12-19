@@ -31,4 +31,18 @@ class EinheitController {
     _einheitSelection = {newSel};
     updateEinheitEvent.broadcast();
   }
+
+  double convertToSelected(double length) {
+    switch (selectedEinheit) {
+      case Einheit.m:
+        length /= 1000;
+        break;
+      case Einheit.cm:
+        length /= 10;
+        break;
+      default:
+        break;
+    }
+    return length;
+  }
 }

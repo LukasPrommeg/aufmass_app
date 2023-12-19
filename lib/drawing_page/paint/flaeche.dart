@@ -33,6 +33,7 @@ class Flaeche {
   void init(double scale, Offset center) {
     Offset origin = Offset.zero - center;
     posBeschriftung = Offset.zero;
+    area = 0;
 
     path = Path();
     path.moveTo(origin.dx, origin.dy);
@@ -56,6 +57,7 @@ class Flaeche {
       path.lineTo(walls[i].scaledEnd!.center.dx, walls[i].scaledEnd!.center.dy);
     }
     area = area.abs() / 2;
+
     path.lineTo(
         walls.first.scaledStart!.center.dx, walls.first.scaledStart!.center.dy);
 

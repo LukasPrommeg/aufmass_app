@@ -5,18 +5,18 @@ import 'package:flutter_test_diplom/drawing_page/paint/plancanvas.dart';
 
 class DrawingZone extends StatelessWidget {
   final PaintController paintController;
-  final PlanBackground planBackground = const PlanBackground();
+  final PlanBackground planBackground = PlanBackground();
   final _repaint = ValueNotifier<int>(0);
   final _trafoCont = TransformationController();
 
   DrawingZone({super.key, required this.paintController}) {
-    paintController.updateScaleEvent
+    paintController.updateScaleRectEvent
         .subscribe((args) => updateDrawingScale(args));
   }
 
-  void updateDrawingScale(Scale? scale) {
+  void updateDrawingScale(ScalingData? scale) {
     if (scale != null) {
-      planBackground.updateScale(scale);
+      planBackground.updateScaleAndRect(scale);
     }
   }
 
@@ -43,21 +43,29 @@ class DrawingZone extends StatelessWidget {
           transformationController: _trafoCont,
           minScale: 0.1,
           maxScale: 10,
-          child: Stack(
-            children: [
-              Image.asset(
-                "assets/BG.png",
-                fit: BoxFit.cover,
-                height: double.infinity,
-                width: double.infinity,
-                alignment: Alignment.center,
-                opacity: const AlwaysStoppedAnimation(0.25),
-              ),
-              planBackground,
-              PlanCanvas(
-                paintController: paintController,
-              ),
-            ],
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              Size canvasSize =
+                  Size(constraints.maxWidth, constraints.maxHeight);
+              paintController.canvasSize = canvasSize;
+              planBackground.updateSize(canvasSize);
+              return Stack(
+                children: [
+                  Image.asset(
+                    "assets/BG.png",
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    opacity: const AlwaysStoppedAnimation(0),
+                  ),
+                  planBackground,
+                  PlanCanvas(
+                    paintController: paintController,
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

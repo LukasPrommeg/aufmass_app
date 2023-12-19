@@ -32,7 +32,8 @@ class PolyPainter extends CustomPainter {
       if (flaeche.hasBeschriftung) {
         const textStyle = TextStyle(
           color: Colors.black,
-          fontSize: 10,
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
         );
         paint = Paint()
           ..color = Colors.red

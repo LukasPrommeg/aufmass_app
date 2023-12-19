@@ -9,10 +9,12 @@ import 'package:flutter_test_diplom/drawing_page/paint/linepainter.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/polypainter.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
 
-class Scale extends EventArgs {
-  final double value;
+class ScalingData extends EventArgs {
+  final double scale;
+  final Rect rect;
+  final Offset center;
 
-  Scale({required this.value});
+  ScalingData({required this.scale, required this.rect, required this.center});
 }
 
 class PaintController {
@@ -27,14 +29,16 @@ class PaintController {
   final InputPopup _inputPopup = InputPopup();
 
   //Member
-  Scale scale = Scale(value: 1);
+  ScalingData scalingData =
+      ScalingData(scale: 1, rect: Rect.zero, center: Offset.zero);
   final List<Flaeche> _flaechen = [];
   late Size? _canvasSize;
   List<Wall> walls = [];
-  Rect drawingRect = Rect.zero;
+  int _wallCount = 0;
+  String roomName = "";
 
   //Events
-  final updateScaleEvent = Event<Scale>();
+  final updateScaleRectEvent = Event<ScalingData>();
   final updateDrawingState = Event();
 
   PaintController() {
@@ -62,30 +66,36 @@ class PaintController {
   void addWall(Wall? wall) {
     if (wall != null) {
       if (walls.isEmpty) {
+        _wallCount++;
+
+        wall.id = _wallCount;
         walls.add(wall);
         updateDrawingState.broadcast();
       } else {
         if (linePainter.selectedCorner == null) {
           //TODO: Fehlermeldung, sollte aber nicht erreichbar sein
           return;
-        } else if (linePainter.selectedCorner!.center ==
-            walls.first.scaledStart!.center) {
-          if (wall.angle <= 180) {
-            wall = Wall(angle: wall.angle + 180, length: wall.length);
-          } else {
-            wall = Wall(angle: wall.angle - 180, length: wall.length);
+        } else {
+          _wallCount++;
+
+          wall.id = _wallCount;
+          if (linePainter.selectedCorner!.center ==
+              walls.first.scaledStart!.center) {
+            if (wall.angle <= 180) {
+              wall = Wall(angle: wall.angle + 180, length: wall.length);
+            } else {
+              wall = Wall(angle: wall.angle - 180, length: wall.length);
+            }
+            walls.insert(0, wall);
+          } else if (linePainter.selectedCorner!.center ==
+              walls.last.scaledEnd!.center) {
+            walls.add(wall);
           }
-          //wall.end *= -1;
-          walls.insert(0, wall);
-        } else if (linePainter.selectedCorner!.center ==
-            walls.last.scaledEnd!.center) {
-          walls.add(wall);
         }
       }
       linePainter.selectedCorner = null;
     } else {
       finishArea();
-      updateDrawingState.broadcast();
     }
     _updateScaleAndCenter();
   }
@@ -105,49 +115,63 @@ class PaintController {
         //TODO: EDIT
       }
     }
+    _updateScaleAndCenter();
     repaint();
   }
 
   void finishArea() {
     List<Offset> area = linePainter.finishArea();
     if (area.isNotEmpty) {
-      Offset center = drawingRect.center;
-      center = (center * scale.value) - _canvasSize!.center(Offset.zero);
-      _flaechen.add(
-          Flaeche(walls: List.from(walls), scale: scale.value, center: center));
+      Offset center = scalingData.rect.center;
+      center = (center * scalingData.scale) - _canvasSize!.center(Offset.zero);
+      Flaeche flaeche = Flaeche(
+          walls: List.from(walls), scale: scalingData.scale, center: center);
+      flaeche.name = roomName;
+      _flaechen.add(flaeche);
       walls.clear();
       polyPainter.drawFlaechen(_flaechen);
+      updateDrawingState.broadcast();
     }
     repaint();
   }
 
   void undo() {
-    linePainter.undo();
+    if (_wallCount > 1) {
+      walls.removeWhere((element) => element.id == _wallCount);
+      _wallCount--;
+    } else {
+      walls.clear();
+      _wallCount = 0;
+      updateDrawingState.broadcast();
+    }
+    _updateScaleAndCenter();
     repaint();
   }
 
   void _updateScaleAndCenter() {
     if (_canvasSize != null) {
       Offset origin = Offset.zero;
-      drawingRect = Rect.zero;
+      Rect newRect = Rect.zero;
       for (Wall wall in walls) {
         origin += wall.end;
-        drawingRect =
-            drawingRect.expandToInclude(Rect.fromPoints(origin, origin));
+        newRect = newRect.expandToInclude(Rect.fromPoints(origin, origin));
       }
       for (Flaeche flaeche in _flaechen) {
-        drawingRect = drawingRect.expandToInclude(flaeche.size);
+        newRect = newRect.expandToInclude(flaeche.size);
       }
 
-      double maxScaleX = _canvasSize!.width / drawingRect.size.width.abs();
-      double maxScaleY = _canvasSize!.height / drawingRect.size.height.abs();
-      scale = Scale(value: min(maxScaleX, maxScaleY) * 0.8);
+      double maxScaleX = _canvasSize!.width / newRect.size.width.abs();
+      double maxScaleY = _canvasSize!.height / newRect.size.height.abs();
 
-      updateScaleEvent.broadcast(scale);
+      double scale = min(maxScaleX, maxScaleY) * 0.8;
 
-      Offset center = drawingRect.center;
+      Offset center = newRect.center;
 
-      center = (center * scale.value) - _canvasSize!.center(Offset.zero);
+      center = (center * scale) - _canvasSize!.center(Offset.zero);
+
+      scalingData = ScalingData(scale: scale, rect: newRect, center: center);
+
+      updateScaleRectEvent.broadcast(scalingData);
 
       _drawWallsWithScale(center);
     } else {
@@ -160,11 +184,11 @@ class PaintController {
 
     for (Wall wall in walls) {
       wall.scaledStart = Corner(center: origin);
-      origin += (wall.end * scale.value);
+      origin += (wall.end * scalingData.scale);
       wall.scaledEnd = Corner(center: origin);
     }
     for (Flaeche flaeche in _flaechen) {
-      flaeche.init(scale.value, center);
+      flaeche.init(scalingData.scale, center);
     }
     linePainter.drawWalls(walls);
     repaint();

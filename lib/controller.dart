@@ -11,7 +11,7 @@ class Controller extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: PlanPage(),
+      home: const PlanPage(),
     );
   }
 }
