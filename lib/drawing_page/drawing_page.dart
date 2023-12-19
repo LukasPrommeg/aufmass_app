@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test_diplom/Misc/room.dart';
 import 'package:flutter_test_diplom/Misc/einheitselector.dart';
 import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
+import 'package:flutter_test_diplom/Misc/pdfexport.dart';
 
 class PlanPage extends StatefulWidget {
   const PlanPage({super.key});
@@ -137,6 +138,10 @@ class PlanPageContent extends State<PlanPage> {
     });
   }
 
+  void createPDF() {
+    PDFExport.generatePDF();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -203,87 +208,122 @@ class PlanPageContent extends State<PlanPage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
+            // Projekt Section
+            DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.deepPurple,
               ),
-              child: Text('Räume'),
-            ),
-            for (var room in rooms)
-              ListTile(
-                title: Text(room.name),
-                tileColor: room == currentRoom ? Colors.grey[300] : null,
-                onTap: () {
-                  switchRoom(room);
-                  Navigator.pop(context);
-                },
+              child: Text(
+                'Projektname',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                ),
               ),
-            const Divider(),
-            ListTile(
-              title: const Text('Raum hinzufügen'),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Raum hinzufügen'),
-                      content: TextField(
-                        controller: newRoomController,
-                        decoration:
-                            const InputDecoration(labelText: 'Name des Raumes'),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Abbrechen'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            addNewRoom();
-                          },
-                          child: const Text('Hinzufügen'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
             ),
-            ListTile(
-              title: const Text('Raum umbenennen'),
-              onTap: () {
-                renameRoomController.text = currentRoom.name;
-
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Raum umbenennen'),
-                      content: TextField(
-                        controller: renameRoomController,
-                        decoration:
-                            const InputDecoration(labelText: 'Name des Raumes'),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Abbrechen'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            renameRoom();
-                          },
-                          child: const Text('Umbenennen'),
-                        ),
-                      ],
+            ExpansionTile(
+              title: Text(
+                'Projekt',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+              shape: Border(),
+              children: [
+                ListTile(
+                  title: Text('Create PDF'),
+                  onTap: createPDF,
+                ),
+              ],
+            ),
+            Divider(),
+            // Rooms Section
+            ExpansionTile(
+              title: Text(
+                'Rooms',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+              shape: Border(),
+              children: [
+                for (var room in rooms)
+                  ListTile(
+                    title: Text(room.name),
+                    tileColor: room == currentRoom ? Colors.grey[300] : null,
+                    onTap: () {
+                      switchRoom(room);
+                      Navigator.pop(context);
+                    },
+                  ),
+                Divider(),
+                ListTile(
+                  title: Text('Add New Room'),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Enter Room Name'),
+                          content: TextField(
+                            controller: newRoomController,
+                            decoration: InputDecoration(labelText: 'Room Name'),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                addNewRoom();
+                              },
+                              child: Text('Add'),
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
-                );
-              },
+                ),
+                ListTile(
+                  title: Text('Rename Room'),
+                  onTap: () {
+                    // Set the initial text to the current room's name
+                    renameRoomController.text = currentRoom.name;
+
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Enter New Room Name'),
+                          content: TextField(
+                            controller: renameRoomController,
+                            decoration:
+                                InputDecoration(labelText: 'New Room Name'),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                renameRoom();
+                              },
+                              child: Text('Rename'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
