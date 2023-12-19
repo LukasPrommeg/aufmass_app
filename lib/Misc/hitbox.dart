@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 
 abstract class ClickAble {
@@ -15,30 +14,6 @@ abstract class ClickAble {
     ..style = PaintingStyle.stroke;
 
   ClickAble({required this.size});
-
-  ClickAble.fromWall({required double angle, required double length, required this.size}) {
-    //x = sin
-    double x = -sin(angle * (pi / 180)) * length * -1;
-    //y = cos
-    double y = cos(angle * (pi / 180)) * length * -1;
-
-    Offset wallEnd = Offset(x, y);
-
-    angle += 90;
-
-    //x = sin
-    x = -sin(angle * (pi / 180)) * size * -1;
-    //y = cos
-    y = cos(angle * (pi / 180)) * size * -1;
-
-    Offset endOffset = Offset(x, y);
-
-    hitbox.moveTo(endOffset.dx, endOffset.dy);
-    hitbox.lineTo(-endOffset.dx, -endOffset.dy);
-    hitbox.lineTo(wallEnd.dx - endOffset.dx, wallEnd.dy - endOffset.dy);
-    hitbox.lineTo(wallEnd.dx + endOffset.dx, wallEnd.dy + endOffset.dy);
-    hitbox.lineTo(endOffset.dx, endOffset.dy);
-  }
 
   ClickAble.merge(ClickAble a, ClickAble b, [double? size]) {
     if (size != null) {

@@ -7,6 +7,7 @@ class Corner extends ClickAble {
   Corner({required this.center, double hitboxSize = 10}) : super(size: hitboxSize);
 
   @override
+  @protected
   void calcHitbox() {
     if (offset.isInfinite) {
       hitbox = Path();

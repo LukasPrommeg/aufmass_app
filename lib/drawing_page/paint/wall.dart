@@ -36,6 +36,7 @@ class Wall extends ClickAble with EventArgs {
   @protected
   void calcHitbox() {
     if (scaledStart != null && scaledEnd != null) {
+      hitbox = Path();
       //x = sin
       double x = -sin((90 + angle) * (pi / 180)) * size * -1;
       //y = cos
@@ -50,13 +51,7 @@ class Wall extends ClickAble with EventArgs {
       points.add(scaledEnd!.center - endOffset);
       points.add(scaledEnd!.center + endOffset);
 
-      //hitbox.moveTo(endOffset.dx, endOffset.dy);
       hitbox.addPolygon(points, true);
-/*
-      hitbox.lineTo(-endOffset.dx, -endOffset.dy);
-      hitbox.lineTo(wallEnd.dx - endOffset.dx, wallEnd.dy - endOffset.dy);
-      hitbox.lineTo(wallEnd.dx + endOffset.dx, wallEnd.dy + endOffset.dy);
-      hitbox.lineTo(endOffset.dx, endOffset.dy);*/
     }
   }
 }
