@@ -1,13 +1,13 @@
 import 'dart:math';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/Misc/einheitcontroller.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/flaeche.dart';
-import 'package:flutter_test_diplom/PopUP/inputpopup.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/linepainter.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/polypainter.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/Misc/einheitcontroller.dart';
+import 'package:aufmass_app/drawing_page/paint/corner.dart';
+import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
+import 'package:aufmass_app/PopUP/inputpopup.dart';
+import 'package:aufmass_app/drawing_page/paint/linepainter.dart';
+import 'package:aufmass_app/drawing_page/paint/polypainter.dart';
+import 'package:aufmass_app/drawing_page/paint/wall.dart';
 
 class ScalingData extends EventArgs {
   final double scale;
@@ -29,8 +29,7 @@ class PaintController {
   final InputPopup _inputPopup = InputPopup();
 
   //Member
-  ScalingData scalingData =
-      ScalingData(scale: 1, rect: Rect.zero, center: Offset.zero);
+  ScalingData scalingData = ScalingData(scale: 1, rect: Rect.zero, center: Offset.zero);
   final List<Flaeche> _flaechen = [];
   late Size? _canvasSize;
   List<Wall> walls = [];
@@ -86,16 +85,14 @@ class PaintController {
           _wallCount++;
 
           wall.id = _wallCount;
-          if (linePainter.selectedCorner!.center ==
-              walls.first.scaledStart!.center) {
+          if (linePainter.selectedCorner!.center == walls.first.scaledStart!.center) {
             if (wall.angle <= 180) {
               wall = Wall(angle: wall.angle + 180, length: wall.length);
             } else {
               wall = Wall(angle: wall.angle - 180, length: wall.length);
             }
             walls.insert(0, wall);
-          } else if (linePainter.selectedCorner!.center ==
-              walls.last.scaledEnd!.center) {
+          } else if (linePainter.selectedCorner!.center == walls.last.scaledEnd!.center) {
             walls.add(wall);
           }
         }
@@ -131,8 +128,7 @@ class PaintController {
     if (area.isNotEmpty) {
       Offset center = scalingData.rect.center;
       center = (center * scalingData.scale) - _canvasSize!.center(Offset.zero);
-      Flaeche flaeche = Flaeche(
-          walls: List.from(walls), scale: scalingData.scale, center: center);
+      Flaeche flaeche = Flaeche(walls: List.from(walls), scale: scalingData.scale, center: center);
       flaeche.name = _roomName;
       _flaechen.add(flaeche);
       walls.clear();
@@ -206,15 +202,13 @@ class PaintController {
       _inputPopup.init(0, true);
       return _inputPopup.displayTextInputDialog(context);
     } else if (linePainter.selectedCorner != null) {
-      if (linePainter.selectedCorner!.center ==
-          walls.first.scaledStart!.center) {
+      if (linePainter.selectedCorner!.center == walls.first.scaledStart!.center) {
         if (walls.first.angle <= 180) {
           _inputPopup.init(walls.first.angle + 180, false);
         } else {
           _inputPopup.init(walls.first.angle - 180, false);
         }
-      } else if (linePainter.selectedCorner!.center ==
-          walls.last.scaledEnd!.center) {
+      } else if (linePainter.selectedCorner!.center == walls.last.scaledEnd!.center) {
         _inputPopup.init(walls.last.angle, false);
       }
       return _inputPopup.displayTextInputDialog(context);

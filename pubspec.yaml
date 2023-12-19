@@ -1,5 +1,5 @@
-name: flutter_test_diplom
-description: A new Flutter project.
+name: aufmass_app
+description: Aufmaß App fuer Handwerker
 publish_to: 'none'
 version: 0.1.0
 
@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   event: ^2.1.2
+  meta: ^1.9.1
 
 
 dev_dependencies:

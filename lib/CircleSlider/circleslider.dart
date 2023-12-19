@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/CircleSlider/sliderpainter.dart';
+import 'package:aufmass_app/CircleSlider/sliderpainter.dart';
 
 //TODO: schaun ob immutable möglich
 //ignore: must_be_immutable
@@ -12,8 +12,7 @@ class CircleSlider extends StatelessWidget {
   final _repaint = ValueNotifier<int>(0);
 
   late SliderPainter sliderPainter;
-  final TextEditingController centerTextFieldController =
-      TextEditingController(text: "0");
+  final TextEditingController centerTextFieldController = TextEditingController(text: "0");
 
   final painterKey = GlobalKey();
   final boxKey = GlobalKey();
@@ -80,9 +79,7 @@ class CircleSlider extends StatelessWidget {
                         onChanged: (value) {
                           try {
                             double angle = double.parse(value);
-                            if (angle >= 0 && angle <= maxAngle ||
-                                angle < 0 && angle >= (maxAngle * -1) ||
-                                isFirstWall) {
+                            if (angle >= 0 && angle <= maxAngle || angle < 0 && angle >= (maxAngle * -1) || isFirstWall) {
                               sliderPainter.updateValueWithAngle(angle);
                             } else {
                               //TODO: Change Style weil nicht in Range
@@ -120,8 +117,7 @@ class CircleSlider extends StatelessWidget {
   }
 
   void _updateValWithPoint(Offset point) {
-    RenderBox painterBox =
-        boxKey.currentContext!.findRenderObject() as RenderBox;
+    RenderBox painterBox = boxKey.currentContext!.findRenderObject() as RenderBox;
 
     Offset offset = Offset(painterBox.size.width, painterBox.size.height);
 

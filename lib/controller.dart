@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/drawing_page/drawing_page.dart';
+import 'package:aufmass_app/drawing_page/drawing_page.dart';
 
 class Controller extends StatelessWidget {
   const Controller({super.key});

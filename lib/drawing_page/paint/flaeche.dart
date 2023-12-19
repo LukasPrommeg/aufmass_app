@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/drawing_page/paint/corner.dart';
+import 'package:aufmass_app/drawing_page/paint/wall.dart';
 
 class Flaeche {
   List<Wall> walls;
@@ -58,13 +58,9 @@ class Flaeche {
     }
     area = area.abs() / 2;
 
-    path.lineTo(
-        walls.first.scaledStart!.center.dx, walls.first.scaledStart!.center.dy);
+    path.lineTo(walls.first.scaledStart!.center.dx, walls.first.scaledStart!.center.dy);
 
-    posBeschriftung = (Offset(posBeschriftung.dx / (walls.length + 1),
-                posBeschriftung.dy / (walls.length + 1)) *
-            scale) -
-        center;
+    posBeschriftung = (Offset(posBeschriftung.dx / (walls.length + 1), posBeschriftung.dy / (walls.length + 1)) * scale) - center;
     calcSize();
   }
 }

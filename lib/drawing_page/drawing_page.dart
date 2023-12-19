@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/Misc/room.dart';
-import 'package:flutter_test_diplom/Misc/einheitselector.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
-import 'package:flutter_test_diplom/Misc/pdfexport.dart';
+import 'package:aufmass_app/Misc/room.dart';
+import 'package:aufmass_app/Misc/einheitselector.dart';
+import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
+import 'package:aufmass_app/Misc/pdfexport.dart';
 
 class PlanPage extends StatefulWidget {
   const PlanPage({super.key});
@@ -163,8 +163,7 @@ class PlanPageContent extends State<PlanPage> {
         backgroundColor: Colors.purple,
         actions: [
           IconButton(
-            icon: Icon(
-                isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
+            icon: Icon(isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
             onPressed: toggleRightColumnVisibility,
           ),
         ],
@@ -185,19 +184,13 @@ class PlanPageContent extends State<PlanPage> {
                 children: [
                   // Dropdown menü
                   DropdownButton<String>(
-                    value:
-                        selectedDropdownValue, //sollte selected.werkstoff werden
+                    value: selectedDropdownValue, //sollte selected.werkstoff werden
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedDropdownValue = newValue!;
                       });
                     },
-                    items: <String>[
-                      'Option 1',
-                      'Werkstoff 2',
-                      'Werkstoff 3',
-                      'Werkstoff 4'
-                    ] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
+                    items: <String>['Option 1', 'Werkstoff 2', 'Werkstoff 3', 'Werkstoff 4'] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -246,7 +239,7 @@ class PlanPageContent extends State<PlanPage> {
                   title: const Text('Als PDF exportieren'),
                   onTap: createPDF,
                 ),
-                Divider(),
+                const Divider(),
                 ListTile(
                   title: const Text('Projekt umbenennen'),
                   onTap: () {
@@ -262,8 +255,7 @@ class PlanPageContent extends State<PlanPage> {
                           title: const Text('Projekt umbenennen'),
                           content: TextField(
                             controller: renameProjectController,
-                            decoration:
-                                const InputDecoration(labelText: 'Projektname'),
+                            decoration: const InputDecoration(labelText: 'Projektname'),
                           ),
                           actions: [
                             TextButton(
@@ -286,7 +278,7 @@ class PlanPageContent extends State<PlanPage> {
                 ),
               ],
             ),
-            Divider(),
+            const Divider(),
             // Rooms Section
             ExpansionTile(
               title: const Text(
@@ -306,7 +298,7 @@ class PlanPageContent extends State<PlanPage> {
                       Navigator.pop(context);
                     },
                   ),
-                Divider(),
+                const Divider(),
                 ListTile(
                   title: const Text('Raum hinzufügen'),
                   onTap: () {
@@ -317,8 +309,7 @@ class PlanPageContent extends State<PlanPage> {
                           title: const Text('Raum hinzufügen'),
                           content: TextField(
                             controller: newRoomController,
-                            decoration: const InputDecoration(
-                                labelText: 'Name des Raumes'),
+                            decoration: const InputDecoration(labelText: 'Name des Raumes'),
                           ),
                           actions: [
                             TextButton(
@@ -352,8 +343,7 @@ class PlanPageContent extends State<PlanPage> {
                           title: const Text('Raum umbenennen'),
                           content: TextField(
                             controller: renameRoomController,
-                            decoration: const InputDecoration(
-                                labelText: 'Name des Raumes'),
+                            decoration: const InputDecoration(labelText: 'Name des Raumes'),
                           ),
                           actions: [
                             TextButton(

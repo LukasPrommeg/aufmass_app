@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/drawing_page/paint/corner.dart';
+import 'package:aufmass_app/drawing_page/paint/wall.dart';
 
 class LinePainter extends CustomPainter {
   LinePainter({required Listenable repaint}) : super(repaint: repaint);

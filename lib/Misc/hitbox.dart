@@ -1,26 +1,30 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 abstract class ClickAble {
   Path hitbox = Path();
   double size = 10;
-  Offset offset = Offset.zero;
-  Paint paintStyle = Paint()
+  bool selected = false;
+
+  @protected
+  Offset offset = Offset.infinite;
+
+  Paint _paintStyle = Paint()
     ..color = Colors.red
     ..strokeWidth = 0.5
     ..style = PaintingStyle.stroke;
 
   ClickAble({required this.size});
 
-  ClickAble.fromWall(
-      {required double angle, required double length, required this.size}) {
-//x = sin
+  ClickAble.fromWall({required double angle, required double length, required this.size}) {
+    //x = sin
     double x = -sin(angle * (pi / 180)) * length * -1;
     //y = cos
     double y = cos(angle * (pi / 180)) * length * -1;
 
     Offset wallEnd = Offset(x, y);
+
+    angle += 90;
 
     //x = sin
     x = -sin(angle * (pi / 180)) * size * -1;
@@ -33,18 +37,7 @@ abstract class ClickAble {
     hitbox.lineTo(-endOffset.dx, -endOffset.dy);
     hitbox.lineTo(wallEnd.dx - endOffset.dx, wallEnd.dy - endOffset.dy);
     hitbox.lineTo(wallEnd.dx + endOffset.dx, wallEnd.dy + endOffset.dy);
-  }
-
-  ClickAble.fromPoint({required Offset point, required this.size}) {
-    Radius radius = Radius.circular(size);
-
-    hitbox.moveTo(0, 0 - size);
-    hitbox.arcToPoint(const Offset(10, 0), radius: radius);
-    hitbox.arcToPoint(const Offset(0, 10), radius: radius);
-    hitbox.arcToPoint(const Offset(-10, 0), radius: radius);
-    hitbox.arcToPoint(const Offset(0, -10), radius: radius);
-
-    shift(point);
+    hitbox.lineTo(endOffset.dx, endOffset.dy);
   }
 
   ClickAble.merge(ClickAble a, ClickAble b, [double? size]) {
@@ -62,20 +55,37 @@ abstract class ClickAble {
     }
   }
 
-  void shift(Offset offset) {
-    offset += this.offset;
+  void moveTo(Offset offset) {
+    if (this.offset.isFinite) {
+      hitbox = hitbox.shift(-this.offset);
+    }
     this.offset = offset;
     hitbox = hitbox.shift(this.offset);
   }
 
   void paint(Canvas canvas) {
-    shift(-offset);
+    if (selected) {
+      _paintStyle = Paint()
+        ..color = Colors.green
+        ..strokeWidth = 0.5
+        ..style = PaintingStyle.stroke;
+    } else {
+      _paintStyle = Paint()
+        ..color = Colors.red
+        ..strokeWidth = 0.5
+        ..style = PaintingStyle.stroke;
+    }
+
     Paint areaPaint = Paint()
-      ..color = paintStyle.color.withOpacity(0.2)
+      ..color = _paintStyle.color.withOpacity(0.2)
       ..style = PaintingStyle.fill;
 
-    print(hitbox.getBounds());
+    calcHitbox();
+
     canvas.drawPath(hitbox, areaPaint);
-    canvas.drawPath(hitbox, paintStyle);
+    canvas.drawPath(hitbox, _paintStyle);
   }
+
+  @protected
+  void calcHitbox();
 }

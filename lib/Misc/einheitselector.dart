@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/Misc/einheitcontroller.dart';
+import 'package:aufmass_app/Misc/einheitcontroller.dart';
 
 //ignore: must_be_immutable
 class EinheitSelector extends StatefulWidget {
@@ -20,8 +20,7 @@ class _EinheitSelectorState extends State<EinheitSelector> {
 
   _EinheitSelectorState() {
     for (Einheit einheit in Einheit.values) {
-      _segments.add(
-          ButtonSegment<Einheit>(value: einheit, label: Text(einheit.name)));
+      _segments.add(ButtonSegment<Einheit>(value: einheit, label: Text(einheit.name)));
     }
   }
 

@@ -1,13 +1,12 @@
 import 'dart:math';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/Misc/hitbox.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';
+import 'package:aufmass_app/Misc/hitbox.dart';
+import 'package:aufmass_app/drawing_page/paint/corner.dart';
 
 class Wall extends ClickAble with EventArgs {
   final double angle;
   final double length;
-  bool selected = false;
   late Offset end;
   Corner? _scaledStart;
   Corner? scaledEnd;
@@ -15,7 +14,7 @@ class Wall extends ClickAble with EventArgs {
 
   set scaledStart(Corner? corner) {
     if (corner != null) {
-      shift(corner.center);
+      moveTo(corner.center);
     }
     _scaledStart = corner;
   }
@@ -24,8 +23,7 @@ class Wall extends ClickAble with EventArgs {
     return _scaledStart;
   }
 
-  Wall({required this.angle, required this.length})
-      : super.fromWall(angle: angle, length: length, size: 10) {
+  Wall({required this.angle, required this.length}) : super(size: 10) {
     //x = sin
     double x = -sin(angle * (pi / 180)) * length * -1;
     //y = cos
@@ -35,23 +33,30 @@ class Wall extends ClickAble with EventArgs {
   }
 
   @override
-  void paint(Canvas canvas) {
-    Paint paintStyle;
+  @protected
+  void calcHitbox() {
+    if (scaledStart != null && scaledEnd != null) {
+      //x = sin
+      double x = -sin((90 + angle) * (pi / 180)) * size * -1;
+      //y = cos
+      double y = cos((90 + angle) * (pi / 180)) * size * -1;
 
-    if (selected) {
-      paintStyle = Paint()
-        ..color = Colors.green
-        ..strokeWidth = 0.5
-        ..style = PaintingStyle.stroke;
-    } else {
-      paintStyle = Paint()
-        ..color = Colors.red
-        ..strokeWidth = 0.5
-        ..style = PaintingStyle.stroke;
+      Offset endOffset = Offset(x, y);
+
+      List<Offset> points = [];
+
+      points.add(scaledStart!.center + endOffset);
+      points.add(scaledStart!.center - endOffset);
+      points.add(scaledEnd!.center - endOffset);
+      points.add(scaledEnd!.center + endOffset);
+
+      //hitbox.moveTo(endOffset.dx, endOffset.dy);
+      hitbox.addPolygon(points, true);
+/*
+      hitbox.lineTo(-endOffset.dx, -endOffset.dy);
+      hitbox.lineTo(wallEnd.dx - endOffset.dx, wallEnd.dy - endOffset.dy);
+      hitbox.lineTo(wallEnd.dx + endOffset.dx, wallEnd.dy + endOffset.dy);
+      hitbox.lineTo(endOffset.dx, endOffset.dy);*/
     }
-
-    super.paintStyle = paintStyle;
-
-    super.paint(canvas);
   }
 }
