@@ -4,6 +4,7 @@ import 'package:aufmass_app/drawing_page/paint/wall.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/room.dart';
+import 'package:aufmass_app/Misc/werkstoff.dart';
 import 'package:aufmass_app/Misc/einheitselector.dart';
 import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
 import 'package:aufmass_app/Misc/pdfexport.dart';
@@ -22,6 +23,16 @@ class PlanPageContent extends State<PlanPage> {
   String projektName = "unnamed";
   late String selectedDropdownValue;
   bool isRightColumnVisible = false;
+
+  late var clickedThing=null;
+
+  //sollte in Zukunft aus DB kommen
+  List<Werkstoff> werkstoffe = [
+    Werkstoff("Option 1", Colors.red),
+    Werkstoff("Werkstoff 2", Colors.blue),
+    Werkstoff("Werkstoff 3", Colors.green),
+  ];
+
 
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
@@ -74,17 +85,21 @@ class PlanPageContent extends State<PlanPage> {
   void handleClickedEvent(EventArgs? clicked) {
     if (clicked == null) {
       setRightColumnVisibility(false);
+      clickedThing=null;
     } else {
       switch (clicked.runtimeType) {
         case Corner:
           print("CORNER");
+          clickedThing=(clicked as Corner);
           break;
         case Wall:
           print("Wall");
+          clickedThing=(clicked as Wall);
           break;
         case Flaeche:
           print("Flaeche");
-          (clicked as Flaeche).color = Colors.red;
+          clickedThing=(clicked as Flaeche);
+          //clickedThing.color = Colors.red;
           break;
         default:
           print("Shouldn't be possible");
@@ -217,22 +232,33 @@ class PlanPageContent extends State<PlanPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Dropdown menü
-                  DropdownButton<String>(
-                    value: selectedDropdownValue, //sollte selected.werkstoff werden
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedDropdownValue = newValue!;
-                      });
-                    },
-                    items: <String>['Option 1', 'Werkstoff 2', 'Werkstoff 3', 'Werkstoff 4'] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
+                  if(clickedThing is Wall)
+                    Text(clickedThing.length.toString()),
+                  if(clickedThing is Flaeche)
+                    Text(
+                      clickedThing?.werkstoff != null
+                          ? "Selected Werkstoff: ${clickedThing.werkstoff.name}"
+                          : "Select a Werkstoff",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  if(clickedThing is Flaeche)
+                    DropdownButton<Werkstoff>(
+                      value: clickedThing?.werkstoff ?? werkstoffe.first,
+                      onChanged: (Werkstoff? newValue) {
+                        setState(() {
+                          if (clickedThing != null) {
+                            clickedThing.werkstoff = newValue;
+                            clickedThing.color=clickedThing.werkstoff.color; //geht save besser dasma glei sog de color vom clickedThing soid ima de color vom werkstoff sei oba mei gehirn is nur zu blöd dafür grod
+                          }
+                        });
+                      },
+                      items: werkstoffe.map((Werkstoff werkstoff) {
+                        return DropdownMenuItem<Werkstoff>(
+                          value: werkstoff,
+                          child: Text(werkstoff.name),
+                        );
+                      }).toList(),
+                    ),
                   const Text('Länge: TEST'),
                   EinheitSelector(
                     setGlobal: true,
@@ -322,7 +348,8 @@ class PlanPageContent extends State<PlanPage> {
                   fontSize: 20,
                 ),
               ),
-              shape: const Border(),
+            initiallyExpanded: true,
+            shape: const Border(),
               children: [
                 for (var room in rooms)
                   ListTile(

@@ -4,6 +4,7 @@ import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/Misc/werkstoff.dart';
 
 class Flaeche extends EventArgs {
   List<Wall> _walls = [];
@@ -16,6 +17,8 @@ class Flaeche extends EventArgs {
   bool hasBeschriftung;
   Rect size = Rect.zero;
 
+  Werkstoff? werkstoff;
+
   List<Wall> get walls {
     return _walls;
   }
@@ -25,6 +28,7 @@ class Flaeche extends EventArgs {
     this.hasBeschriftung = true,
     required double scale,
     required Offset center,
+    this.werkstoff=null,
   }) {
     _walls = walls;
 
