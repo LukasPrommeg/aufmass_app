@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'package:flutter_test_diplom/CircleSlider/sliderhitbox.dart';
+import 'package:aufmass_app/CircleSlider/sliderhitbox.dart';
 
 class SliderPainter extends CustomPainter {
   final ValueNotifier<int> repaint;
@@ -26,17 +26,9 @@ class SliderPainter extends CustomPainter {
     centerAngle = -centerAngle;
 
     if (isFirstWall) {
-      hitBox = SliderHitBox(
-          radius: radius,
-          hitBoxSize: hitboxSize,
-          centerAngle: centerAngle,
-          range: 360);
+      hitBox = SliderHitBox(radius: radius, hitBoxSize: hitboxSize, centerAngle: centerAngle, range: 360);
     } else {
-      hitBox = SliderHitBox(
-          radius: radius,
-          hitBoxSize: hitboxSize,
-          centerAngle: centerAngle,
-          range: maxAngle * 2);
+      hitBox = SliderHitBox(radius: radius, hitBoxSize: hitboxSize, centerAngle: centerAngle, range: maxAngle * 2);
     }
 
     final arcRadius = Radius.circular(radius);
@@ -49,14 +41,12 @@ class SliderPainter extends CustomPainter {
       sliderCenter = hitBox.calcPointFromAngle(centerAngle, radius);
       path.moveTo(sliderCenter.dx, sliderCenter.dy);
 
-      Offset endCClockwise =
-          hitBox.calcPointFromAngle((centerAngle + maxAngle), radius);
+      Offset endCClockwise = hitBox.calcPointFromAngle((centerAngle + maxAngle), radius);
       path.arcToPoint(endCClockwise, radius: arcRadius, clockwise: false);
 
       path.moveTo(sliderCenter.dx, sliderCenter.dy);
 
-      Offset endClockwise =
-          hitBox.calcPointFromAngle((centerAngle - maxAngle), radius);
+      Offset endClockwise = hitBox.calcPointFromAngle((centerAngle - maxAngle), radius);
       path.arcToPoint(endClockwise, radius: arcRadius);
 
       path.moveTo(sliderCenter.dx, sliderCenter.dy);
@@ -83,8 +73,7 @@ class SliderPainter extends CustomPainter {
       ..strokeWidth = 25
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawPoints(PointMode.points,
-        [hitBox.calcPointFromAngle(val + centerAngle, radius)], paint);
+    canvas.drawPoints(PointMode.points, [hitBox.calcPointFromAngle(val + centerAngle, radius)], paint);
   }
 
   void updateValueWithPoint(Offset point) {

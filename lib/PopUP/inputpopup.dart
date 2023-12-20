@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/CircleSlider/circleslider.dart';
+import 'package:aufmass_app/CircleSlider/circleslider.dart';
 import 'package:event/event.dart';
-import 'package:flutter_test_diplom/Misc/einheitcontroller.dart';
-import 'package:flutter_test_diplom/Misc/einheitselector.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/Misc/einheitcontroller.dart';
+import 'package:aufmass_app/Misc/einheitselector.dart';
+import 'package:aufmass_app/drawing_page/paint/wall.dart';
 
 class InputPopup {
   final TextEditingController _textFieldController = TextEditingController();
@@ -65,8 +65,7 @@ class InputPopup {
                     controller: _textFieldController,
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
-                    decoration:
-                        const InputDecoration(hintText: "Länge der Wand"),
+                    decoration: const InputDecoration(hintText: "Länge der Wand"),
                   ),
                   const SizedBox(height: 10),
                   einheitSelector,
@@ -76,9 +75,7 @@ class InputPopup {
                     child: Stack(alignment: Alignment.bottomLeft, children: [
                       Text(
                         'Winkel: ',
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 90, 90, 90),
-                            decoration: TextDecoration.underline),
+                        style: TextStyle(color: Color.fromARGB(255, 90, 90, 90), decoration: TextDecoration.underline),
                         textAlign: TextAlign.center,
                       ),
                     ]),

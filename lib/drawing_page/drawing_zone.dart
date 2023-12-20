@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/background/planbackground.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/plancanvas.dart';
+import 'package:aufmass_app/drawing_page/paint/background/planbackground.dart';
+import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
+import 'package:aufmass_app/drawing_page/paint/plancanvas.dart';
 
 class DrawingZone extends StatelessWidget {
   final PaintController paintController;
@@ -10,8 +10,7 @@ class DrawingZone extends StatelessWidget {
   final _trafoCont = TransformationController();
 
   DrawingZone({super.key, required this.paintController}) {
-    paintController.updateScaleRectEvent
-        .subscribe((args) => updateDrawingScale(args));
+    paintController.updateScaleRectEvent.subscribe((args) => updateDrawingScale(args));
   }
 
   void updateDrawingScale(ScalingData? scale) {
@@ -45,8 +44,7 @@ class DrawingZone extends StatelessWidget {
           maxScale: 10,
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              Size canvasSize =
-                  Size(constraints.maxWidth, constraints.maxHeight);
+              Size canvasSize = Size(constraints.maxWidth, constraints.maxHeight);
               paintController.canvasSize = canvasSize;
               planBackground.updateSize(canvasSize);
               return Stack(

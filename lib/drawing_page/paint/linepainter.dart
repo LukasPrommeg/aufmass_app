@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/corner.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/drawing_page/paint/corner.dart';
+import 'package:aufmass_app/drawing_page/paint/wall.dart';
 
 class LinePainter extends CustomPainter {
   LinePainter({required Listenable repaint}) : super(repaint: repaint);
@@ -54,8 +54,8 @@ class LinePainter extends CustomPainter {
 
   Corner? detectClickedCorner(Offset location) {
     for (Corner corner in _ends) {
-      if (corner.path.contains(location)) {
-        corner.selected = false;
+      if (corner.contains(location)) {
+        corner.selected = true;
         return corner;
       }
     }
@@ -75,31 +75,11 @@ class LinePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     canvas.drawPoints(pointMode, _points, paint);
 
-    Paint endArea;
-    Paint endStroke;
-
     for (Corner corner in _ends) {
-      if (selectedCorner != null && corner.center == selectedCorner?.center) {
-        endArea = Paint()
-          ..color = Colors.green.withOpacity(0.2)
-          ..style = PaintingStyle.fill;
-
-        endStroke = Paint()
-          ..color = Colors.green
-          ..strokeWidth = 0.5
-          ..style = PaintingStyle.stroke;
-      } else {
-        endArea = Paint()
-          ..color = Colors.red.withOpacity(0.2)
-          ..style = PaintingStyle.fill;
-
-        endStroke = Paint()
-          ..color = Colors.red
-          ..strokeWidth = 0.5
-          ..style = PaintingStyle.stroke;
+      if (selectedCorner != null && corner.center == selectedCorner!.center) {
+        corner.selected = true;
       }
-      canvas.drawPath(corner.path, endArea);
-      canvas.drawPath(corner.path, endStroke);
+      corner.paint(canvas);
     }
   }
 

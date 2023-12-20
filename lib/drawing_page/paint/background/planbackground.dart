@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/background/linealpainter.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/background/rasterpainter.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
+import 'package:aufmass_app/drawing_page/paint/background/linealpainter.dart';
+import 'package:aufmass_app/drawing_page/paint/background/rasterpainter.dart';
+import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
 
 //ignore: must_be_immutable
 class PlanBackground extends StatelessWidget {

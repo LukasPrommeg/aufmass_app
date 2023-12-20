@@ -1,4 +1,4 @@
-package com.example.flutter_test_diplom
+package com.example.aufmass_app
 
 import io.flutter.embedding.android.FlutterActivity
 

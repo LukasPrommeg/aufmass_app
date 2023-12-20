@@ -1,8 +1,12 @@
+import 'package:aufmass_app/drawing_page/paint/corner.dart';
+import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
+import 'package:aufmass_app/drawing_page/paint/wall.dart';
+import 'package:event/event.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/Misc/room.dart';
-import 'package:flutter_test_diplom/Misc/einheitselector.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
-import 'package:flutter_test_diplom/Misc/pdfexport.dart';
+import 'package:aufmass_app/Misc/room.dart';
+import 'package:aufmass_app/Misc/einheitselector.dart';
+import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
+import 'package:aufmass_app/Misc/pdfexport.dart';
 
 class PlanPage extends StatefulWidget {
   const PlanPage({super.key});
@@ -15,11 +19,13 @@ class PlanPageContent extends State<PlanPage> {
   late Widget floatingButton;
   final List<Room> rooms = [];
   late Room currentRoom;
+  String projektName = "unnamed";
   late String selectedDropdownValue;
   bool isRightColumnVisible = false;
 
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
+  TextEditingController renameProjectController = TextEditingController();
 
   @override
   void initState() {
@@ -55,12 +61,37 @@ class PlanPageContent extends State<PlanPage> {
   void switchRoom(Room newRoom) {
     setState(() {
       newRoom.paintController.updateDrawingState.unsubscribe((args) {});
+      newRoom.paintController.clickedEvent.unsubscribe((args) {});
       currentRoom = newRoom;
       currentRoom.paintController.updateDrawingState.subscribe((args) {
         switchFloating();
       });
+      currentRoom.paintController.clickedEvent.subscribe((args) => handleClickedEvent(args));
       switchFloating();
     });
+  }
+
+  void handleClickedEvent(EventArgs? clicked) {
+    if (clicked == null) {
+      setRightColumnVisibility(false);
+    } else {
+      switch (clicked.runtimeType) {
+        case Corner:
+          print("CORNER");
+          break;
+        case Wall:
+          print("Wall");
+          break;
+        case Flaeche:
+          print("Flaeche");
+          (clicked as Flaeche).color = Colors.red;
+          break;
+        default:
+          print("Shouldn't be possible");
+          break;
+      }
+      setRightColumnVisibility(true);
+    }
   }
 
   void addNewRoom() {
@@ -82,14 +113,30 @@ class PlanPageContent extends State<PlanPage> {
       setState(() {
         currentRoom.name = newName;
       });
+      currentRoom.paintController.roomName = newName;
       renameRoomController.clear();
       Navigator.pop(context);
     }
   }
 
+  void renameProject() {
+    String newName = renameProjectController.text.trim();
+    setState(() {
+      projektName = newName;
+    });
+    renameRoomController.clear();
+    Navigator.pop(context);
+  }
+
   void toggleRightColumnVisibility() {
     setState(() {
       isRightColumnVisible = !isRightColumnVisible;
+    });
+  }
+
+  void setRightColumnVisibility(bool visible) {
+    setState(() {
+      isRightColumnVisible = visible;
     });
   }
 
@@ -151,8 +198,7 @@ class PlanPageContent extends State<PlanPage> {
         backgroundColor: Colors.purple,
         actions: [
           IconButton(
-            icon: Icon(
-                isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
+            icon: Icon(isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
             onPressed: toggleRightColumnVisibility,
           ),
         ],
@@ -173,19 +219,13 @@ class PlanPageContent extends State<PlanPage> {
                 children: [
                   // Dropdown menü
                   DropdownButton<String>(
-                    value:
-                        selectedDropdownValue, //sollte selected.werkstoff werden
+                    value: selectedDropdownValue, //sollte selected.werkstoff werden
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedDropdownValue = newValue!;
                       });
                     },
-                    items: <String>[
-                      'Option 1',
-                      'Werkstoff 2',
-                      'Werkstoff 3',
-                      'Werkstoff 4'
-                    ] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
+                    items: <String>['Option 1', 'Werkstoff 2', 'Werkstoff 3', 'Werkstoff 4'] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -210,42 +250,79 @@ class PlanPageContent extends State<PlanPage> {
           children: [
             // Projekt Section
             DrawerHeader(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.deepPurple,
               ),
               child: Text(
-                'Projektname',
-                style: TextStyle(
+                projektName,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                 ),
               ),
             ),
             ExpansionTile(
-              title: Text(
+              title: const Text(
                 'Projekt',
                 style: TextStyle(
                   fontSize: 20,
                 ),
               ),
-              shape: Border(),
+              shape: const Border(),
               children: [
                 ListTile(
-                  title: Text('Create PDF'),
+                  title: const Text('Als PDF exportieren'),
                   onTap: createPDF,
+                ),
+                const Divider(),
+                ListTile(
+                  title: const Text('Projekt umbenennen'),
+                  onTap: () {
+                    // Set the initial text to the current room's name
+                    if (projektName != "unnamed") {
+                      renameProjectController.text = projektName;
+                    }
+
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Projekt umbenennen'),
+                          content: TextField(
+                            controller: renameProjectController,
+                            decoration: const InputDecoration(labelText: 'Projektname'),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Abbrechen'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                renameProject();
+                              },
+                              child: const Text('Umbenennen'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),
-            Divider(),
+            const Divider(),
             // Rooms Section
             ExpansionTile(
-              title: Text(
-                'Rooms',
+              title: const Text(
+                'Räume',
                 style: TextStyle(
                   fontSize: 20,
                 ),
               ),
-              shape: Border(),
+              shape: const Border(),
               children: [
                 for (var room in rooms)
                   ListTile(
@@ -256,31 +333,31 @@ class PlanPageContent extends State<PlanPage> {
                       Navigator.pop(context);
                     },
                   ),
-                Divider(),
+                const Divider(),
                 ListTile(
-                  title: Text('Add New Room'),
+                  title: const Text('Raum hinzufügen'),
                   onTap: () {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text('Enter Room Name'),
+                          title: const Text('Raum hinzufügen'),
                           content: TextField(
                             controller: newRoomController,
-                            decoration: InputDecoration(labelText: 'Room Name'),
+                            decoration: const InputDecoration(labelText: 'Name des Raumes'),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: Text('Cancel'),
+                              child: const Text('Abbrechen'),
                             ),
                             TextButton(
                               onPressed: () {
                                 addNewRoom();
                               },
-                              child: Text('Add'),
+                              child: const Text('Hinzufügen'),
                             ),
                           ],
                         );
@@ -289,7 +366,7 @@ class PlanPageContent extends State<PlanPage> {
                   },
                 ),
                 ListTile(
-                  title: Text('Rename Room'),
+                  title: const Text('Raum umbenennen'),
                   onTap: () {
                     // Set the initial text to the current room's name
                     renameRoomController.text = currentRoom.name;
@@ -298,24 +375,23 @@ class PlanPageContent extends State<PlanPage> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text('Enter New Room Name'),
+                          title: const Text('Raum umbenennen'),
                           content: TextField(
                             controller: renameRoomController,
-                            decoration:
-                                InputDecoration(labelText: 'New Room Name'),
+                            decoration: const InputDecoration(labelText: 'Name des Raumes'),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: Text('Cancel'),
+                              child: const Text('Abbrechen'),
                             ),
                             TextButton(
                               onPressed: () {
                                 renameRoom();
                               },
-                              child: Text('Rename'),
+                              child: const Text('Hinzufügen'),
                             ),
                           ],
                         );

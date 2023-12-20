@@ -1,13 +1,15 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:aufmass_app/Misc/hitbox.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_test_diplom/Misc/einheitcontroller.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/flaeche.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/Misc/einheitcontroller.dart';
+import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
+import 'package:aufmass_app/drawing_page/paint/wall.dart';
 
 class PolyPainter extends CustomPainter {
   PolyPainter({required Listenable repaint}) : super(repaint: repaint);
   List<Flaeche> _flaechen = [];
+  ClickAble? clicked;
 
   void drawFlaechen(List<Flaeche> newFlaechen) {
     _flaechen = List.from(newFlaechen);
@@ -56,8 +58,7 @@ class PolyPainter extends CustomPainter {
         }
 
         final textSpan = TextSpan(
-          text:
-              "${flaeche.name}\nFLÄCHE: ${(displayArea).toStringAsFixed(2)} ${selectedEinheit.name}²",
+          text: "${flaeche.name}\nFLÄCHE: ${(displayArea).toStringAsFixed(2)} ${selectedEinheit.name}²",
           style: textStyle,
         );
         final textPainter = TextPainter(
@@ -66,27 +67,15 @@ class PolyPainter extends CustomPainter {
         );
         textPainter.layout();
 
-        textPainter.paint(
-            canvas,
-            flaeche.posBeschriftung -
-                Offset((textPainter.width / 2), textPainter.height / 2));
+        textPainter.paint(canvas, flaeche.posBeschriftung - Offset((textPainter.width / 2), textPainter.height / 2));
 
-        flaeche.walls.add(Wall(angle: 0, length: 0));
-        Offset end = Offset.zero;
+        flaeche.walls.add(flaeche.lastWall);
 
         for (Wall wall in flaeche.walls) {
-          if (wall == flaeche.walls.last) {
-            double length = sqrt((pow(end.dx, 2) + pow(end.dy, 2)));
-            wall = Wall(angle: 0, length: length);
-            wall.scaledStart =
-                flaeche.walls[flaeche.walls.length - 2].scaledEnd;
-            wall.scaledEnd = flaeche.walls.first.scaledStart;
-          }
+          if (wall == flaeche.walls.last) {}
+          wall.scaledStart!.paint(canvas);
 
-          end += wall.end;
-
-          Offset center =
-              (wall.scaledEnd!.center + wall.scaledStart!.center) / 2;
+          Offset center = (wall.scaledEnd!.center + wall.scaledStart!.center) / 2;
 
           Offset diffFromAreaCenter = center - flaeche.posBeschriftung;
 
@@ -94,10 +83,8 @@ class PolyPainter extends CustomPainter {
 
           canvas.drawPoints(PointMode.points, [centerLine], paint);
 
-          double diffx =
-              wall.scaledEnd!.center.dx - wall.scaledStart!.center.dx;
-          double diffy =
-              wall.scaledEnd!.center.dy - wall.scaledStart!.center.dy;
+          double diffx = wall.scaledEnd!.center.dx - wall.scaledStart!.center.dx;
+          double diffy = wall.scaledEnd!.center.dy - wall.scaledStart!.center.dy;
 
           double angle = atan(diffy / diffx);
 
@@ -129,8 +116,7 @@ class PolyPainter extends CustomPainter {
           }
 
           final textSpan = TextSpan(
-            text:
-                "${(displayLength).toStringAsFixed(2)} ${selectedEinheit.name}",
+            text: "${(displayLength).toStringAsFixed(2)} ${selectedEinheit.name}",
             style: textStyle,
           );
           final textPainter = TextPainter(
@@ -143,13 +129,18 @@ class PolyPainter extends CustomPainter {
           textPainter.paint(canvas, posMark);
 
           canvas.restore();
+
+          wall.paint(canvas);
         }
         flaeche.walls.removeLast();
       }
     }
+    if (clicked != null) {
+      clicked!.selected = true;
+      clicked!.paint(canvas);
+      clicked!.selected = false;
+    }
   }
-
-  void rotateAndPrint(Canvas canvas, Offset pos, String text) {}
 
   @override
   bool shouldRepaint(PolyPainter oldDelegate) {

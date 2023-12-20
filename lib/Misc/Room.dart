@@ -1,5 +1,5 @@
-import 'package:flutter_test_diplom/drawing_page/drawing_zone.dart';
-import 'package:flutter_test_diplom/drawing_page/paint/paintcontroller.dart';
+import 'package:aufmass_app/drawing_page/drawing_zone.dart';
+import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
 
 class Room {
   String name;
