@@ -1,9 +1,13 @@
+import 'dart:math';
+import 'package:aufmass_app/Misc/hitbox.dart';
+import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
 
-class Flaeche {
-  List<Wall> walls;
+class Flaeche extends EventArgs {
+  List<Wall> _walls = [];
+  Wall lastWall = Wall(angle: 0, length: 0);
   Path path = Path();
   Color color = Colors.black;
   String name = "UNNAMED";
@@ -12,13 +16,40 @@ class Flaeche {
   bool hasBeschriftung;
   Rect size = Rect.zero;
 
+  List<Wall> get walls {
+    return _walls;
+  }
+
   Flaeche({
-    required this.walls,
+    required List<Wall> walls,
     this.hasBeschriftung = true,
     required double scale,
     required Offset center,
   }) {
+    _walls = walls;
+
     calcSize();
+    _calcLastWall();
+  }
+
+  ClickAble? findClickedPart(Offset position) {
+    if (lastWall.scaledStart != null && lastWall.scaledStart!.contains(position)) {
+      return lastWall.scaledStart;
+    }
+    for (Wall wall in walls) {
+      if (wall.scaledStart != null && wall.scaledStart!.contains(position)) {
+        return wall.scaledStart;
+      }
+    }
+    if (lastWall.contains(position)) {
+      return lastWall;
+    }
+    for (Wall wall in walls) {
+      if (wall.contains(position)) {
+        return wall;
+      }
+    }
+    return null;
   }
 
   void calcSize() {
@@ -28,6 +59,18 @@ class Flaeche {
       origin += wall.end;
       size = size.expandToInclude(Rect.fromPoints(origin, origin));
     }
+  }
+
+  void _calcLastWall() {
+    Offset end = Offset.zero;
+    for (Wall wall in _walls) {
+      end += wall.end;
+    }
+
+    double length = sqrt((pow(end.dx, 2) + pow(end.dy, 2)));
+    lastWall = Wall(angle: 0, length: length);
+    lastWall.scaledStart = walls.last.scaledEnd;
+    lastWall.scaledEnd = walls.first.scaledStart;
   }
 
   void init(double scale, Offset center) {
@@ -62,5 +105,6 @@ class Flaeche {
 
     posBeschriftung = (Offset(posBeschriftung.dx / (walls.length + 1), posBeschriftung.dy / (walls.length + 1)) * scale) - center;
     calcSize();
+    _calcLastWall();
   }
 }

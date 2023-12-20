@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:aufmass_app/Misc/hitbox.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/einheitcontroller.dart';
@@ -39,6 +40,7 @@ class PaintController {
   //Events
   final updateScaleRectEvent = Event<ScalingData>();
   final updateDrawingState = Event();
+  final clickedEvent = Event<EventArgs>();
 
   PaintController() {
     polyPainter = PolyPainter(repaint: _repaint);
@@ -53,6 +55,43 @@ class PaintController {
     _roomName = string;
     if (_flaechen.isNotEmpty) {
       _flaechen.first.name = string;
+    }
+    if (string.toLowerCase() == "testpoly") {
+      _flaechen.clear();
+      walls.clear();
+      addWall(Wall(angle: 0, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 30, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 60, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 90, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 120, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 150, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 180, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 210, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 240, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 270, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 300, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(null);
+    } else if (string.toLowerCase() == "testquad") {
+      _flaechen.clear();
+      walls.clear();
+      addWall(Wall(angle: 0, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 90, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(Wall(angle: 180, length: 1000));
+      linePainter.selectedCorner = walls.last.scaledEnd;
+      addWall(null);
     }
   }
 
@@ -108,16 +147,31 @@ class PaintController {
     if (linePainter.isDrawing) {
       linePainter.selectedCorner = linePainter.detectClickedCorner(pos);
     } else {
-      Flaeche? result;
-      for (Flaeche flaeche in _flaechen.reversed) {
-        if (flaeche.path.contains(pos)) {
-          result = flaeche;
+      EventArgs? result;
+
+      for (Flaeche flaeche in _flaechen) {
+        ClickAble? clicked = flaeche.findClickedPart(pos);
+        if (clicked != null) {
+          result = clicked;
+          polyPainter.clicked = clicked;
           break;
+        }
+      }
+      if (result == null) {
+        for (Flaeche flaeche in _flaechen.reversed) {
+          if (flaeche.path.contains(pos)) {
+            polyPainter.clicked = null;
+            result = flaeche;
+            break;
+          }
         }
       }
       if (result != null) {
         //TODO: EDIT
+      } else {
+        polyPainter.clicked = null;
       }
+      clickedEvent.broadcast(result);
     }
     _updateScaleAndCenter();
     repaint();

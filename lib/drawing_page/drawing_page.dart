@@ -1,3 +1,7 @@
+import 'package:aufmass_app/drawing_page/paint/corner.dart';
+import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
+import 'package:aufmass_app/drawing_page/paint/wall.dart';
+import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/room.dart';
 import 'package:aufmass_app/Misc/einheitselector.dart';
@@ -57,12 +61,37 @@ class PlanPageContent extends State<PlanPage> {
   void switchRoom(Room newRoom) {
     setState(() {
       newRoom.paintController.updateDrawingState.unsubscribe((args) {});
+      newRoom.paintController.clickedEvent.unsubscribe((args) {});
       currentRoom = newRoom;
       currentRoom.paintController.updateDrawingState.subscribe((args) {
         switchFloating();
       });
+      currentRoom.paintController.clickedEvent.subscribe((args) => handleClickedEvent(args));
       switchFloating();
     });
+  }
+
+  void handleClickedEvent(EventArgs? clicked) {
+    if (clicked == null) {
+      setRightColumnVisibility(false);
+    } else {
+      switch (clicked.runtimeType) {
+        case Corner:
+          print("CORNER");
+          break;
+        case Wall:
+          print("Wall");
+          break;
+        case Flaeche:
+          print("Flaeche");
+          (clicked as Flaeche).color = Colors.red;
+          break;
+        default:
+          print("Shouldn't be possible");
+          break;
+      }
+      setRightColumnVisibility(true);
+    }
   }
 
   void addNewRoom() {
@@ -102,6 +131,12 @@ class PlanPageContent extends State<PlanPage> {
   void toggleRightColumnVisibility() {
     setState(() {
       isRightColumnVisible = !isRightColumnVisible;
+    });
+  }
+
+  void setRightColumnVisibility(bool visible) {
+    setState(() {
+      isRightColumnVisible = visible;
     });
   }
 

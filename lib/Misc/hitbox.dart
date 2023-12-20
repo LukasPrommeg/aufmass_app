@@ -1,6 +1,7 @@
+import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 
-abstract class ClickAble {
+abstract class ClickAble extends EventArgs {
   Path hitbox = Path();
   double size = 10;
   bool selected = false;

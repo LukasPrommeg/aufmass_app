@@ -1,10 +1,9 @@
 import 'dart:math';
-import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/hitbox.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 
-class Wall extends ClickAble with EventArgs {
+class Wall extends ClickAble {
   final double angle;
   final double length;
   late Offset end;
@@ -36,11 +35,15 @@ class Wall extends ClickAble with EventArgs {
   @protected
   void calcHitbox() {
     if (scaledStart != null && scaledEnd != null) {
+      Offset diff = scaledEnd!.center - scaledStart!.center;
+
+      double calcAngle = atan(diff.dy / diff.dx);
+
       hitbox = Path();
       //x = sin
-      double x = -sin((90 + angle) * (pi / 180)) * size * -1;
+      double x = -sin(calcAngle) * size * -1;
       //y = cos
-      double y = cos((90 + angle) * (pi / 180)) * size * -1;
+      double y = cos(calcAngle) * size * -1;
 
       Offset endOffset = Offset(x, y);
 
