@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 abstract class ClickAble extends EventArgs {
   Path hitbox = Path();
-  double size = 10;
+  double hbSize = 10;
   bool selected = false;
 
   @protected
@@ -14,11 +14,11 @@ abstract class ClickAble extends EventArgs {
     ..strokeWidth = 0.5
     ..style = PaintingStyle.stroke;
 
-  ClickAble({required this.size});
+  ClickAble({required this.hbSize});
 
   ClickAble.merge(ClickAble a, ClickAble b, [double? size]) {
     if (size != null) {
-      this.size = size;
+      hbSize = size;
     }
     //TODO: Merge Hitboxes
   }
@@ -39,7 +39,7 @@ abstract class ClickAble extends EventArgs {
     hitbox = hitbox.shift(this.offset);
   }
 
-  void paint(Canvas canvas) {
+  void paintHB(Canvas canvas) {
     if (selected) {
       _paintStyle = Paint()
         ..color = Colors.green

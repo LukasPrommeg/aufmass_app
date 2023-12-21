@@ -1,11 +1,10 @@
 import 'dart:math';
-import 'package:aufmass_app/Misc/hitbox.dart';
-import 'package:event/event.dart';
+import 'package:aufmass_app/Misc/clickable.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
 
-class Flaeche extends EventArgs {
+class Flaeche extends ClickAble {
   List<Wall> _walls = [];
   Wall lastWall = Wall(angle: 0, length: 0);
   Path path = Path();
@@ -23,9 +22,7 @@ class Flaeche extends EventArgs {
   Flaeche({
     required List<Wall> walls,
     this.hasBeschriftung = true,
-    required double scale,
-    required Offset center,
-  }) {
+  }) : super(hbSize: 0) {
     _walls = walls;
 
     calcSize();
@@ -106,5 +103,10 @@ class Flaeche extends EventArgs {
     posBeschriftung = (Offset(posBeschriftung.dx / (walls.length + 1), posBeschriftung.dy / (walls.length + 1)) * scale) - center;
     calcSize();
     _calcLastWall();
+  }
+
+  @override
+  void calcHitbox() {
+    hitbox = path;
   }
 }

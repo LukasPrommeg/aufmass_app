@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:aufmass_app/Misc/hitbox.dart';
+import 'package:aufmass_app/Misc/clickable.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/einheitcontroller.dart';
 import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
@@ -73,7 +73,7 @@ class PolyPainter extends CustomPainter {
 
         for (Wall wall in flaeche.walls) {
           if (wall == flaeche.walls.last) {}
-          wall.scaledStart!.paint(canvas);
+          wall.scaledStart!.paintHB(canvas);
 
           Offset center = (wall.scaledEnd!.center + wall.scaledStart!.center) / 2;
 
@@ -130,14 +130,14 @@ class PolyPainter extends CustomPainter {
 
           canvas.restore();
 
-          wall.paint(canvas);
+          wall.paintHB(canvas);
         }
         flaeche.walls.removeLast();
       }
     }
     if (clicked != null) {
       clicked!.selected = true;
-      clicked!.paint(canvas);
+      clicked!.paintHB(canvas);
       clicked!.selected = false;
     }
   }

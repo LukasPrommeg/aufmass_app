@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:aufmass_app/Misc/hitbox.dart';
+import 'package:aufmass_app/Misc/clickable.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/einheitcontroller.dart';
@@ -36,6 +36,7 @@ class PaintController {
   List<Wall> walls = [];
   int _wallCount = 0;
   String _roomName = "";
+  Flaeche? grundFlaeche;
 
   //Events
   final updateScaleRectEvent = Event<ScalingData>();
@@ -53,8 +54,8 @@ class PaintController {
 
   set roomName(String string) {
     _roomName = string;
-    if (_flaechen.isNotEmpty) {
-      _flaechen.first.name = string;
+    if (grundFlaeche != null) {
+      grundFlaeche!.name = string;
     }
     if (string.toLowerCase() == "testpoly") {
       _flaechen.clear();
@@ -182,7 +183,7 @@ class PaintController {
     if (area.isNotEmpty) {
       Offset center = scalingData.rect.center;
       center = (center * scalingData.scale) - _canvasSize!.center(Offset.zero);
-      Flaeche flaeche = Flaeche(walls: List.from(walls), scale: scalingData.scale, center: center);
+      Flaeche flaeche = Flaeche(walls: List.from(walls));
       flaeche.name = _roomName;
       _flaechen.add(flaeche);
       walls.clear();

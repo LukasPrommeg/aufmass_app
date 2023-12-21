@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:aufmass_app/Misc/hitbox.dart';
+import 'package:aufmass_app/Misc/clickable.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 
 class Wall extends ClickAble {
@@ -22,7 +22,7 @@ class Wall extends ClickAble {
     return _scaledStart;
   }
 
-  Wall({required this.angle, required this.length}) : super(size: 10) {
+  Wall({required this.angle, required this.length}) : super(hbSize: 10) {
     //x = sin
     double x = -sin(angle * (pi / 180)) * length * -1;
     //y = cos
@@ -41,9 +41,9 @@ class Wall extends ClickAble {
 
       hitbox = Path();
       //x = sin
-      double x = -sin(calcAngle) * size * -1;
+      double x = -sin(calcAngle) * hbSize * -1;
       //y = cos
-      double y = cos(calcAngle) * size * -1;
+      double y = cos(calcAngle) * hbSize * -1;
 
       Offset endOffset = Offset(x, y);
 

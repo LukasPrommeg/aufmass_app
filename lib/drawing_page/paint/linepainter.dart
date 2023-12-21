@@ -79,7 +79,7 @@ class LinePainter extends CustomPainter {
       if (selectedCorner != null && corner.center == selectedCorner!.center) {
         corner.selected = true;
       }
-      corner.paint(canvas);
+      corner.paintHB(canvas);
     }
   }
 
