@@ -5,6 +5,7 @@ abstract class ClickAble extends EventArgs {
   Path hitbox = Path();
   double hbSize = 10;
   bool selected = false;
+  Offset posBeschriftung = const Offset(0, 0);
 
   @protected
   Offset offset = Offset.infinite;
@@ -62,6 +63,10 @@ abstract class ClickAble extends EventArgs {
     canvas.drawPath(hitbox, _paintStyle);
   }
 
+  void paint(Canvas canvas, String name, Color color, bool beschriftung, double size);
+
   @protected
   void calcHitbox();
+
+  void initScale(double scale, Offset center);
 }

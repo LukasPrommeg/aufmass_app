@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:aufmass_app/Misc/clickable.dart';
+import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/einheitcontroller.dart';
 import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
@@ -9,15 +9,21 @@ import 'package:aufmass_app/drawing_page/paint/wall.dart';
 class PolyPainter extends CustomPainter {
   PolyPainter({required Listenable repaint}) : super(repaint: repaint);
   List<Flaeche> _flaechen = [];
-  ClickAble? clicked;
+  Flaeche? _grundFlaeche;
+  DrawedWerkstoff? clicked;
 
-  void drawFlaechen(List<Flaeche> newFlaechen) {
+  void drawFlaechen(List<Flaeche> newFlaechen, Flaeche? grundFlaeche) {
+    _grundFlaeche = grundFlaeche;
     _flaechen = List.from(newFlaechen);
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     Einheit selectedEinheit = EinheitController().selectedEinheit;
+
+    if (_grundFlaeche != null) {
+      _flaechen.add(_grundFlaeche!);
+    }
 
     for (Flaeche flaeche in _flaechen) {
       Paint paint = Paint()
@@ -73,9 +79,9 @@ class PolyPainter extends CustomPainter {
 
         for (Wall wall in flaeche.walls) {
           if (wall == flaeche.walls.last) {}
-          wall.scaledStart!.paintHB(canvas);
+          wall.start.paintHB(canvas);
 
-          Offset center = (wall.scaledEnd!.center + wall.scaledStart!.center) / 2;
+          Offset center = (wall.end.scaled! + wall.start.scaled!) / 2;
 
           Offset diffFromAreaCenter = center - flaeche.posBeschriftung;
 
@@ -83,8 +89,8 @@ class PolyPainter extends CustomPainter {
 
           canvas.drawPoints(PointMode.points, [centerLine], paint);
 
-          double diffx = wall.scaledEnd!.center.dx - wall.scaledStart!.center.dx;
-          double diffy = wall.scaledEnd!.center.dy - wall.scaledStart!.center.dy;
+          double diffx = wall.end.scaled!.dx - wall.start.scaled!.dx;
+          double diffy = wall.end.scaled!.dy - wall.start.scaled!.dy;
 
           double angle = atan(diffy / diffx);
 
@@ -136,9 +142,12 @@ class PolyPainter extends CustomPainter {
       }
     }
     if (clicked != null) {
-      clicked!.selected = true;
-      clicked!.paintHB(canvas);
-      clicked!.selected = false;
+      clicked!.clickAble.selected = true;
+      clicked!.clickAble.paintHB(canvas);
+      clicked!.clickAble.selected = false;
+    }
+    if (_grundFlaeche != null) {
+      _flaechen.removeLast();
     }
   }
 

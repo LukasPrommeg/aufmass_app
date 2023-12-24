@@ -1,41 +1,58 @@
 import 'dart:math';
+import 'dart:ui';
+import 'package:aufmass_app/Misc/einheitcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/clickable.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 
+const double hbSizeDefine = 10;
+
 class Wall extends ClickAble {
   final double angle;
   final double length;
-  late Offset end;
-  Corner? _scaledStart;
-  Corner? scaledEnd;
+  late Corner start;
+  late Corner end;
   int id = 0;
 
-  set scaledStart(Corner? corner) {
-    if (corner != null) {
-      moveTo(corner.center);
-    }
-    _scaledStart = corner;
-  }
+  Wall({required this.angle, required this.length, required this.start, required this.end}) : super(hbSize: hbSizeDefine);
 
-  Corner? get scaledStart {
-    return _scaledStart;
-  }
+  Wall.clone(Wall wall) : this(angle: wall.angle, length: wall.length, start: wall.start, end: wall.end);
 
-  Wall({required this.angle, required this.length}) : super(hbSize: 10) {
+  Wall.fromStart({required this.angle, required this.length, required this.start}) : super(hbSize: hbSizeDefine) {
     //x = sin
     double x = -sin(angle * (pi / 180)) * length * -1;
     //y = cos
     double y = cos(angle * (pi / 180)) * length * -1;
 
-    end = Offset(x, y);
+    end = Corner.fromPoint(point: start.point + Offset(x, y));
+  }
+
+  Wall.fromEnd({required this.angle, required this.length, required this.end}) : super(hbSize: hbSizeDefine) {
+    //x = sin
+    double x = -sin(angle * (pi / 180)) * length * -1;
+    //y = cos
+    double y = cos(angle * (pi / 180)) * length * -1;
+
+    start = Corner.fromPoint(point: end.point - Offset(x, y));
+  }
+
+  ClickAble? findClickedPart(Offset position) {
+    if (start.contains(position)) {
+      return start;
+    } else if (end.contains(position)) {
+      return end;
+    } else if (contains(position)) {
+      return this;
+    } else {
+      return null;
+    }
   }
 
   @override
   @protected
   void calcHitbox() {
-    if (scaledStart != null && scaledEnd != null) {
-      Offset diff = scaledEnd!.center - scaledStart!.center;
+    if (start.scaled != null && end.scaled != null) {
+      Offset diff = end.scaled! - start.scaled!;
 
       double calcAngle = atan(diff.dy / diff.dx);
 
@@ -49,12 +66,64 @@ class Wall extends ClickAble {
 
       List<Offset> points = [];
 
-      points.add(scaledStart!.center + endOffset);
-      points.add(scaledStart!.center - endOffset);
-      points.add(scaledEnd!.center - endOffset);
-      points.add(scaledEnd!.center + endOffset);
+      points.add(start.scaled! + endOffset);
+      points.add(start.scaled! - endOffset);
+      points.add(end.scaled! - endOffset);
+      points.add(end.scaled! + endOffset);
 
       hitbox.addPolygon(points, true);
     }
+  }
+
+  @override
+  void initScale(double scale, Offset center) {
+    start.initScale(scale, center);
+    end.initScale(scale, center);
+
+    posBeschriftung = (end.scaled! - start.scaled!) / 2 + start.scaled!;
+  }
+
+  @override
+  void paint(Canvas canvas, String name, Color color, bool beschriftung, double size) {
+    Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = size / 2
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawPoints(PointMode.lines, [start.scaled!, end.scaled!], paint);
+
+    if (beschriftung) {
+      canvas.save();
+      canvas.translate(posBeschriftung.dx, posBeschriftung.dy);
+
+      double diffx = end.scaled!.dx - start.scaled!.dx;
+      double diffy = end.scaled!.dy - start.scaled!.dy;
+
+      double rotationAngle = atan(diffy / diffx);
+
+      canvas.rotate(rotationAngle);
+      canvas.translate(-posBeschriftung.dx, -posBeschriftung.dy);
+
+      TextStyle textStyle = TextStyle(
+        color: Colors.black,
+        fontSize: (size * 2),
+        fontWeight: FontWeight.bold,
+      );
+      final textSpan = TextSpan(
+        text: "${EinheitController().convertToSelected(length).toStringAsFixed(2)}${EinheitController().selectedEinheit.name}",
+        style: textStyle,
+      );
+      final textPainter = TextPainter(
+        text: textSpan,
+        textDirection: TextDirection.ltr,
+      );
+
+      textPainter.layout();
+
+      textPainter.paint(canvas, Offset(posBeschriftung.dx - (textPainter.width / 2), posBeschriftung.dy - textPainter.height));
+      canvas.restore();
+    }
+
+    // TODO: implement paint
   }
 }

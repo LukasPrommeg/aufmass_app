@@ -4,6 +4,7 @@ enum WerkstoffTyp {
   flaeche,
   linie,
   point,
+  stk,
 }
 
 class Werkstoff {

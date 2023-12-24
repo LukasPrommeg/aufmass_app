@@ -1,3 +1,4 @@
+import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/CircleSlider/circleslider.dart';
 import 'package:event/event.dart';
@@ -40,10 +41,10 @@ class InputPopup {
   Wall convertToMM(Wall wall) {
     switch (einheitSelector.selected) {
       case Einheit.cm:
-        wall = Wall(angle: wall.angle, length: wall.length * 10);
+        wall = Wall.fromStart(angle: wall.angle, length: wall.length * 10, start: Corner.fromPoint(point: Offset.zero));
         break;
       case Einheit.m:
-        wall = Wall(angle: wall.angle, length: wall.length * 1000);
+        wall = Wall.fromStart(angle: wall.angle, length: wall.length * 1000, start: Corner.fromPoint(point: Offset.zero));
         break;
       default:
         break;
@@ -106,7 +107,7 @@ class InputPopup {
                     double length = double.parse(_textFieldController.text);
                     double angle = slider.centerAngle;
                     angle += -slider.value;
-                    Wall wall = convertToMM(Wall(angle: angle, length: length));
+                    Wall wall = convertToMM(Wall.fromStart(angle: angle, length: length, start: Corner.fromPoint(point: Offset.zero)));
                     addWallEvent.broadcast(wall);
                     Navigator.pop(context);
                   } catch (e) {

@@ -1,16 +1,14 @@
 import 'dart:math';
 import 'package:aufmass_app/Misc/clickable.dart';
 import 'package:flutter/material.dart';
-import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
 
 class Flaeche extends ClickAble {
   List<Wall> _walls = [];
-  Wall lastWall = Wall(angle: 0, length: 0);
+  late Wall lastWall;
   Path path = Path();
   Color color = Colors.black;
   String name = "UNNAMED";
-  Offset posBeschriftung = const Offset(0, 0);
   double area = 0;
   bool hasBeschriftung;
   Rect size = Rect.zero;
@@ -30,12 +28,12 @@ class Flaeche extends ClickAble {
   }
 
   ClickAble? findClickedPart(Offset position) {
-    if (lastWall.scaledStart != null && lastWall.scaledStart!.contains(position)) {
-      return lastWall.scaledStart;
+    if (lastWall.start.scaled != null && lastWall.start.contains(position)) {
+      return lastWall.start;
     }
     for (Wall wall in walls) {
-      if (wall.scaledStart != null && wall.scaledStart!.contains(position)) {
-        return wall.scaledStart;
+      if (wall.start.scaled != null && wall.start.contains(position)) {
+        return wall.start;
       }
     }
     if (lastWall.contains(position)) {
@@ -50,55 +48,38 @@ class Flaeche extends ClickAble {
   }
 
   void calcSize() {
-    size = Rect.zero;
-    Offset origin = Offset.zero;
     for (Wall wall in walls) {
-      origin += wall.end;
-      size = size.expandToInclude(Rect.fromPoints(origin, origin));
+      size = size.expandToInclude(Rect.fromPoints(wall.end.point, wall.end.point));
     }
   }
 
   void _calcLastWall() {
-    Offset end = Offset.zero;
-    for (Wall wall in _walls) {
-      end += wall.end;
-    }
-
-    double length = sqrt((pow(end.dx, 2) + pow(end.dy, 2)));
-    lastWall = Wall(angle: 0, length: length);
-    lastWall.scaledStart = walls.last.scaledEnd;
-    lastWall.scaledEnd = walls.first.scaledStart;
+    double length = sqrt((pow(_walls.last.end.point.dx - _walls.first.start.point.dx, 2) + pow(_walls.last.end.point.dy - _walls.first.start.point.dy, 2))).abs();
+    lastWall = Wall.fromStart(angle: 0, length: length, start: _walls.last.end);
+    lastWall.start.scaled = walls.last.end.scaled;
+    lastWall.end.scaled = walls.first.start.scaled;
   }
 
-  void init(double scale, Offset center) {
-    Offset origin = Offset.zero - center;
+  @override
+  void initScale(double scale, Offset center) {
     posBeschriftung = Offset.zero;
     area = 0;
 
     path = Path();
-    path.moveTo(origin.dx, origin.dy);
-
-    Offset end = walls.first.end;
+    path.moveTo(-center.dx, -center.dy);
 
     for (int i = 0; i < walls.length; i++) {
       if (i > 0) {
-        area += end.dx * (end + walls[i].end).dy;
-        area -= end.dy * (end + walls[i].end).dx;
-
-        posBeschriftung += end;
-        end += walls[i].end;
-        if (i == walls.length - 1) {
-          posBeschriftung += end;
-        }
+        area += walls[i - 1].end.point.dx * (walls[i].end.point).dy;
+        area -= walls[i - 1].end.point.dy * (walls[i].end.point).dx;
       }
-      walls[i].scaledStart = Corner(center: origin);
-      origin += (walls[i].end * scale);
-      walls[i].scaledEnd = Corner(center: origin);
-      path.lineTo(walls[i].scaledEnd!.center.dx, walls[i].scaledEnd!.center.dy);
+      posBeschriftung += walls[i].end.point;
+      walls[i].initScale(scale, center);
+      path.lineTo(walls[i].end.scaled!.dx, walls[i].end.scaled!.dy);
     }
     area = area.abs() / 2;
 
-    path.lineTo(walls.first.scaledStart!.center.dx, walls.first.scaledStart!.center.dy);
+    path.lineTo(walls.first.start.scaled!.dx, walls.first.start.scaled!.dy);
 
     posBeschriftung = (Offset(posBeschriftung.dx / (walls.length + 1), posBeschriftung.dy / (walls.length + 1)) * scale) - center;
     calcSize();
@@ -108,5 +89,10 @@ class Flaeche extends ClickAble {
   @override
   void calcHitbox() {
     hitbox = path;
+  }
+
+  @override
+  void paint(Canvas canvas, String name, Color color, bool beschriftung, double size) {
+    // TODO: implement paint
   }
 }
