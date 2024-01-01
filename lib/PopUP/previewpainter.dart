@@ -52,8 +52,8 @@ class PreviewPainter extends CustomPainter {
 
     canvas.drawRect(maxSize, paint);
 
-    infront.paint(canvas, "", Colors.black, false, 10);
-    behind.paint(canvas, "", Colors.black, false, 10);
+    infront.paint(canvas, Colors.black, 10);
+    behind.paint(canvas, Colors.black, 10);
 
     paint = Paint()
       ..color = Colors.black

@@ -88,44 +88,78 @@ class Wall extends ClickAble {
   }
 
   @override
-  void paint(Canvas canvas, String name, Color color, bool beschriftung, double size) {
+  void paint(Canvas canvas, Color color, double size) {
     Paint paint = Paint()
       ..color = color
-      ..strokeWidth = size / 2
+      ..strokeWidth = size
       ..strokeCap = StrokeCap.round;
 
     canvas.drawPoints(PointMode.lines, [start.scaled!, end.scaled!], paint);
+  }
 
-    if (beschriftung) {
-      canvas.save();
-      canvas.translate(posBeschriftung.dx, posBeschriftung.dy);
+  @override
+  void paintBeschriftung(Canvas canvas, Color color, String text, double size) {
+    canvas.save();
+    canvas.translate(posBeschriftung.dx, posBeschriftung.dy);
 
-      double diffx = end.scaled!.dx - start.scaled!.dx;
-      double diffy = end.scaled!.dy - start.scaled!.dy;
+    double diffx = end.scaled!.dx - start.scaled!.dx;
+    double diffy = end.scaled!.dy - start.scaled!.dy;
 
-      double rotationAngle = atan(diffy / diffx);
+    double rotationAngle = atan(diffy / diffx);
 
-      canvas.rotate(rotationAngle);
-      canvas.translate(-posBeschriftung.dx, -posBeschriftung.dy);
+    canvas.rotate(rotationAngle);
+    canvas.translate(-posBeschriftung.dx, -posBeschriftung.dy);
 
-      TextStyle textStyle = TextStyle(
-        color: Colors.black,
-        fontSize: (size * 2),
-        fontWeight: FontWeight.bold,
-      );
-      final textSpan = TextSpan(
-        text: "${EinheitController().convertToSelected(length).toStringAsFixed(2)}${EinheitController().selectedEinheit.name}",
-        style: textStyle,
-      );
-      final textPainter = TextPainter(
-        text: textSpan,
-        textDirection: TextDirection.ltr,
-      );
+    TextStyle textStyle = TextStyle(
+      color: Colors.black,
+      fontSize: size,
+      fontWeight: FontWeight.bold,
+    );
+    final textSpan = TextSpan(
+      text: text,
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
 
-      textPainter.layout();
+    textPainter.layout();
 
-      textPainter.paint(canvas, Offset(posBeschriftung.dx - (textPainter.width / 2), posBeschriftung.dy - textPainter.height));
-      canvas.restore();
-    }
+    textPainter.paint(canvas, Offset(posBeschriftung.dx - (textPainter.width / 2), posBeschriftung.dy));
+    canvas.restore();
+  }
+
+  @override
+  void paintLaengen(Canvas canvas, Color color, double size) {
+    canvas.save();
+    canvas.translate(posBeschriftung.dx, posBeschriftung.dy);
+
+    double diffx = end.scaled!.dx - start.scaled!.dx;
+    double diffy = end.scaled!.dy - start.scaled!.dy;
+
+    double rotationAngle = atan(diffy / diffx);
+
+    canvas.rotate(rotationAngle);
+    canvas.translate(-posBeschriftung.dx, -posBeschriftung.dy);
+
+    TextStyle textStyle = TextStyle(
+      color: Colors.black,
+      fontSize: size,
+      fontWeight: FontWeight.bold,
+    );
+    final textSpan = TextSpan(
+      text: "${EinheitController().convertToSelected(length).toStringAsFixed(2)}${EinheitController().selectedEinheit.name}",
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+
+    textPainter.paint(canvas, Offset(posBeschriftung.dx - (textPainter.width / 2), posBeschriftung.dy - textPainter.height));
+    canvas.restore();
   }
 }

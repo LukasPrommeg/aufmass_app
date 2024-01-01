@@ -89,7 +89,8 @@ class Flaeche extends ClickAble {
     area = 0;
 
     areaPath = Path();
-    areaPath.moveTo(walls.first.start.scaled!.dx, walls.first.start.scaled!.dx);
+    walls.first.start.initScale(scale, center);
+    areaPath.moveTo(walls.first.start.scaled!.dx, walls.first.start.scaled!.dy);
 
     for (int i = 0; i < walls.length; i++) {
       if (i > 0) {
@@ -116,33 +117,102 @@ class Flaeche extends ClickAble {
   }
 
   @override
-  void paint(Canvas canvas, String name, Color color, bool beschriftung, double size, {bool debug = false}) {
-    Einheit selectedEinheit = EinheitController().selectedEinheit;
-
+  void paint(Canvas canvas, Color color, double size, {bool debug = false}) {
     Paint paint = Paint()
       ..color = color.withOpacity(0.25)
       ..style = PaintingStyle.fill;
     canvas.drawPath(areaPath, paint);
 
-    if (beschriftung) {
-      TextStyle textStyle = TextStyle(
-        color: Colors.black,
-        fontSize: size,
-        fontWeight: FontWeight.bold,
-      );
+    walls.add(lastWall);
+    for (Wall wall in _walls) {
+      wall.paint(canvas, color, size);
+      if (debug) {
+        wall.start.paintHB(canvas);
+        wall.paintHB(canvas);
+      }
+    }
+    walls.removeLast();
+  }
+
+  @override
+  void paintBeschriftung(Canvas canvas, Color color, String text, double size, {bool debug = false}) {
+    Einheit selectedEinheit = EinheitController().selectedEinheit;
+
+    TextStyle textStyle = TextStyle(
+      color: Colors.black,
+      fontSize: size,
+      fontWeight: FontWeight.bold,
+    );
+
+    if (debug) {
+      Paint paint = Paint()
+        ..color = Colors.red
+        ..strokeWidth = 8
+        ..strokeCap = StrokeCap.round;
+      canvas.drawPoints(PointMode.points, [posBeschriftung], paint);
+    }
+
+    double displayArea = EinheitController().convertToSelectedSquared(area);
+
+    final textSpan = TextSpan(
+      text: "$text\nFLÄCHE: ${(displayArea).toStringAsFixed(2)} ${selectedEinheit.name}²",
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+
+    textPainter.paint(canvas, posBeschriftung - Offset((textPainter.width / 2), textPainter.height / 2));
+  }
+
+  @override
+  void paintLaengen(Canvas canvas, Color color, double size, {bool debug = false}) {
+    Einheit selectedEinheit = EinheitController().selectedEinheit;
+
+    TextStyle textStyle = TextStyle(
+      color: Colors.black,
+      fontSize: size,
+      fontWeight: FontWeight.bold,
+    );
+    walls.add(lastWall);
+
+    for (Wall wall in walls) {
+      Offset centerLine = posBeschriftung + ((wall.end.scaled! + wall.start.scaled!) / 2) - posBeschriftung;
 
       if (debug) {
-        paint = Paint()
+        Paint paint = Paint()
           ..color = Colors.red
           ..strokeWidth = 8
           ..strokeCap = StrokeCap.round;
-        canvas.drawPoints(PointMode.points, [posBeschriftung], paint);
+        canvas.drawPoints(PointMode.points, [centerLine], paint);
       }
 
-      double displayArea = EinheitController().convertToSelectedSquared(area);
+      double diffx = wall.end.scaled!.dx - wall.start.scaled!.dx;
+      double diffy = wall.end.scaled!.dy - wall.start.scaled!.dy;
+
+      double angle = atan(diffy / diffx);
+
+      Offset posMark = centerLine;
+      Offset offset = Offset.fromDirection(angle + (pi / 2), size);
+
+      if (!areaPath.contains(posMark + offset)) {
+        posMark += offset;
+      } else {
+        posMark -= offset;
+      }
+
+      canvas.save();
+      canvas.translate(posMark.dx, posMark.dy);
+
+      canvas.rotate(angle);
+      canvas.translate(-posMark.dx, -posMark.dy);
+
+      double displayLength = EinheitController().convertToSelected(wall.length);
 
       final textSpan = TextSpan(
-        text: "$name\nFLÄCHE: ${(displayArea).toStringAsFixed(2)} ${selectedEinheit.name}²",
+        text: "${(displayLength).toStringAsFixed(2)} ${selectedEinheit.name}",
         style: textStyle,
       );
       final textPainter = TextPainter(
@@ -150,61 +220,13 @@ class Flaeche extends ClickAble {
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
+      posMark -= Offset((textPainter.width / 2), textPainter.height * 0.5);
 
-      textPainter.paint(canvas, posBeschriftung - Offset((textPainter.width / 2), textPainter.height / 2));
+      textPainter.paint(canvas, posMark);
 
-      walls.add(lastWall);
-
-      for (Wall wall in walls) {
-        wall.paint(canvas, "", color, false, size / 2);
-        if (debug) {
-          wall.start.paintHB(canvas);
-          wall.paintHB(canvas);
-        }
-
-        Offset centerLine = posBeschriftung + ((wall.end.scaled! + wall.start.scaled!) / 2) - posBeschriftung;
-
-        canvas.drawPoints(PointMode.points, [centerLine], paint);
-
-        double diffx = wall.end.scaled!.dx - wall.start.scaled!.dx;
-        double diffy = wall.end.scaled!.dy - wall.start.scaled!.dy;
-
-        double angle = atan(diffy / diffx);
-
-        Offset posMark = centerLine;
-        Offset offset = Offset.fromDirection(angle + (pi / 2), 15);
-
-        if (!areaPath.contains(posMark + offset)) {
-          posMark += offset;
-        } else {
-          posMark -= offset;
-        }
-
-        canvas.save();
-        canvas.translate(posMark.dx, posMark.dy);
-
-        canvas.rotate(angle);
-        canvas.translate(-posMark.dx, -posMark.dy);
-
-        double displayLength = EinheitController().convertToSelected(wall.length);
-
-        final textSpan = TextSpan(
-          text: "${(displayLength).toStringAsFixed(2)} ${selectedEinheit.name}",
-          style: textStyle,
-        );
-        final textPainter = TextPainter(
-          text: textSpan,
-          textDirection: TextDirection.ltr,
-        );
-        textPainter.layout();
-        posMark -= Offset((textPainter.width / 2), textPainter.height * 0.5);
-
-        textPainter.paint(canvas, posMark);
-
-        canvas.restore();
-      }
-      walls.removeLast();
+      canvas.restore();
     }
+    walls.removeLast();
   }
 
   void paintCornerHB(Canvas canvas) {

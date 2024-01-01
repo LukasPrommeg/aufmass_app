@@ -22,7 +22,7 @@ class PolyPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (_grundFlaeche != null) {
-      _grundFlaeche!.paintGrundflaeche(canvas, 15);
+      _grundFlaeche!.paintGrundflaeche(canvas);
       if (selectStartingpoint) {
         selectedStartingpoint?.selected = true;
         _grundFlaeche!.paintCornerHB(canvas);
@@ -30,7 +30,7 @@ class PolyPainter extends CustomPainter {
       }
     }
     for (DrawedWerkstoff werkstoff in _werkstoffe) {
-      werkstoff.paint(canvas, 10);
+      werkstoff.paint(canvas);
     }
   }
 

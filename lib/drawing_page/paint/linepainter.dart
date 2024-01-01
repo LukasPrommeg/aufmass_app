@@ -56,7 +56,7 @@ class LinePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (startingPoint != null) {
       startingPoint!.selected = true;
-      startingPoint!.paint(canvas, "", Colors.red, false, 10);
+      startingPoint!.paint(canvas, Colors.red, 10);
       startingPoint!.paintHB(canvas);
       startingPoint!.selected = false;
       Paint paint = Paint()
@@ -72,7 +72,8 @@ class LinePainter extends CustomPainter {
     }
 
     for (Wall wall in _walls) {
-      wall.paint(canvas, "", Colors.black, true, 10);
+      wall.paint(canvas, Colors.black, 5);
+      wall.paintLaengen(canvas, Colors.black, 20);
     }
 
     for (Corner corner in _ends) {

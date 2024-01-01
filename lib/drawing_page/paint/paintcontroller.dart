@@ -45,6 +45,7 @@ class PaintController {
   Grundflaeche? grundFlaeche;
   final List<DrawedWerkstoff> _werkstoffe = [];
   bool _drawingWerkstoff = false;
+  int indexOfFirstLaengenWerkstoff = 0;
 
   //Events
   final updateScaleRectEvent = Event<ScalingData>();
@@ -129,16 +130,19 @@ class PaintController {
           polyPainter.selectStartingpoint = true;
           break;
         case InputState.draw:
-          if (_werkstoffPopup.werkStoffneedsmorePoints()) {
-            Corner? startingPoint = _werkstoffPopup.calcStartingpointWithOffset();
-            if (startingPoint != null) {
+          Corner? startingPoint = _werkstoffPopup.calcStartingpointWithOffset();
+          if (startingPoint != null) {
+            startingPoint.initScale(scalingData.scale, scalingData.center);
+            if (_werkstoffPopup.werkStoffneedsmorePoints()) {
               _drawingWerkstoff = true;
               linePainter.startingPoint = _werkstoffPopup.startingPoint;
-              startingPoint.initScale(scalingData.scale, scalingData.center);
             } else {
-              //TODO: Fehlermeldung, fehler beim Parsen
+              finishWerkstoff();
             }
+          } else {
+            //TODO: Fehlermeldung, fehler beim Parsen
           }
+
           break;
         default:
           break;
@@ -268,8 +272,27 @@ class PaintController {
       default:
         return;
     }
-    DrawedWerkstoff drawedWerkstoff = DrawedWerkstoff(clickAble: clickAble, werkstoff: werkstoff, beschriftung: true);
-    _werkstoffe.add(drawedWerkstoff);
+    DrawedWerkstoff drawedWerkstoff = DrawedWerkstoff(clickAble: clickAble, werkstoff: werkstoff, hasBeschriftung: true);
+    switch (werkstoff.typ) {
+      case WerkstoffTyp.flaeche:
+        if (indexOfFirstLaengenWerkstoff == 0) {
+          _werkstoffe.insert(indexOfFirstLaengenWerkstoff, drawedWerkstoff);
+        } else {
+          _werkstoffe.insert(indexOfFirstLaengenWerkstoff - 1, drawedWerkstoff);
+        }
+        indexOfFirstLaengenWerkstoff++;
+        break;
+      case WerkstoffTyp.linie:
+        _werkstoffe.insert(indexOfFirstLaengenWerkstoff, drawedWerkstoff);
+        indexOfFirstLaengenWerkstoff++;
+        break;
+      case WerkstoffTyp.point:
+        _werkstoffe.add(drawedWerkstoff);
+
+        break;
+      default:
+        return;
+    }
     _drawingWerkstoff = false;
     _werkstoffPopup.finish();
     walls.clear();

@@ -64,7 +64,11 @@ abstract class ClickAble extends EventArgs {
     canvas.drawPath(hitbox, _paintStyle);
   }
 
-  void paint(Canvas canvas, String name, Color color, bool beschriftung, double size);
+  void paint(Canvas canvas, Color color, double size);
+
+  void paintBeschriftung(Canvas canvas, Color color, String text, double size);
+
+  void paintLaengen(Canvas canvas, Color color, double size);
 
   @protected
   void calcHitbox();

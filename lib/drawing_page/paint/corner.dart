@@ -43,30 +43,35 @@ class Corner extends ClickAble {
   }
 
   @override
-  void paint(Canvas canvas, String name, Color color, bool beschriftung, double size) {
+  void paint(Canvas canvas, Color color, double size) {
     Paint paint = Paint()
       ..color = color
       ..strokeWidth = size
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawPoints(PointMode.points, [point], paint);
-
-    if (beschriftung) {
-      TextStyle textStyle = TextStyle(
-        color: Colors.black,
-        fontSize: (size * 2),
-        fontWeight: FontWeight.bold,
-      );
-      final textSpan = TextSpan(
-        text: name,
-        style: textStyle,
-      );
-      final textPainter = TextPainter(
-        text: textSpan,
-        textDirection: TextDirection.ltr,
-      );
-
-      textPainter.paint(canvas, Offset(point.dx - (textPainter.width / 2), point.dy - textPainter.height));
-    }
+    canvas.drawPoints(PointMode.points, [scaled!], paint);
   }
+
+  @override
+  void paintBeschriftung(Canvas canvas, Color color, String text, double size) {
+    TextStyle textStyle = TextStyle(
+      color: Colors.black,
+      fontSize: size,
+      fontWeight: FontWeight.bold,
+    );
+    final textSpan = TextSpan(
+      text: text,
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+
+    textPainter.paint(canvas, Offset(scaled!.dx - (textPainter.width / 2), scaled!.dy - textPainter.height));
+  }
+
+  @override
+  void paintLaengen(Canvas canvas, Color color, double size) {}
 }
