@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
@@ -9,8 +11,12 @@ class LinePainter extends CustomPainter {
   bool isDrawing = false;
 
   Corner? selectedCorner;
+  Corner? startingPoint;
 
   void drawWalls(List<Wall> walls) {
+    if (walls.isEmpty) {
+      return;
+    }
     _walls.clear();
     _ends.clear();
     isDrawing = true;
@@ -31,6 +37,12 @@ class LinePainter extends CustomPainter {
     return false;
   }
 
+  void reset() {
+    _walls.clear();
+    isDrawing = false;
+    selectedCorner = null;
+  }
+
   Corner? detectClickedCorner(Offset location) {
     for (Corner corner in _ends) {
       if (corner.contains(location)) {
@@ -42,6 +54,19 @@ class LinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (startingPoint != null) {
+      startingPoint!.selected = true;
+      startingPoint!.paint(canvas, "", Colors.red, false, 10);
+      startingPoint!.paintHB(canvas);
+      startingPoint!.selected = false;
+      Paint paint = Paint()
+        ..color = Colors.black
+        ..strokeWidth = 10
+        ..strokeCap = StrokeCap.round;
+
+      canvas.drawPoints(PointMode.points, [startingPoint!.scaled!], paint);
+    }
+
     if (_walls.isEmpty) {
       return;
     }

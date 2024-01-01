@@ -13,4 +13,8 @@ class DrawedWerkstoff extends EventArgs {
   void paint(Canvas canvas, double size) {
     clickAble.paint(canvas, werkstoff.name, werkstoff.color, beschriftung, size);
   }
+
+  bool contains(Offset position) {
+    return clickAble.contains(position);
+  }
 }

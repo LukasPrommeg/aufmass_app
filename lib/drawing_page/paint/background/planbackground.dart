@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:aufmass_app/drawing_page/paint/background/linealpainter.dart';
 import 'package:aufmass_app/drawing_page/paint/background/rasterpainter.dart';
 import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
 
@@ -7,17 +6,14 @@ import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
 class PlanBackground extends StatelessWidget {
   final ValueNotifier<int> _repaint = ValueNotifier<int>(0);
 
-  late LinealPainter linealPainter;
   late RasterPainter rasterPainter;
 
   PlanBackground({super.key}) {
-    linealPainter = LinealPainter(repaint: _repaint);
     rasterPainter = RasterPainter(repaint: _repaint);
   }
 
   void updateScaleAndRect(ScalingData scale) {
     if (scale.scale.isFinite) {
-      linealPainter.scalingData = scale;
       rasterPainter.scalingData = scale;
     }
 
@@ -25,7 +21,6 @@ class PlanBackground extends StatelessWidget {
   }
 
   void updateSize(Size size) {
-    linealPainter.backgroundSize = size;
     rasterPainter.backgroundSize = size;
 
     _repaint.value++;
@@ -34,7 +29,6 @@ class PlanBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      foregroundPainter: linealPainter,
       painter: rasterPainter,
     );
   }

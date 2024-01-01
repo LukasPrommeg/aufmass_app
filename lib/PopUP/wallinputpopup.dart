@@ -2,23 +2,21 @@ import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/CircleSlider/circleslider.dart';
 import 'package:event/event.dart';
-import 'package:aufmass_app/Misc/einheitcontroller.dart';
-import 'package:aufmass_app/Misc/einheitselector.dart';
+import 'package:aufmass_app/Einheiten/einheitcontroller.dart';
+import 'package:aufmass_app/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
 
-class InputPopup {
+class WallInputPopup {
   final TextEditingController _textFieldController = TextEditingController();
 
   final double sliderRange;
   final addWallEvent = Event<Wall>();
-  late EinheitSelector einheitSelector = EinheitSelector(
+  EinheitSelector einheitSelector = EinheitSelector(
     setGlobal: false,
   );
   late CircleSlider slider;
 
-  //TODO: Zuletzt gewählte Einheit in DB speichern
-
-  InputPopup({
+  WallInputPopup({
     this.sliderRange = 300,
   }) {
     init(0, true);
@@ -52,7 +50,7 @@ class InputPopup {
     return wall;
   }
 
-  Future<void> displayTextInputDialog(BuildContext context) async {
+  Future<void> display(BuildContext context) async {
     return showDialog(
         context: context,
         builder: (context) {
@@ -86,13 +84,6 @@ class InputPopup {
               ),
             ),
             actions: <Widget>[
-              /*
-              ElevatedButton(
-                child: const Text('X'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),*/
               ElevatedButton(
                 child: const Text('Fertigstellen'),
                 onPressed: () {

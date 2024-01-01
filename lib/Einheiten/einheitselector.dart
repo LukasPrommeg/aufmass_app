@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:aufmass_app/Misc/einheitcontroller.dart';
+import 'package:aufmass_app/Einheiten/einheitcontroller.dart';
 
 //ignore: must_be_immutable
 class EinheitSelector extends StatefulWidget {
@@ -13,6 +13,20 @@ class EinheitSelector extends StatefulWidget {
 
   @override
   State<EinheitSelector> createState() => _EinheitSelectorState();
+
+  double convertToMM(double value) {
+    switch (selected) {
+      case Einheit.cm:
+        value *= 10;
+        break;
+      case Einheit.m:
+        value *= 1000;
+        break;
+      default:
+        break;
+    }
+    return value;
+  }
 }
 
 class _EinheitSelectorState extends State<EinheitSelector> {

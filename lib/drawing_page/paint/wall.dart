@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
-import 'package:aufmass_app/Misc/einheitcontroller.dart';
+import 'package:aufmass_app/Einheiten/einheitcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/clickable.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
@@ -25,6 +25,8 @@ class Wall extends ClickAble {
     double y = cos(angle * (pi / 180)) * length * -1;
 
     end = Corner.fromPoint(point: start.point + Offset(x, y));
+
+    size = size.expandToInclude(Rect.fromPoints(start.point, end.point));
   }
 
   Wall.fromEnd({required this.angle, required this.length, required this.end}) : super(hbSize: hbSizeDefine) {
@@ -34,6 +36,8 @@ class Wall extends ClickAble {
     double y = cos(angle * (pi / 180)) * length * -1;
 
     start = Corner.fromPoint(point: end.point - Offset(x, y));
+
+    size = size.expandToInclude(Rect.fromPoints(start.point, end.point));
   }
 
   ClickAble? findClickedPart(Offset position) {
@@ -123,7 +127,5 @@ class Wall extends ClickAble {
       textPainter.paint(canvas, Offset(posBeschriftung.dx - (textPainter.width / 2), posBeschriftung.dy - textPainter.height));
       canvas.restore();
     }
-
-    // TODO: implement paint
   }
 }

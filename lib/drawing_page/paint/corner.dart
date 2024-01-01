@@ -5,7 +5,7 @@ import 'package:aufmass_app/Misc/clickable.dart';
 const double hbSizeDefine = 20;
 
 class Corner extends ClickAble {
-  Offset point;
+  final Offset point;
   Offset? scaled;
   late Path path;
 
@@ -20,6 +20,8 @@ class Corner extends ClickAble {
     path.arcToPoint(Offset(0, hbSize), radius: radius);
     path.arcToPoint(Offset(-hbSize, 0), radius: radius);
     path.arcToPoint(Offset(0, -hbSize), radius: radius);
+
+    size = size.expandToInclude(Rect.fromPoints(point, point));
   }
 
   Corner.clone(Corner corner) : this(point: corner.point, scaled: corner.scaled, path: corner.path);

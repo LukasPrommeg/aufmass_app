@@ -1,10 +1,11 @@
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
+import 'package:aufmass_app/drawing_page/paint/grundflaeche.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/room.dart';
-import 'package:aufmass_app/Misc/einheitselector.dart';
+import 'package:aufmass_app/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
 import 'package:aufmass_app/Misc/pdfexport.dart';
 
@@ -48,10 +49,21 @@ class PlanPageContent extends State<PlanPage> {
       children: [
         FloatingActionButton(
           onPressed: () {
-            currentRoom.paintController.displayTextInputDialog(context);
+            currentRoom.paintController.displayDialog(context);
           },
           child: const Icon(
             Icons.add,
+          ),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        FloatingActionButton(
+          onPressed: () {
+            currentRoom.paintController.roomName = "testpoly";
+          },
+          child: const Icon(
+            Icons.polyline_rounded,
           ),
         ),
       ],
@@ -84,7 +96,9 @@ class PlanPageContent extends State<PlanPage> {
           break;
         case Flaeche:
           print("Flaeche");
-          (clicked as Flaeche).color = Colors.red;
+          break;
+        case Grundflaeche:
+          print("Grundflaeche");
           break;
         default:
           print("Shouldn't be possible");
@@ -149,7 +163,7 @@ class PlanPageContent extends State<PlanPage> {
           children: [
             FloatingActionButton(
               onPressed: () {
-                currentRoom.paintController.displayTextInputDialog(context);
+                currentRoom.paintController.displayDialog(context);
               },
               child: const Icon(
                 Icons.add,
@@ -173,7 +187,7 @@ class PlanPageContent extends State<PlanPage> {
           children: [
             FloatingActionButton(
               onPressed: () {
-                currentRoom.paintController.displayTextInputDialog(context);
+                currentRoom.paintController.displayDialog(context);
               },
               child: const Icon(
                 Icons.add,

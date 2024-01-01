@@ -6,6 +6,7 @@ abstract class ClickAble extends EventArgs {
   double hbSize = 10;
   bool selected = false;
   Offset posBeschriftung = const Offset(0, 0);
+  Rect size = Rect.zero;
 
   @protected
   Offset offset = Offset.infinite;
@@ -21,7 +22,7 @@ abstract class ClickAble extends EventArgs {
     if (size != null) {
       hbSize = size;
     }
-    //TODO: Merge Hitboxes
+    //TODO: Maybe merge Hitboxes
   }
 
   bool contains(Offset position) {
