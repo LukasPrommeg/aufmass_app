@@ -10,6 +10,7 @@ class Flaeche extends ClickAble {
   List<Wall> _walls = [];
   late Wall lastWall;
   Path areaPath = Path();
+  Path unscaledPath = Path();
   double area = 0;
 
   List<Wall> get walls {
@@ -20,6 +21,13 @@ class Flaeche extends ClickAble {
     required List<Wall> walls,
   }) : super(hbSize: 0) {
     _walls = walls;
+
+    unscaledPath.moveTo(_walls.first.start.point.dx, _walls.first.start.point.dy);
+
+    for (Wall wall in _walls) {
+      unscaledPath.lineTo(wall.end.point.dx, wall.end.point.dy);
+    }
+    unscaledPath.close();
 
     calcSize();
     _calcLastWall();
@@ -229,11 +237,29 @@ class Flaeche extends ClickAble {
     walls.removeLast();
   }
 
-  void paintCornerHB(Canvas canvas) {
-    lastWall.start.paintHB(canvas);
+  void paintCornerHB(Canvas canvas, [List<Corner>? hidden, Color? override]) {
+    walls.add(lastWall);
+
     for (Wall wall in walls) {
-      wall.start.paintHB(canvas);
+      if (hidden != null && !hidden.contains(wall.start)) {
+        wall.start.paintHB(canvas, override);
+      }
     }
+    walls.removeLast();
+  }
+
+  Corner? findCornerAtPoint(Offset position) {
+    walls.add(lastWall);
+    Corner? found;
+    for (Wall wall in walls) {
+      if (wall.start.point == position) {
+        found = wall.start;
+        break;
+      }
+    }
+    walls.removeLast();
+
+    return found;
   }
 
   List<Wall> findWallsAroundCorner(Corner corner) {

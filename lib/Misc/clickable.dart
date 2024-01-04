@@ -41,17 +41,31 @@ abstract class ClickAble extends EventArgs {
     hitbox = hitbox.shift(this.offset);
   }
 
-  void paintHB(Canvas canvas) {
+  void paintHB(Canvas canvas, [Color? overrideBaseColor, Color? overrideSelectedColor]) {
     if (selected) {
-      _paintStyle = Paint()
-        ..color = Colors.green
-        ..strokeWidth = 0.5
-        ..style = PaintingStyle.stroke;
+      if (overrideSelectedColor == null) {
+        _paintStyle = Paint()
+          ..color = Colors.green
+          ..strokeWidth = 0.5
+          ..style = PaintingStyle.stroke;
+      } else {
+        _paintStyle = Paint()
+          ..color = overrideSelectedColor
+          ..strokeWidth = 0.5
+          ..style = PaintingStyle.stroke;
+      }
     } else {
-      _paintStyle = Paint()
-        ..color = Colors.red
-        ..strokeWidth = 0.5
-        ..style = PaintingStyle.stroke;
+      if (overrideBaseColor == null) {
+        _paintStyle = Paint()
+          ..color = Colors.red
+          ..strokeWidth = 0.5
+          ..style = PaintingStyle.stroke;
+      } else {
+        _paintStyle = Paint()
+          ..color = overrideBaseColor
+          ..strokeWidth = 0.5
+          ..style = PaintingStyle.stroke;
+      }
     }
 
     Paint areaPaint = Paint()

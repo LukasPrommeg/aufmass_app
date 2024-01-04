@@ -60,7 +60,7 @@ class PlanPageContent extends State<PlanPage> {
         ),
         FloatingActionButton(
           onPressed: () {
-            currentRoom.paintController.roomName = "testpoly";
+            currentRoom.paintController.roomName = "testwohnzimmer";
           },
           child: const Icon(
             Icons.polyline_rounded,

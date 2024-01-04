@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
 import 'package:flutter/material.dart';
@@ -29,5 +32,21 @@ class Grundflaeche extends Flaeche {
     if (hasLaengen) {
       super.paintLaengen(canvas, color, laengenSize);
     }
+  }
+
+  double findMaxLength(Corner startingPoint, double angle) {
+    //TODO: async
+    double stepLength = 0.001;
+
+    double length = 0;
+    Offset einheitsVektor = Offset.fromDirection((angle - 90) * pi / 180, stepLength);
+    Offset origin = startingPoint.point;
+
+    do {
+      origin += einheitsVektor;
+      length += stepLength;
+    } while (unscaledPath.contains(origin));
+
+    return double.parse(length.toStringAsFixed(2));
   }
 }

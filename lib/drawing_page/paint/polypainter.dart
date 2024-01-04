@@ -8,8 +8,17 @@ class PolyPainter extends CustomPainter {
   List<DrawedWerkstoff> _werkstoffe = [];
   Grundflaeche? _grundFlaeche;
   DrawedWerkstoff? clickedWerkstoff;
-  bool selectStartingpoint = false;
-  Corner? selectedStartingpoint;
+  bool selectCorner = false;
+  List<Corner> hiddenCorners = [];
+  Corner? selectedCorner;
+
+  void reset() {
+    _grundFlaeche = null;
+    clickedWerkstoff = null;
+    selectCorner = false;
+    hiddenCorners.clear();
+    selectedCorner = null;
+  }
 
   void drawGrundflaeche(Grundflaeche? grundFlaeche) {
     _grundFlaeche = grundFlaeche;
@@ -23,10 +32,10 @@ class PolyPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (_grundFlaeche != null) {
       _grundFlaeche!.paintGrundflaeche(canvas);
-      if (selectStartingpoint) {
-        selectedStartingpoint?.selected = true;
-        _grundFlaeche!.paintCornerHB(canvas);
-        selectedStartingpoint?.selected = false;
+      if (selectCorner) {
+        selectedCorner?.selected = true;
+        _grundFlaeche!.paintCornerHB(canvas, hiddenCorners, Colors.purple);
+        selectedCorner?.selected = false;
       }
     }
     for (DrawedWerkstoff werkstoff in _werkstoffe) {

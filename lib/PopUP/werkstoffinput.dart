@@ -34,6 +34,10 @@ class WerkstoffInputPopup {
   final TextEditingController _negY = TextEditingController();
   final TextEditingController _posY = TextEditingController();
 
+  InputState get state {
+    return _state;
+  }
+
   EinheitSelector einheitSelector = EinheitSelector(
     setGlobal: false,
   );

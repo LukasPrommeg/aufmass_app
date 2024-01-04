@@ -11,14 +11,14 @@ class LinePainter extends CustomPainter {
   bool isDrawing = false;
 
   Corner? selectedCorner;
-  Corner? startingPoint;
 
   void drawWalls(List<Wall> walls) {
+    _walls.clear();
+    _ends.clear();
     if (walls.isEmpty) {
       return;
     }
-    _walls.clear();
-    _ends.clear();
+
     isDrawing = true;
     _walls = walls.toList();
     if (_walls.isNotEmpty) {
@@ -54,20 +54,19 @@ class LinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (startingPoint != null) {
-      startingPoint!.selected = true;
-      startingPoint!.paint(canvas, Colors.red, 10);
-      startingPoint!.paintHB(canvas);
-      startingPoint!.selected = false;
-      Paint paint = Paint()
-        ..color = Colors.black
-        ..strokeWidth = 10
-        ..strokeCap = StrokeCap.round;
-
-      canvas.drawPoints(PointMode.points, [startingPoint!.scaled!], paint);
-    }
-
     if (_walls.isEmpty) {
+      if (selectedCorner != null) {
+        selectedCorner!.selected = true;
+        selectedCorner!.paint(canvas, Colors.blue, 15);
+        selectedCorner!.paintHB(canvas);
+        selectedCorner!.selected = false;
+        Paint paint = Paint()
+          ..color = Colors.blue
+          ..strokeWidth = 10
+          ..strokeCap = StrokeCap.round;
+
+        canvas.drawPoints(PointMode.points, [selectedCorner!.scaled!], paint);
+      }
       return;
     }
 
