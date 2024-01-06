@@ -1,3 +1,4 @@
+import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
 import 'package:aufmass_app/drawing_page/paint/grundflaeche.dart';
@@ -100,6 +101,8 @@ class PlanPageContent extends State<PlanPage> {
         case Grundflaeche:
           print("Grundflaeche");
           break;
+        case DrawedWerkstoff:
+          print("Werkstoff-${(clicked as DrawedWerkstoff).clickAble.runtimeType}");
         default:
           print("Shouldn't be possible");
           break;

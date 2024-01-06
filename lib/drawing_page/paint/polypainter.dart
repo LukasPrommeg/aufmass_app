@@ -32,14 +32,17 @@ class PolyPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (_grundFlaeche != null) {
       _grundFlaeche!.paintGrundflaeche(canvas);
+
+      for (DrawedWerkstoff werkstoff in _werkstoffe) {
+        werkstoff.paint(canvas);
+        werkstoff.clickAble.paintHB(canvas);
+      }
+
       if (selectCorner) {
         selectedCorner?.selected = true;
         _grundFlaeche!.paintCornerHB(canvas, hiddenCorners, Colors.purple);
         selectedCorner?.selected = false;
       }
-    }
-    for (DrawedWerkstoff werkstoff in _werkstoffe) {
-      werkstoff.paint(canvas);
     }
   }
 

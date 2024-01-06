@@ -39,7 +39,7 @@ class Corner extends ClickAble {
   @override
   void initScale(double scale, Offset center) {
     scaled = (point * scale) - center;
-    calcHitbox();
+    super.initScale(scale, center);
   }
 
   @override

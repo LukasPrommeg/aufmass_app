@@ -87,5 +87,7 @@ abstract class ClickAble extends EventArgs {
   @protected
   void calcHitbox();
 
-  void initScale(double scale, Offset center);
+  void initScale(double scale, Offset center) {
+    calcHitbox();
+  }
 }

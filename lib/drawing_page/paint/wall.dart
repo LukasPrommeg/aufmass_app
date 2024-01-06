@@ -85,6 +85,8 @@ class Wall extends ClickAble {
     end.initScale(scale, center);
 
     posBeschriftung = (end.scaled! - start.scaled!) / 2 + start.scaled!;
+
+    super.initScale(scale, center);
   }
 
   @override

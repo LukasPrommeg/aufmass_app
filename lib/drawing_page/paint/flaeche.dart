@@ -116,7 +116,7 @@ class Flaeche extends ClickAble {
     posBeschriftung = (Offset(posBeschriftung.dx / (walls.length + 1), posBeschriftung.dy / (walls.length + 1)) * scale) - center;
     calcSize();
     _calcLastWall();
-    calcHitbox();
+    super.initScale(scale, center);
   }
 
   @override

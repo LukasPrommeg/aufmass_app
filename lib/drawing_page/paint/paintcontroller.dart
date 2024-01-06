@@ -278,7 +278,7 @@ class PaintController {
         _werkstoffPopup.behind = null;
       }
     } else {
-      ClickAble? result = findClickedObject(position);
+      EventArgs? result = findClickedObject(position);
 
       if (result != null) {
         //TODO: EDIT
@@ -291,8 +291,14 @@ class PaintController {
     repaint();
   }
 
-  ClickAble? findClickedObject(Offset position) {
-    ClickAble? result;
+  EventArgs? findClickedObject(Offset position) {
+    EventArgs? result;
+    for (DrawedWerkstoff werkstoff in _werkstoffe.reversed) {
+      if (werkstoff.contains(position)) {
+        return werkstoff;
+      }
+    }
+
     if (grundFlaeche != null) {
       result = grundFlaeche!.detectClickedWall(position);
       if (result != null) {
@@ -327,7 +333,8 @@ class PaintController {
         clickAble = walls.first;
         break;
       case WerkstoffTyp.point:
-        clickAble = _werkstoffPopup.startingPoint!;
+        clickAble = Corner.fromPoint(point: _werkstoffPopup.startingPoint!.point, hitboxSize: 10);
+        clickAble.initScale(scalingData.scale, scalingData.center);
         break;
       default:
         return;
