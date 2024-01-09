@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:aufmass_app/Misc/clickable.dart';
+import 'package:aufmass_app/PopUP/selectactionpopup.dart';
 import 'package:aufmass_app/PopUP/werkstoffinput.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
@@ -35,6 +36,7 @@ class PaintController {
   //Popups
   final WallInputPopup _wallPopup = WallInputPopup();
   final WerkstoffInputPopup _werkstoffPopup = WerkstoffInputPopup();
+  final SelectActionPopup _selectActionPopup = SelectActionPopup();
 
   //Member
   ScalingData scalingData = ScalingData(scale: 1, rect: Rect.zero, center: Offset.zero);
@@ -45,6 +47,7 @@ class PaintController {
   Grundflaeche? grundFlaeche;
   final List<DrawedWerkstoff> _werkstoffe = [];
   bool _drawingWerkstoff = false;
+  bool _drawingAusnahme = false;
   int indexOfFirstLaengenWerkstoff = 0;
 
   //Events
@@ -449,7 +452,7 @@ class PaintController {
   }
 
   Future<void> displayDialog(BuildContext context) async {
-    if (grundFlaeche == null || _drawingWerkstoff) {
+    if (grundFlaeche == null || _drawingWerkstoff || _drawingAusnahme) {
       if (walls.isEmpty) {
         _wallPopup.init(0, true);
         return _wallPopup.display(context, !_drawingWerkstoff);
@@ -468,7 +471,16 @@ class PaintController {
         //TODO: Fehlermeldung
       }
     } else {
-      _werkstoffPopup.display(context);
+      switch (_selectActionPopup.selected) {
+        case "":
+          await _selectActionPopup.display(context);
+          break;
+        case "Werkstoff":
+          _werkstoffPopup.display(context);
+          break;
+        case "Ausnahme":
+          break;
+      }
     }
   }
 
