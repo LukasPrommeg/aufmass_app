@@ -1,20 +1,16 @@
-<<<<<<< Updated upstream
-=======
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
->>>>>>> Stashed changes
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
+import 'package:aufmass_app/drawing_page/paint/grundflaeche.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/room.dart';
-import 'package:aufmass_app/Misc/werkstoff.dart';
-import 'package:aufmass_app/Misc/einheitselector.dart';
+import 'package:aufmass_app/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
 import 'package:aufmass_app/Misc/pdfexport.dart';
 import 'package:aufmass_app/Werkstoffe/Werkstoff_controller.dart';
-
 import '../Einheiten/einheitcontroller.dart';
 
 class PlanPage extends StatefulWidget {
@@ -34,17 +30,6 @@ class PlanPageContent extends State<PlanPage> {
 
   late var clickedThing=null;
 
-<<<<<<< Updated upstream
-  //sollte in Zukunft aus DB kommen
-  List<Werkstoff> werkstoffe = [
-    Werkstoff("Option 1", Colors.red),
-    Werkstoff("Werkstoff 2", Colors.blue),
-    Werkstoff("Werkstoff 3", Colors.green),
-  ];
-
-
-=======
->>>>>>> Stashed changes
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
   TextEditingController renameProjectController = TextEditingController();
@@ -70,10 +55,21 @@ class PlanPageContent extends State<PlanPage> {
       children: [
         FloatingActionButton(
           onPressed: () {
-            currentRoom.paintController.displayTextInputDialog(context);
+            currentRoom.paintController.displayDialog(context);
           },
           child: const Icon(
             Icons.add,
+          ),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        FloatingActionButton(
+          onPressed: () {
+            currentRoom.paintController.roomName = "testwohnzimmer";
+          },
+          child: const Icon(
+            Icons.polyline_rounded,
           ),
         ),
       ],
@@ -110,10 +106,6 @@ class PlanPageContent extends State<PlanPage> {
         case Flaeche:
           print("Flaeche");
           clickedThing=(clicked as Flaeche);
-<<<<<<< Updated upstream
-          //clickedThing.color = Colors.red;
-          break;
-=======
           break;
         case Grundflaeche:
           print("Grundflaeche");
@@ -123,7 +115,6 @@ class PlanPageContent extends State<PlanPage> {
           print("Werkstoff-${(clicked as DrawedWerkstoff).clickAble.runtimeType}");
           clickedThing=(clicked as DrawedWerkstoff);
           break;
->>>>>>> Stashed changes
         default:
           print("Shouldn't be possible");
           break;
@@ -187,7 +178,7 @@ class PlanPageContent extends State<PlanPage> {
           children: [
             FloatingActionButton(
               onPressed: () {
-                currentRoom.paintController.displayTextInputDialog(context);
+                currentRoom.paintController.displayDialog(context);
               },
               child: const Icon(
                 Icons.add,
@@ -211,7 +202,7 @@ class PlanPageContent extends State<PlanPage> {
           children: [
             FloatingActionButton(
               onPressed: () {
-                currentRoom.paintController.displayTextInputDialog(context);
+                currentRoom.paintController.displayDialog(context);
               },
               child: const Icon(
                 Icons.add,
@@ -255,51 +246,25 @@ class PlanPageContent extends State<PlanPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-<<<<<<< Updated upstream
-                  if(clickedThing is Wall)
-                    Text(clickedThing.length.toString()),
                   if(clickedThing is Flaeche)
-=======
-                  if(clickedThing is Flaeche)
-                    Text("Fläche: "+EinheitController().convertToSelected(clickedThing.area).toString()+" "+EinheitController().selectedEinheit.name), //have to reload for it to work
+                    Text("Fläche: "EinheitController().convertToSelected(clickedThing.area).toString()+" "+EinheitController().selectedEinheit.name), //have to reload for it to work
                   if(clickedThing is Wall)
                     Text(clickedThing.length.toString()),
                   if(clickedThing is DrawedWerkstoff)
->>>>>>> Stashed changes
                     Text(
                       clickedThing?.werkstoff != null
                           ? "Selected Werkstoff: ${clickedThing.werkstoff.name}"
                           : "Select a Werkstoff",
                       style: TextStyle(fontSize: 18),
                     ),
-<<<<<<< Updated upstream
-                  if(clickedThing is Flaeche)
-                    DropdownButton<Werkstoff>(
-                      value: clickedThing?.werkstoff ?? werkstoffe.first,
-=======
                   if(clickedThing is DrawedWerkstoff)
                     //dropdownbutton with different werkstoffe; unklar: nur Werkstoffe vom selben Typ (wenn Fläche nur Flächen etc)
                     DropdownButton<Werkstoff>(
                       value: WerkstoffController().werkstoffe.first, //cant be: cant have value: clickedThing?.werkstoff ?? WerkstoffController().werkstoffe.first, because clickedThing.werkstoff is not in the list of werkstoffe
->>>>>>> Stashed changes
                       onChanged: (Werkstoff? newValue) {
                         setState(() {
                           if (clickedThing != null) {
                             clickedThing.werkstoff = newValue;
-<<<<<<< Updated upstream
-                            clickedThing.color=clickedThing.werkstoff.color; //geht save besser dasma glei sog de color vom clickedThing soid ima de color vom werkstoff sei oba mei gehirn is nur zu blöd dafür grod
-                          }
-                        });
-                      },
-                      items: werkstoffe.map((Werkstoff werkstoff) {
-                        return DropdownMenuItem<Werkstoff>(
-                          value: werkstoff,
-                          child: Text(werkstoff.name),
-                        );
-                      }).toList(),
-                    ),
-                  const Text('Länge: TEST'),
-=======
                           }
                         });
                       },
@@ -311,7 +276,6 @@ class PlanPageContent extends State<PlanPage> {
                         );
                       }).toList(),
                     ),
->>>>>>> Stashed changes
                   EinheitSelector(
                     setGlobal: true,
                   ),
@@ -400,8 +364,7 @@ class PlanPageContent extends State<PlanPage> {
                   fontSize: 20,
                 ),
               ),
-            initiallyExpanded: true,
-            shape: const Border(),
+              shape: const Border(),
               children: [
                 for (var room in rooms)
                   ListTile(
