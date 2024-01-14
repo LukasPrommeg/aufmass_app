@@ -1,4 +1,5 @@
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
+import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
 import 'package:aufmass_app/drawing_page/paint/grundflaeche.dart';
@@ -9,6 +10,9 @@ import 'package:aufmass_app/Misc/room.dart';
 import 'package:aufmass_app/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
 import 'package:aufmass_app/Misc/pdfexport.dart';
+import 'package:aufmass_app/Werkstoffe/Werkstoff_controller.dart';
+
+import '../Einheiten/einheitcontroller.dart';
 
 class PlanPage extends StatefulWidget {
   const PlanPage({super.key});
@@ -24,6 +28,8 @@ class PlanPageContent extends State<PlanPage> {
   String projektName = "unnamed";
   late String selectedDropdownValue;
   bool isRightColumnVisible = false;
+
+  late var clickedThing=null;
 
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
@@ -87,22 +93,29 @@ class PlanPageContent extends State<PlanPage> {
   void handleClickedEvent(EventArgs? clicked) {
     if (clicked == null) {
       setRightColumnVisibility(false);
+      clickedThing=null;
     } else {
       switch (clicked.runtimeType) {
         case Corner:
           print("CORNER");
+          clickedThing=(clicked as Corner);
           break;
         case Wall:
           print("Wall");
+          clickedThing=(clicked as Wall);
           break;
         case Flaeche:
           print("Flaeche");
+          clickedThing=(clicked as Flaeche);
           break;
         case Grundflaeche:
           print("Grundflaeche");
+          clickedThing=(clicked as Grundflaeche);
           break;
         case DrawedWerkstoff:
           print("Werkstoff-${(clicked as DrawedWerkstoff).clickAble.runtimeType}");
+          clickedThing=(clicked as DrawedWerkstoff);
+          break;
         default:
           print("Shouldn't be possible");
           break;
@@ -234,23 +247,36 @@ class PlanPageContent extends State<PlanPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Dropdown menü
-                  DropdownButton<String>(
-                    value: selectedDropdownValue, //sollte selected.werkstoff werden
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedDropdownValue = newValue!;
-                      });
-                    },
-                    items: <String>['Option 1', 'Werkstoff 2', 'Werkstoff 3', 'Werkstoff 4'] //sollte zur Wirklichen Liste von Werkstoffen  (WTF ERROR WENN NICHT "Option")
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                  const Text('Länge: TEST'),
+                  if(clickedThing is Flaeche)
+                    Text("Fläche: "+EinheitController().convertToSelected(clickedThing.area).toString()+" "+EinheitController().selectedEinheit.name), //have to reload for it to work
+                  if(clickedThing is Wall)
+                    Text(clickedThing.length.toString()),
+                  if(clickedThing is DrawedWerkstoff)
+                    Text(
+                      clickedThing?.werkstoff != null
+                          ? "Selected Werkstoff: ${clickedThing.werkstoff.name}"
+                          : "Select a Werkstoff",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  if(clickedThing is DrawedWerkstoff)
+                  //dropdownbutton with different werkstoffe; unklar: nur Werkstoffe vom selben Typ (wenn Fläche nur Flächen etc)
+                    DropdownButton<Werkstoff>(
+                      value: WerkstoffController().werkstoffe.first, //cant be: cant have value: clickedThing?.werkstoff ?? WerkstoffController().werkstoffe.first, because clickedThing.werkstoff is not in the list of werkstoffe
+                      onChanged: (Werkstoff? newValue) {
+                        setState(() {
+                          if (clickedThing != null) {
+                            clickedThing.werkstoff = newValue;
+                          }
+                        });
+                      },
+                      items: WerkstoffController().werkstoffe.map<DropdownMenuItem<Werkstoff>>((Werkstoff werkstoff2) {
+                        print("Creating DropdownMenuItem for Werkstoff: $werkstoff2");
+                        return DropdownMenuItem<Werkstoff>(
+                          value: werkstoff2,
+                          child: Text(werkstoff2.name),
+                        );
+                      }).toList(),
+                    ),
                   EinheitSelector(
                     setGlobal: true,
                   ),
