@@ -38,6 +38,18 @@ class CircleSlider extends StatelessWidget {
     return sliderPainter.val;
   }
 
+  set value(double value) {
+    if (isFirstWall && value >= -360 && value <= 360) {
+      sliderPainter.updateValueWithAngle(value);
+      centerTextFieldController.text = value.toString();
+    } else if (value >= 0 && value <= maxAngle || value < 0 && value >= (maxAngle * -1)) {
+      sliderPainter.updateValueWithAngle(value);
+      centerTextFieldController.text = value.toString();
+    } else {
+      //TODO: Change Style weil nicht in Range
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     InputDecoration decoration = const InputDecoration(

@@ -21,7 +21,7 @@ class EinheitController {
     //Constructor
   }
 
-  Set<Einheit> _einheitSelection = <Einheit>{Einheit.mm};
+  Set<Einheit> _einheitSelection = <Einheit>{Einheit.m};
 
   Einheit get selectedEinheit {
     return _einheitSelection.first;
@@ -39,6 +39,20 @@ class EinheitController {
         break;
       case Einheit.cm:
         length /= 10;
+        break;
+      default:
+        break;
+    }
+    return length;
+  }
+
+  double convertToSelectedSquared(double length) {
+    switch (selectedEinheit) {
+      case Einheit.m:
+        length /= 1000000;
+        break;
+      case Einheit.cm:
+        length /= 100;
         break;
       default:
         break;
