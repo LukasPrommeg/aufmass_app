@@ -1,8 +1,3 @@
-<<<<<<< Updated upstream
-=======
-import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
-import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
->>>>>>> Stashed changes
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
@@ -13,9 +8,6 @@ import 'package:aufmass_app/Misc/werkstoff.dart';
 import 'package:aufmass_app/Misc/einheitselector.dart';
 import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
 import 'package:aufmass_app/Misc/pdfexport.dart';
-import 'package:aufmass_app/Werkstoffe/Werkstoff_controller.dart';
-
-import '../Einheiten/einheitcontroller.dart';
 
 class PlanPage extends StatefulWidget {
   const PlanPage({super.key});
@@ -34,7 +26,6 @@ class PlanPageContent extends State<PlanPage> {
 
   late var clickedThing=null;
 
-<<<<<<< Updated upstream
   //sollte in Zukunft aus DB kommen
   List<Werkstoff> werkstoffe = [
     Werkstoff("Option 1", Colors.red),
@@ -43,8 +34,6 @@ class PlanPageContent extends State<PlanPage> {
   ];
 
 
-=======
->>>>>>> Stashed changes
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
   TextEditingController renameProjectController = TextEditingController();
@@ -110,20 +99,8 @@ class PlanPageContent extends State<PlanPage> {
         case Flaeche:
           print("Flaeche");
           clickedThing=(clicked as Flaeche);
-<<<<<<< Updated upstream
           //clickedThing.color = Colors.red;
           break;
-=======
-          break;
-        case Grundflaeche:
-          print("Grundflaeche");
-          clickedThing=(clicked as Grundflaeche);
-          break;
-        case DrawedWerkstoff:
-          print("Werkstoff-${(clicked as DrawedWerkstoff).clickAble.runtimeType}");
-          clickedThing=(clicked as DrawedWerkstoff);
-          break;
->>>>>>> Stashed changes
         default:
           print("Shouldn't be possible");
           break;
@@ -255,38 +232,22 @@ class PlanPageContent extends State<PlanPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-<<<<<<< Updated upstream
                   if(clickedThing is Wall)
                     Text(clickedThing.length.toString()),
                   if(clickedThing is Flaeche)
-=======
-                  if(clickedThing is Flaeche)
-                    Text("Fläche: "+EinheitController().convertToSelected(clickedThing.area).toString()+" "+EinheitController().selectedEinheit.name), //have to reload for it to work
-                  if(clickedThing is Wall)
-                    Text(clickedThing.length.toString()),
-                  if(clickedThing is DrawedWerkstoff)
->>>>>>> Stashed changes
                     Text(
                       clickedThing?.werkstoff != null
                           ? "Selected Werkstoff: ${clickedThing.werkstoff.name}"
                           : "Select a Werkstoff",
                       style: TextStyle(fontSize: 18),
                     ),
-<<<<<<< Updated upstream
                   if(clickedThing is Flaeche)
                     DropdownButton<Werkstoff>(
                       value: clickedThing?.werkstoff ?? werkstoffe.first,
-=======
-                  if(clickedThing is DrawedWerkstoff)
-                    //dropdownbutton with different werkstoffe; unklar: nur Werkstoffe vom selben Typ (wenn Fläche nur Flächen etc)
-                    DropdownButton<Werkstoff>(
-                      value: WerkstoffController().werkstoffe.first, //cant be: cant have value: clickedThing?.werkstoff ?? WerkstoffController().werkstoffe.first, because clickedThing.werkstoff is not in the list of werkstoffe
->>>>>>> Stashed changes
                       onChanged: (Werkstoff? newValue) {
                         setState(() {
                           if (clickedThing != null) {
                             clickedThing.werkstoff = newValue;
-<<<<<<< Updated upstream
                             clickedThing.color=clickedThing.werkstoff.color; //geht save besser dasma glei sog de color vom clickedThing soid ima de color vom werkstoff sei oba mei gehirn is nur zu blöd dafür grod
                           }
                         });
@@ -299,19 +260,6 @@ class PlanPageContent extends State<PlanPage> {
                       }).toList(),
                     ),
                   const Text('Länge: TEST'),
-=======
-                          }
-                        });
-                      },
-                      items: WerkstoffController().werkstoffe.map<DropdownMenuItem<Werkstoff>>((Werkstoff werkstoff2) {
-                        print("Creating DropdownMenuItem for Werkstoff: $werkstoff2");
-                        return DropdownMenuItem<Werkstoff>(
-                          value: werkstoff2,
-                          child: Text(werkstoff2.name),
-                        );
-                      }).toList(),
-                    ),
->>>>>>> Stashed changes
                   EinheitSelector(
                     setGlobal: true,
                   ),
