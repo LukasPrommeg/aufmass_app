@@ -29,7 +29,7 @@ class PlanPageContent extends State<PlanPage> {
   late String selectedDropdownValue;
   bool isRightColumnVisible = false;
 
-  late var clickedThing=null;
+  late var clickedThing = null;
 
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
@@ -93,28 +93,28 @@ class PlanPageContent extends State<PlanPage> {
   void handleClickedEvent(EventArgs? clicked) {
     if (clicked == null) {
       setRightColumnVisibility(false);
-      clickedThing=null;
+      clickedThing = null;
     } else {
       switch (clicked.runtimeType) {
         case Corner:
           print("CORNER");
-          clickedThing=(clicked as Corner);
+          clickedThing = (clicked as Corner);
           break;
         case Wall:
           print("Wall");
-          clickedThing=(clicked as Wall);
+          clickedThing = (clicked as Wall);
           break;
         case Flaeche:
           print("Flaeche");
-          clickedThing=(clicked as Flaeche);
+          clickedThing = (clicked as Flaeche);
           break;
         case Grundflaeche:
           print("Grundflaeche");
-          clickedThing=(clicked as Grundflaeche);
+          clickedThing = (clicked as Grundflaeche);
           break;
         case DrawedWerkstoff:
           print("Werkstoff-${(clicked as DrawedWerkstoff).clickAble.runtimeType}");
-          clickedThing=(clicked as DrawedWerkstoff);
+          clickedThing = clicked;
           break;
         default:
           print("Shouldn't be possible");
@@ -247,21 +247,20 @@ class PlanPageContent extends State<PlanPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if(clickedThing is Flaeche)
-                    Text("Fläche: "+EinheitController().convertToSelected(clickedThing.area).toString()+" "+EinheitController().selectedEinheit.name), //have to reload for it to work
-                  if(clickedThing is Wall)
-                    Text(clickedThing.length.toString()),
-                  if(clickedThing is DrawedWerkstoff)
+                  if (clickedThing is Flaeche)
+                    Text("Fläche: ${EinheitController().convertToSelectedSquared(clickedThing.area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²"), //have to reload for it to work
+                  if (clickedThing is Wall) Text("Wand: ${EinheitController().convertToSelected(clickedThing.length).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}"),
+                  if (clickedThing is DrawedWerkstoff)
                     Text(
-                      clickedThing?.werkstoff != null
-                          ? "Selected Werkstoff: ${clickedThing.werkstoff.name}"
-                          : "Select a Werkstoff",
-                      style: TextStyle(fontSize: 18),
+                      clickedThing?.werkstoff != null ? "Selected Werkstoff: ${clickedThing.werkstoff.name}" : "Select a Werkstoff",
+                      style: const TextStyle(fontSize: 18),
                     ),
-                  if(clickedThing is DrawedWerkstoff)
-                  //dropdownbutton with different werkstoffe; unklar: nur Werkstoffe vom selben Typ (wenn Fläche nur Flächen etc)
+                  if (clickedThing is DrawedWerkstoff)
+                    //dropdownbutton with different werkstoffe; unklar: nur Werkstoffe vom selben Typ (wenn Fläche nur Flächen etc)
                     DropdownButton<Werkstoff>(
-                      value: WerkstoffController().werkstoffe.first, //cant be: cant have value: clickedThing?.werkstoff ?? WerkstoffController().werkstoffe.first, because clickedThing.werkstoff is not in the list of werkstoffe
+                      value: WerkstoffController()
+                          .werkstoffe
+                          .first, //cant be: cant have value: clickedThing?.werkstoff ?? WerkstoffController().werkstoffe.first, because clickedThing.werkstoff is not in the list of werkstoffe
                       onChanged: (Werkstoff? newValue) {
                         setState(() {
                           if (clickedThing != null) {

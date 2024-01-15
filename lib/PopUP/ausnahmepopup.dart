@@ -19,7 +19,7 @@ class InputStateEventArgs extends EventArgs {
 class AusnahmeInput {
   InputState _state = InputState.selectStartingpoint;
   InputState _nextState = InputState.selectStartingpoint;
-  Widget _content = Scaffold();
+  Widget _content = const Scaffold();
   final inputStateChangedEvent = Event<InputStateEventArgs>();
 
   Wall? infront;

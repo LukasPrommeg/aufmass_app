@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
 import 'package:flutter/material.dart';
 
