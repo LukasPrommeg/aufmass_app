@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class DrawedWerkstoff extends EventArgs {
   final ClickAble clickAble;
-  final Werkstoff werkstoff;
+  Werkstoff werkstoff;
   bool hasBeschriftung;
   bool hasLaengen;
   double drawSize;

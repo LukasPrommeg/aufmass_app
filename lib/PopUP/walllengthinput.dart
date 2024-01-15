@@ -83,7 +83,7 @@ class _WallInputState extends State<WallInput> {
               }
             });
           },
-          children: [Text("max.")],
+          children: const [Text("max.")],
         ),
       );
     }
