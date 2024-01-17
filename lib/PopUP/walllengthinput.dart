@@ -2,10 +2,20 @@ import 'package:flutter/material.dart';
 
 //ignore: must_be_immutable
 class WallInput extends StatefulWidget {
-  WallInput({super.key, required this.drawingGrundflaeche});
+  WallInput({
+    super.key,
+    required this.hintText,
+    required this.drawingGrundflaeche,
+    this.maxText = "Maximal möglich",
+    this.btnText = "max.",
+    this.useMaxValue = false,
+  });
 
-  double length = 0;
-  bool useMaxLength = false;
+  final String hintText;
+  final String maxText;
+  final String btnText;
+  double value = 0;
+  late bool useMaxValue;
   bool drawingGrundflaeche;
 
   @override
@@ -14,15 +24,21 @@ class WallInput extends StatefulWidget {
 
 class _WallInputState extends State<WallInput> {
   final TextEditingController _textFieldController = TextEditingController();
-  List<bool> selection = [false];
+  late List<bool> selection;
   late TextField wallLength;
 
-  _WallInputState() {
+  @override
+  void initState() {
+    super.initState();
+
+    selection = [widget.useMaxValue];
+
     wallLength = TextField(
       controller: _textFieldController,
       textAlign: TextAlign.center,
       keyboardType: TextInputType.number,
-      decoration: const InputDecoration(hintText: "Länge der Wand"),
+      decoration: InputDecoration(hintText: widget.hintText),
+      enabled: !widget.useMaxValue,
       onChanged: (value) => submitValue(value),
     );
   }
@@ -31,11 +47,11 @@ class _WallInputState extends State<WallInput> {
     try {
       double value = double.parse(string);
       setState(() {
-        widget.length = value;
+        widget.value = value;
       });
     } catch (e) {
       setState(() {
-        widget.length = 0;
+        widget.value = 0;
       });
     }
   }
@@ -59,31 +75,31 @@ class _WallInputState extends State<WallInput> {
           onPressed: (index) {
             setState(() {
               selection[index] = !selection[index];
-              widget.useMaxLength = selection[index];
+              widget.useMaxValue = selection[index];
               if (selection[index]) {
                 wallLength = TextField(
                   controller: _textFieldController,
                   textAlign: TextAlign.center,
                   keyboardType: TextInputType.number,
-                  enabled: false,
-                  decoration: const InputDecoration(hintText: "Maximale mögliche Länge"),
+                  enabled: !widget.useMaxValue,
+                  decoration: InputDecoration(hintText: widget.maxText),
                   onChanged: (value) => submitValue(value),
                 );
                 _textFieldController.text = "";
-                widget.length = 0;
+                widget.value = 0;
               } else {
                 wallLength = TextField(
                   controller: _textFieldController,
                   textAlign: TextAlign.center,
                   keyboardType: TextInputType.number,
-                  enabled: true,
-                  decoration: const InputDecoration(hintText: "Länge der Wand"),
+                  enabled: !widget.useMaxValue,
+                  decoration: InputDecoration(hintText: widget.hintText),
                   onChanged: (value) => submitValue(value),
                 );
               }
             });
           },
-          children: const [Text("max.")],
+          children: [Text(widget.btnText)],
         ),
       );
     }

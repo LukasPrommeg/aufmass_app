@@ -1,5 +1,8 @@
 import 'dart:math';
 import 'package:aufmass_app/Misc/clickable.dart';
+import 'package:aufmass_app/Misc/einkerbung.dart';
+import 'package:aufmass_app/Misc/input_utils.dart';
+import 'package:aufmass_app/PopUP/ausnahmepopup.dart';
 import 'package:aufmass_app/PopUP/selectactionpopup.dart';
 import 'package:aufmass_app/PopUP/werkstoffinput.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
@@ -35,8 +38,9 @@ class PaintController {
 
   //Popups
   final WallInputPopup _wallPopup = WallInputPopup();
-  final WerkstoffInputPopup _werkstoffPopup = WerkstoffInputPopup();
   final SelectActionPopup _selectActionPopup = SelectActionPopup();
+  final WerkstoffInputPopup _werkstoffPopup = WerkstoffInputPopup();
+  final AusnahmePopup _ausnahmePopup = AusnahmePopup();
 
   //Member
   ScalingData scalingData = ScalingData(scale: 1, rect: Rect.zero, center: Offset.zero);
@@ -60,10 +64,14 @@ class PaintController {
     polyPainter = PolyPainter(repaint: _repaint);
     linePainter = LinePainter(repaint: _repaint);
     _wallPopup.addWallEvent.subscribe((args) => addWall(args));
-    _einheitController.updateEinheitEvent.subscribe((args) {
-      repaint();
+    _einheitController.updateEinheitEvent.subscribe((args) => repaint());
+    _selectActionPopup.selectEvent.subscribe((args) {
+      if (args != null) {
+        displayDialog(args.context);
+      }
     });
     _werkstoffPopup.inputStateChangedEvent.subscribe((args) => handleWerkstoffInputState(args));
+    _ausnahmePopup.inputStateChangedEvent.subscribe((args) => handleEinkerbungInput(args));
   }
 
   set roomName(String string) {
@@ -160,6 +168,9 @@ class PaintController {
       _drawingWerkstoff = false;
       polyPainter.hiddenCorners.clear();
       switch (args.value) {
+        case InputState.selectWerkstoff:
+          _selectActionPopup.selected = "";
+          break;
         case InputState.selectStartingpoint:
           polyPainter.selectCorner = true;
           break;
@@ -170,6 +181,7 @@ class PaintController {
             if (_werkstoffPopup.werkStoffneedsmorePoints()) {
               _drawingWerkstoff = true;
               polyPainter.selectCorner = true;
+              _selectActionPopup.selected = "";
               Corner? startPoly = grundFlaeche!.findCornerAtPoint(_werkstoffPopup.startingPoint!.point);
               if (startPoly != null) {
                 polyPainter.hiddenCorners.add(startPoly);
@@ -191,18 +203,61 @@ class PaintController {
     }
   }
 
+  void handleEinkerbungInput(InputStateEventArgs? args) {
+    if (args != null) {
+      polyPainter.selectCorner = false;
+      polyPainter.selectedCorner = null;
+      _drawingAusnahme = false;
+      polyPainter.hiddenCorners.clear();
+      switch (args.value) {
+        case InputState.inputEinkerbung:
+          _selectActionPopup.selected = "";
+          break;
+        case InputState.selectStartingpoint:
+          polyPainter.selectCorner = true;
+          break;
+        case InputState.draw:
+          _ausnahmePopup.calcStartingpointWithOffset();
+          if (_ausnahmePopup.startingPoint != null) {
+            _ausnahmePopup.startingPoint!.initScale(scalingData.scale, scalingData.center);
+            _drawingAusnahme = true;
+            polyPainter.selectCorner = true;
+            _selectActionPopup.selected = "";
+            Corner? startPoly = grundFlaeche!.findCornerAtPoint(_ausnahmePopup.startingPoint!.point);
+            if (startPoly != null) {
+              polyPainter.hiddenCorners.add(startPoly);
+            }
+            linePainter.isDrawing = true;
+            linePainter.selectedCorner = _ausnahmePopup.startingPoint;
+          } else {
+            //TODO: Fehlermeldung, fehler beim Parsen
+          }
+          break;
+        default:
+          break;
+      }
+      repaint();
+    }
+  }
+
   void addWall(Wall? wall) {
     if (wall != null) {
       if (wall.length == 0) {
-        double length = grundFlaeche!.findMaxLength(_werkstoffPopup.startingPoint!, wall.angle);
-        wall = Wall.fromStart(angle: wall.angle, length: length, start: Corner.fromPoint(point: Offset.zero));
+        if (_drawingAusnahme) {
+          double length = grundFlaeche!.findMaxLength(_ausnahmePopup.startingPoint!, wall.angle);
+          wall = Wall.fromStart(angle: wall.angle, length: length, start: Corner.fromPoint(point: Offset.zero));
+        } else if (_drawingWerkstoff) {
+          double length = grundFlaeche!.findMaxLength(_werkstoffPopup.startingPoint!, wall.angle);
+          wall = Wall.fromStart(angle: wall.angle, length: length, start: Corner.fromPoint(point: Offset.zero));
+        }
       }
       if (walls.isEmpty) {
         _wallCount++;
 
-        if (_drawingWerkstoff) {
+        if (_drawingWerkstoff || _drawingAusnahme) {
           wall = Wall.fromStart(angle: wall.angle, length: wall.length, start: linePainter.selectedCorner!);
         }
+
         wall.id = _wallCount;
 
         walls.add(wall);
@@ -240,6 +295,8 @@ class PaintController {
     } else {
       if (_drawingWerkstoff) {
         finishWerkstoff();
+      } else if (_drawingAusnahme) {
+        finishEinkerbung();
       } else {
         finishArea();
       }
@@ -249,7 +306,7 @@ class PaintController {
 
   void tap(Offset position) {
     if (linePainter.isDrawing) {
-      if (polyPainter.selectCorner && _werkstoffPopup.state == InputState.draw) {
+      if (polyPainter.selectCorner && _werkstoffPopup.state == InputState.draw || _ausnahmePopup.state == InputState.draw) {
         if (linePainter.selectedCorner == null) {
           linePainter.selectedCorner = linePainter.detectClickedCorner(position);
         } else {
@@ -279,6 +336,18 @@ class PaintController {
         _werkstoffPopup.infront = null;
         _werkstoffPopup.startingPoint = null;
         _werkstoffPopup.behind = null;
+      }
+    } else if (polyPainter.selectCorner && _ausnahmePopup.state == InputState.selectStartingpoint) {
+      polyPainter.selectedCorner = grundFlaeche?.detectClickedCorner(position);
+      if (polyPainter.selectedCorner != null) {
+        _ausnahmePopup.startingPoint = polyPainter.selectedCorner!;
+        List<Wall> around = grundFlaeche!.findWallsAroundCorner(polyPainter.selectedCorner!);
+        _ausnahmePopup.infront = Wall.fromStart(angle: around.first.angle, length: around.first.length, start: Corner.fromPoint(point: Offset.zero));
+        _ausnahmePopup.behind = Wall.fromStart(angle: around.last.angle, length: around.last.length, start: _ausnahmePopup.infront!.end);
+      } else {
+        _ausnahmePopup.infront = null;
+        _ausnahmePopup.startingPoint = null;
+        _ausnahmePopup.behind = null;
       }
     } else {
       EventArgs? result = findClickedObject(position);
@@ -374,6 +443,19 @@ class PaintController {
     updateDrawingState.broadcast();
   }
 
+  void finishEinkerbung() {
+    grundFlaeche?.addEinkerbung(Einkerbung(tiefe: _ausnahmePopup.tiefe, walls: List.from(walls)));
+    print(_ausnahmePopup.tiefe);
+    _drawingAusnahme = false;
+    _ausnahmePopup.finish();
+    polyPainter.selectCorner = false;
+    polyPainter.hiddenCorners.clear();
+    walls.clear();
+    _wallCount = 0;
+    linePainter.reset();
+    updateDrawingState.broadcast();
+  }
+
   void undo() {
     if (_wallCount > 1) {
       walls.removeWhere((wall) {
@@ -455,7 +537,12 @@ class PaintController {
     if (grundFlaeche == null || _drawingWerkstoff || _drawingAusnahme) {
       if (walls.isEmpty) {
         _wallPopup.init(0, true);
-        return _wallPopup.display(context, !_drawingWerkstoff);
+        if (_drawingWerkstoff) {
+          return _wallPopup.display(context, false);
+        } else if (_drawingAusnahme) {
+          return _wallPopup.display(context, false);
+        }
+        return _wallPopup.display(context, true);
       } else if (linePainter.selectedCorner != null) {
         if (linePainter.selectedCorner! == walls.first.start) {
           if (walls.first.angle <= 180) {
@@ -466,19 +553,25 @@ class PaintController {
         } else if (linePainter.selectedCorner! == walls.last.end) {
           _wallPopup.init(walls.last.angle, false);
         }
-        return _wallPopup.display(context, !_drawingWerkstoff);
+        if (_drawingWerkstoff) {
+          return _wallPopup.display(context, false);
+        } else if (_drawingAusnahme) {
+          return _wallPopup.display(context, false);
+        }
+        return _wallPopup.display(context, true);
       } else {
         //TODO: Fehlermeldung
       }
     } else {
       switch (_selectActionPopup.selected) {
         case "":
-          await _selectActionPopup.display(context);
+          _selectActionPopup.display(context);
           break;
         case "Werkstoff":
           _werkstoffPopup.display(context);
           break;
         case "Ausnahme":
+          _ausnahmePopup.display(context);
           break;
       }
     }

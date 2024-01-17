@@ -1,8 +1,16 @@
 import 'package:aufmass_app/Misc/actionselector.dart';
+import 'package:event/event.dart';
 import 'package:flutter/material.dart';
+
+class SelectActionEventArgs extends EventArgs {
+  final BuildContext context;
+
+  SelectActionEventArgs({required this.context});
+}
 
 class SelectActionPopup {
   String selected = "";
+  final selectEvent = Event<SelectActionEventArgs>();
 
   Future<String> display(BuildContext context) async {
     ActionSelector selector = ActionSelector();
@@ -35,6 +43,7 @@ class SelectActionPopup {
                       if (selector.selected != "") {
                         selected = selector.selected;
                         Navigator.pop(context);
+                        selectEvent.broadcast(SelectActionEventArgs(context: context));
                       }
                     },
                   ),

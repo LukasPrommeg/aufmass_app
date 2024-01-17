@@ -51,6 +51,7 @@ class WallInputPopup {
   Future<void> display(BuildContext context, bool drawingGrundflache) async {
     WallInput wallInput = WallInput(
       drawingGrundflaeche: drawingGrundflache,
+      hintText: "Länge der Wand",
     );
 
     return showDialog(
@@ -108,8 +109,8 @@ class WallInputPopup {
             ElevatedButton(
               child: const Text('Zeichnen'),
               onPressed: () {
-                double length = wallInput.length;
-                if (length == 0 && !wallInput.useMaxLength) {
+                double length = wallInput.value;
+                if (length == 0 && !wallInput.useMaxValue) {
                   return;
                 }
                 double angle = slider.centerAngle;
