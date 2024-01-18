@@ -26,22 +26,10 @@ class RasterPainter extends CustomPainter {
       pxPerGrid = min(backgroundSize.width, backgroundSize.height) / 3;
     } else {
       upperLeftCorner = scalingData.rect.topLeft * scalingData.scale - scalingData.center;
-      switch (scalingData.scale) {
-        case >= 1000:
-          pxPerGrid = scalingData.scale / 100;
-          break;
-        case >= 100:
-          pxPerGrid = scalingData.scale / 2.5;
-          break;
-        case >= 10:
-          pxPerGrid = scalingData.scale * 2.5;
-          break;
-        default:
-          pxPerGrid = scalingData.scale * 250;
-          break;
-      }
+      pxPerGrid = scalingData.scale * (120 * pow(scalingData.scale, -1) as double);
     }
 
+    //Vertikale Linien
     for (double x = upperLeftCorner.dx; x < backgroundSize.width; x += pxPerGrid) {
       pointsX.add(Offset(x, 0));
       pointsX.add(Offset(x, backgroundSize.height));
@@ -51,6 +39,7 @@ class RasterPainter extends CustomPainter {
       pointsX.add(Offset(x, backgroundSize.height));
     }
 
+    //Horizontale Linien
     for (double y = upperLeftCorner.dy; y < backgroundSize.height; y += pxPerGrid) {
       pointsY.add(Offset(0, y));
       pointsY.add(Offset(backgroundSize.width, y));
@@ -71,6 +60,7 @@ class RasterPainter extends CustomPainter {
 
     double offset = 15;
 
+    //Beschriftung X
     for (Offset point in pointsX) {
       double val = EinheitController().convertToSelected((point.dx - upperLeftCorner.dx) / scalingData.scale);
 
@@ -94,6 +84,7 @@ class RasterPainter extends CustomPainter {
       textPainter.paint(canvas, textPoint);
     }
 
+    //Beschriftung Y
     for (Offset point in pointsY) {
       double val = EinheitController().convertToSelected((point.dy - upperLeftCorner.dy) / scalingData.scale);
 
