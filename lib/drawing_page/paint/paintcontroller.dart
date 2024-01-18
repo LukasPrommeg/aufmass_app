@@ -484,6 +484,9 @@ class PaintController {
   void _updateScaleAndCenter() {
     if (_canvasSize != null) {
       Rect newRect = Rect.zero;
+      if (walls.isNotEmpty) {
+        newRect = Rect.fromPoints(walls.first.start.point, walls.first.start.point);
+      }
       for (Wall wall in walls) {
         newRect = newRect.expandToInclude(Rect.fromPoints(wall.end.point, wall.end.point));
       }
