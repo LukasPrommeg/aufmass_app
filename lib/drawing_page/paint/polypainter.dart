@@ -35,7 +35,6 @@ class PolyPainter extends CustomPainter {
 
       for (DrawedWerkstoff werkstoff in _werkstoffe) {
         werkstoff.paint(canvas);
-        werkstoff.clickAble.paintHB(canvas);
       }
 
       if (selectCorner) {
