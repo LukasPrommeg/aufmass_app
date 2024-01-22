@@ -1,10 +1,14 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:aufmass_app/Misc/room.dart';
 import 'package:aufmass_app/Misc/clickable.dart';
 import 'package:aufmass_app/Einheiten/einheitcontroller.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
+import 'package:aufmass_app/drawing_page/paint/paintcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
+
+import '../../Misc/WallView.dart';
 
 class Flaeche extends ClickAble {
   List<Wall> _walls = [];
