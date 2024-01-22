@@ -26,11 +26,11 @@ class PlanPageContent extends State<PlanPage> {
   late Widget floatingButton;
   final List<Room> rooms = [];
   late Room currentRoom;
-  WallView? currentWallView=null;
+  WallView? currentWallView = null;
   String projektName = "unnamed";
   late String selectedDropdownValue;
   bool isRightColumnVisible = false;
-  bool autoDrawWall=false;
+  bool autoDrawWall = false;
 
   late var clickedThing = null;
 
@@ -81,8 +81,8 @@ class PlanPageContent extends State<PlanPage> {
     );
   }
 
-  void switchView(WallView newWallView){
-    if(newWallView!=null){
+  void switchView(WallView newWallView) {
+    if (newWallView != null) {
       setState(() {
         newWallView.paintController.updateDrawingState.unsubscribe((args) {});
         newWallView.paintController.clickedEvent.unsubscribe((args) {});
@@ -97,7 +97,7 @@ class PlanPageContent extends State<PlanPage> {
   }
 
   void switchRoom(Room newRoom) {
-    currentWallView=null;
+    currentWallView = null;
     setState(() {
       newRoom.paintController.updateDrawingState.unsubscribe((args) {});
       newRoom.paintController.clickedEvent.unsubscribe((args) {});
@@ -122,10 +122,11 @@ class PlanPageContent extends State<PlanPage> {
           break;
         case Wall:
           print("Wall");
-          clickedThing=(clicked as Wall);
-          if(currentWallView==null&&clickedThing.wallview==null){  //wenn derzeit nicht in wallview und wall zum erstenmal angelickt wird
-            clickedThing.wallview= WallView(name: "Wand",paintController: PaintController());
-            clickedThing.wallview.height=2.5;
+          clickedThing = (clicked as Wall);
+          if (currentWallView == null && clickedThing.wallview == null) {
+            //wenn derzeit nicht in wallview und wall zum erstenmal angelickt wird
+            clickedThing.wallview = WallView(name: "Wand", paintController: PaintController());
+            clickedThing.wallview.height = 2.5;
           }
           setWallHeightController.text = clickedThing.wallview?.height.toString() ?? '';
           break;
@@ -248,7 +249,7 @@ class PlanPageContent extends State<PlanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( currentWallView!=null ? '${currentRoom.name} ${currentWallView?.name}' : currentRoom.name),
+        title: Text(currentWallView != null ? '${currentRoom.name} ${currentWallView?.name}' : currentRoom.name),
         foregroundColor: Colors.white,
         backgroundColor: Colors.purple,
         actions: [
@@ -265,7 +266,7 @@ class PlanPageContent extends State<PlanPage> {
               alignment: AlignmentDirectional.topCenter,
               children: [
                 currentWallView != null ? currentWallView!.drawingZone : currentRoom.drawingZone,
-                const SizedBox(
+                SizedBox(
                   height: 100,
                   child: AlertInfo(),
                 ),
@@ -281,43 +282,42 @@ class PlanPageContent extends State<PlanPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if(clickedThing is Flaeche)
-                    Text("Fläche: "+EinheitController().convertToSelected(clickedThing.area).toString()+" "+EinheitController().selectedEinheit.name), //have to reload for it to work
+                  if (clickedThing is Flaeche)
+                    Text("Fläche: " + EinheitController().convertToSelected(clickedThing.area).toString() + " " + EinheitController().selectedEinheit.name), //have to reload for it to work
                   clickedThing is Wall
-                  ? Column(
-                    children:[
-                      Text(clickedThing.length.toString()),
-                      Text(clickedThing.wallview.height.toString()),
-                      TextField(
-                        controller: setWallHeightController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Wandhöhe',
-                        ),
-                        onChanged: (value) {
-                          clickedThing.wallview!.height = double.tryParse(value) ?? 2;setState(() {}); // Trigger a rebuild
-                        },
-                      ),
-                      Text("Wand automatisch zeichnen?"), //Wand kann direkt mit länge * eingestellter höhe gezeichnet werden
-                      Checkbox(
-                        value: autoDrawWall,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            autoDrawWall = value!;
-                          });
-                        },
-                      ),
-                      if(clickedThing.wallview !=null)
-                        ElevatedButton(
-                          onPressed: () {
-                            switchView(clickedThing.wallview);
-                          },
-                          child: Text('Wand anzeigen'),
-                        ),
-                    ]
-                  )
-                  :Container(),
-                  if(clickedThing is DrawedWerkstoff)
+                      ? Column(children: [
+                          Text(clickedThing.length.toString()),
+                          Text(clickedThing.wallview.height.toString()),
+                          TextField(
+                            controller: setWallHeightController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'Wandhöhe',
+                            ),
+                            onChanged: (value) {
+                              clickedThing.wallview!.height = double.tryParse(value) ?? 2;
+                              setState(() {}); // Trigger a rebuild
+                            },
+                          ),
+                          Text("Wand automatisch zeichnen?"), //Wand kann direkt mit länge * eingestellter höhe gezeichnet werden
+                          Checkbox(
+                            value: autoDrawWall,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                autoDrawWall = value!;
+                              });
+                            },
+                          ),
+                          if (clickedThing.wallview != null)
+                            ElevatedButton(
+                              onPressed: () {
+                                switchView(clickedThing.wallview);
+                              },
+                              child: Text('Wand anzeigen'),
+                            ),
+                        ])
+                      : Container(),
+                  if (clickedThing is DrawedWerkstoff)
                     Text(
                       clickedThing?.werkstoff != null ? "Selected Werkstoff: ${clickedThing.werkstoff.name}" : "Select a Werkstoff",
                       style: const TextStyle(fontSize: 18),
