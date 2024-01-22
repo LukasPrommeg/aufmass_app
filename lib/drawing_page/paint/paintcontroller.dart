@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:aufmass_app/Misc/alertinfo.dart';
 import 'package:aufmass_app/Misc/clickable.dart';
 import 'package:aufmass_app/Misc/einkerbung.dart';
 import 'package:aufmass_app/Misc/input_utils.dart';
@@ -192,7 +193,8 @@ class PaintController {
               finishWerkstoff();
             }
           } else {
-            //TODO: Fehlermeldung, fehler beim Parsen
+            //Fehlercode 2
+            AlertInfo().newAlert("Ihre Eingabe waren keine Zahlen! (Code: 2)");
           }
 
           break;
@@ -230,7 +232,8 @@ class PaintController {
             linePainter.isDrawing = true;
             linePainter.selectedCorner = _ausnahmePopup.startingPoint;
           } else {
-            //TODO: Fehlermeldung, fehler beim Parsen
+            //Fehlercode 3
+            AlertInfo().newAlert("Ihre Eingabe waren keine Zahlen! (Code: 3)");
           }
           break;
         default:
@@ -242,7 +245,6 @@ class PaintController {
 
   void addWall(Wall? wall) {
     if (wall != null) {
-      print("------------------");
       if (wall.length == 0) {
         if (_drawingAusnahme) {
           Corner startPoint = _ausnahmePopup.startingPoint!;
@@ -266,14 +268,7 @@ class PaintController {
           if (!grundFlaeche!.containsFullWall(wall)) {
             polyPainter.hiddenCorners
                 .removeWhere((element) => element.point.dx.roundToDouble() == wall!.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
-            //TODO: ERROR, Wall outside of Room
-
-            print(wall.start.point);
-            print(grundFlaeche!.unscaledPath.contains(wall.start.point));
-            print(wall.length);
-            print(wall.end.point);
-            print(grundFlaeche!.unscaledPath.contains(wall.end.point));
-
+            AlertInfo().newAlert("Außerhalb des Raums");
             return;
           }
         }
@@ -283,7 +278,8 @@ class PaintController {
         updateDrawingState.broadcast();
       } else {
         if (linePainter.selectedCorner == null) {
-          //TODO: Fehlermeldung, sollte aber nicht erreichbar sein
+          //Fehlercode 1
+          AlertInfo().newAlert("Keine Ecke gewählt! (Code: 1)");
           return;
         } else {
           if (linePainter.selectedCorner! == walls.first.start) {
@@ -292,18 +288,10 @@ class PaintController {
             } else {
               wall = Wall.fromEnd(angle: wall.angle - 180, length: wall.length, end: walls.first.start);
             }
-            //if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.unscaledPath.contains(wall.start.point)) {
             if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall)) {
               polyPainter.hiddenCorners
                   .removeWhere((element) => element.point.dx.roundToDouble() == wall!.start.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.start.point.dy.roundToDouble());
-              //TODO: ERROR, Wall outside of Room
-
-              print(wall.start.point);
-              print(grundFlaeche!.unscaledPath.contains(wall.start.point));
-              print(wall.length);
-              print(wall.end.point);
-              print(grundFlaeche!.unscaledPath.contains(wall.end.point));
-
+              AlertInfo().newAlert("Außerhalb des Raums");
               return;
             }
             _wallCount++;
@@ -311,17 +299,10 @@ class PaintController {
             walls.insert(0, wall);
           } else if (linePainter.selectedCorner! == walls.last.end) {
             wall = Wall.fromStart(angle: wall.angle, length: wall.length, start: walls.last.end);
-            //if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.unscaledPath.contains(wall.end.point)) {
             if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall)) {
               polyPainter.hiddenCorners
                   .removeWhere((element) => element.point.dx.roundToDouble() == wall!.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
-              //TODO: ERROR, Wall outside of Room
-
-              print(wall.start.point);
-              print(grundFlaeche!.unscaledPath.contains(wall.start.point));
-              print(wall.length);
-              print(wall.end.point);
-              print(grundFlaeche!.unscaledPath.contains(wall.end.point));
+              AlertInfo().newAlert("Außerhalb des Raums");
               return;
             }
             _wallCount++;
@@ -346,13 +327,6 @@ class PaintController {
       } else {
         finishArea();
       }
-    }
-    if (grundFlaeche != null && wall != null) {
-      print(wall.start.point);
-      print(grundFlaeche!.unscaledPath.contains(wall.start.point));
-      print(wall.length);
-      print(wall.end.point);
-      print(grundFlaeche!.unscaledPath.contains(wall.end.point));
     }
     _updateScaleAndCenter();
   }
@@ -466,7 +440,7 @@ class PaintController {
     }
     DrawedWerkstoff drawedWerkstoff = DrawedWerkstoff(clickAble: clickAble, werkstoff: werkstoff, hasBeschriftung: true);
     switch (werkstoff.typ) {
-      //TODO: funktiert nicht
+      //TODO: funktiert nicht?
       case WerkstoffTyp.flaeche:
         if (indexOfFirstLaengenWerkstoff == 0) {
           _werkstoffe.insert(indexOfFirstLaengenWerkstoff, drawedWerkstoff);
@@ -499,7 +473,6 @@ class PaintController {
 
   void finishEinkerbung() {
     grundFlaeche?.addEinkerbung(Einkerbung(tiefe: _ausnahmePopup.tiefe, walls: List.from(walls)));
-    print(_ausnahmePopup.tiefe);
     _drawingAusnahme = false;
     _ausnahmePopup.finish();
     polyPainter.selectCorner = false;
@@ -576,7 +549,8 @@ class PaintController {
 
       _drawWithScale(center);
     } else {
-      //TODO: Fehler beim setzen von _canvasSize, sollte nicht möglich sein
+      //Fehlercode 4
+      AlertInfo().newAlert("Interner Fehler (Code: 4)");
     }
   }
 
@@ -627,7 +601,7 @@ class PaintController {
         }
         return _wallPopup.display(context, true);
       } else {
-        //TODO: Fehlermeldung
+        AlertInfo().newAlert("Kein Punkt gewählt!");
       }
     } else {
       switch (_selectActionPopup.selected) {
