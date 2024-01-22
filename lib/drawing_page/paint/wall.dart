@@ -4,6 +4,9 @@ import 'package:aufmass_app/Einheiten/einheitcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/Misc/clickable.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
+import 'package:aufmass_app/Misc/WallView.dart';
+
+import '../../Misc/Room.dart';
 
 const double hbSizeDefine = 10;
 
@@ -13,6 +16,8 @@ class Wall extends ClickAble {
   late Corner start;
   late Corner end;
   int id = 0;
+
+  WallView? wallview;
 
   Wall({required this.angle, required this.length, required this.start, required this.end}) : super(hbSize: hbSizeDefine);
 
