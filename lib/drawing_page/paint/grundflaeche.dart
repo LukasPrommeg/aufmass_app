@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:aufmass_app/Misc/einkerbung.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/flaeche.dart';
@@ -57,6 +58,30 @@ class Grundflaeche extends Flaeche {
       super.paintLaengen(canvas, color, laengenSize);
     }
     super.areaPath = temp;
+  }
+
+  bool containsFullWall(Wall wall) {
+    Path wallPath = Path();
+    wallPath.moveTo(wall.start.point.dx, wall.start.point.dy);
+    wallPath.lineTo(wall.end.point.dx, wall.end.point.dy);
+
+    bool contains = true;
+    PathMetrics pathMetrics = wallPath.computeMetrics();
+
+    pathMetrics.toList().forEach((element) {
+      for (var i = 0; i < element.length; i++) {
+        Tangent? tangent = element.getTangentForOffset(i.toDouble());
+        if (tangent != null) {
+          Offset pos = Offset(tangent.position.dx.roundToDouble(), tangent.position.dy.roundToDouble());
+          if (!unscaledPath.contains(pos)) {
+            contains = false;
+            break;
+          }
+        }
+      }
+    });
+
+    return contains;
   }
 
   double findMaxLength(Corner startingPoint, double angle) {

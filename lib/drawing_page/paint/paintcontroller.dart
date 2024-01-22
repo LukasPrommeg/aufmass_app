@@ -242,24 +242,43 @@ class PaintController {
 
   void addWall(Wall? wall) {
     if (wall != null) {
+      print("------------------");
       if (wall.length == 0) {
         if (_drawingAusnahme) {
-          double length = grundFlaeche!.findMaxLength(_ausnahmePopup.startingPoint!, wall.angle);
+          Corner startPoint = _ausnahmePopup.startingPoint!;
+          if (walls.isNotEmpty && linePainter.selectedCorner != null) {
+            startPoint = linePainter.selectedCorner!;
+          }
+          double length = grundFlaeche!.findMaxLength(startPoint, wall.angle);
           wall = Wall.fromStart(angle: wall.angle, length: length, start: Corner.fromPoint(point: Offset.zero));
         } else if (_drawingWerkstoff) {
-          double length = grundFlaeche!.findMaxLength(_werkstoffPopup.startingPoint!, wall.angle);
+          Corner startPoint = _werkstoffPopup.startingPoint!;
+          if (walls.isNotEmpty && linePainter.selectedCorner != null) {
+            startPoint = linePainter.selectedCorner!;
+          }
+          double length = grundFlaeche!.findMaxLength(startPoint, wall.angle);
           wall = Wall.fromStart(angle: wall.angle, length: length, start: Corner.fromPoint(point: Offset.zero));
         }
       }
       if (walls.isEmpty) {
-        _wallCount++;
-
         if (_drawingWerkstoff || _drawingAusnahme) {
           wall = Wall.fromStart(angle: wall.angle, length: wall.length, start: linePainter.selectedCorner!);
+          if (!grundFlaeche!.containsFullWall(wall)) {
+            polyPainter.hiddenCorners
+                .removeWhere((element) => element.point.dx.roundToDouble() == wall!.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
+            //TODO: ERROR, Wall outside of Room
+
+            print(wall.start.point);
+            print(grundFlaeche!.unscaledPath.contains(wall.start.point));
+            print(wall.length);
+            print(wall.end.point);
+            print(grundFlaeche!.unscaledPath.contains(wall.end.point));
+
+            return;
+          }
         }
-
+        _wallCount++;
         wall.id = _wallCount;
-
         walls.add(wall);
         updateDrawingState.broadcast();
       } else {
@@ -267,18 +286,45 @@ class PaintController {
           //TODO: Fehlermeldung, sollte aber nicht erreichbar sein
           return;
         } else {
-          _wallCount++;
-
           if (linePainter.selectedCorner! == walls.first.start) {
             if (wall.angle <= 180) {
               wall = Wall.fromEnd(angle: wall.angle + 180, length: wall.length, end: walls.first.start);
             } else {
               wall = Wall.fromEnd(angle: wall.angle - 180, length: wall.length, end: walls.first.start);
             }
+            //if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.unscaledPath.contains(wall.start.point)) {
+            if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall)) {
+              polyPainter.hiddenCorners
+                  .removeWhere((element) => element.point.dx.roundToDouble() == wall!.start.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.start.point.dy.roundToDouble());
+              //TODO: ERROR, Wall outside of Room
+
+              print(wall.start.point);
+              print(grundFlaeche!.unscaledPath.contains(wall.start.point));
+              print(wall.length);
+              print(wall.end.point);
+              print(grundFlaeche!.unscaledPath.contains(wall.end.point));
+
+              return;
+            }
+            _wallCount++;
             wall.id = _wallCount;
             walls.insert(0, wall);
           } else if (linePainter.selectedCorner! == walls.last.end) {
             wall = Wall.fromStart(angle: wall.angle, length: wall.length, start: walls.last.end);
+            //if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.unscaledPath.contains(wall.end.point)) {
+            if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall)) {
+              polyPainter.hiddenCorners
+                  .removeWhere((element) => element.point.dx.roundToDouble() == wall!.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
+              //TODO: ERROR, Wall outside of Room
+
+              print(wall.start.point);
+              print(grundFlaeche!.unscaledPath.contains(wall.start.point));
+              print(wall.length);
+              print(wall.end.point);
+              print(grundFlaeche!.unscaledPath.contains(wall.end.point));
+              return;
+            }
+            _wallCount++;
             wall.id = _wallCount;
             walls.add(wall);
           }
@@ -301,13 +347,20 @@ class PaintController {
         finishArea();
       }
     }
+    if (grundFlaeche != null && wall != null) {
+      print(wall.start.point);
+      print(grundFlaeche!.unscaledPath.contains(wall.start.point));
+      print(wall.length);
+      print(wall.end.point);
+      print(grundFlaeche!.unscaledPath.contains(wall.end.point));
+    }
     _updateScaleAndCenter();
   }
 
   void tap(Offset position) {
     if (linePainter.isDrawing) {
       if (polyPainter.selectCorner && _werkstoffPopup.state == InputState.draw || _ausnahmePopup.state == InputState.draw) {
-        if (linePainter.selectedCorner == null) {
+        if (linePainter.selectedCorner == null && walls.isNotEmpty) {
           linePainter.selectedCorner = linePainter.detectClickedCorner(position);
         } else {
           Corner? wallEnd = grundFlaeche?.detectClickedCorner(position);
@@ -316,9 +369,9 @@ class PaintController {
             double angle = (diff.direction * (180 / pi)) + 90;
             double length = sqrt(pow(diff.dx, 2) + pow(diff.dy, 2));
             Wall wall = Wall(angle: angle, length: length, start: linePainter.selectedCorner!, end: wallEnd);
-            addWall(wall);
             polyPainter.hiddenCorners.add(wallEnd);
-          } else {
+            addWall(wall);
+          } else if (walls.isNotEmpty) {
             linePainter.selectedCorner = linePainter.detectClickedCorner(position);
           }
         }
@@ -427,6 +480,7 @@ class PaintController {
         indexOfFirstLaengenWerkstoff++;
         break;
       case WerkstoffTyp.point:
+        //TODO: Make sure they are inside of the room
         _werkstoffe.add(drawedWerkstoff);
 
         break;
@@ -460,7 +514,13 @@ class PaintController {
     if (_wallCount > 1) {
       walls.removeWhere((wall) {
         if (wall.id == _wallCount) {
-          polyPainter.hiddenCorners.removeWhere((element) => element.point == wall.end.point);
+          if (wall == walls.first) {
+            polyPainter.hiddenCorners
+                .removeWhere((element) => element.point.dx.roundToDouble() == wall.start.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.start.point.dy.roundToDouble());
+          } else {
+            polyPainter.hiddenCorners
+                .removeWhere((element) => element.point.dx.roundToDouble() == wall.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
+          }
           return true;
         }
         return false;
@@ -474,6 +534,10 @@ class PaintController {
         polyPainter.hiddenCorners.clear();
         _drawingWerkstoff = false;
         _werkstoffPopup.finish();
+      } else if (_drawingAusnahme) {
+        polyPainter.hiddenCorners.clear();
+        _drawingAusnahme = false;
+        _ausnahmePopup.finish();
       }
       updateDrawingState.broadcast();
     }
