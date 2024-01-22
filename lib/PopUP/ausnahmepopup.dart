@@ -1,42 +1,41 @@
 import 'package:aufmass_app/Einheiten/einheitselector.dart';
+import 'package:aufmass_app/Misc/input_utils.dart';
 import 'package:aufmass_app/PopUP/previewpainter.dart';
+import 'package:aufmass_app/PopUP/walllengthinput.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 
-enum InputState {
-  selectStartingpoint,
-  draw,
-}
-
-class InputStateEventArgs extends EventArgs {
-  final InputState value;
-
-  InputStateEventArgs({required this.value});
-}
-
-class AusnahmeInput {
-  InputState _state = InputState.selectStartingpoint;
-  InputState _nextState = InputState.selectStartingpoint;
+class AusnahmePopup {
+  InputState _state = InputState.inputEinkerbung;
+  InputState _nextState = InputState.inputEinkerbung;
   Widget _content = const Scaffold();
   final inputStateChangedEvent = Event<InputStateEventArgs>();
 
   Wall? infront;
   Corner? startingPoint;
   Wall? behind;
+  double tiefe = double.infinity;
 
   final TextEditingController _negX = TextEditingController();
   final TextEditingController _posX = TextEditingController();
   final TextEditingController _negY = TextEditingController();
   final TextEditingController _posY = TextEditingController();
   final EinheitSelector einheitSelector = EinheitSelector(setGlobal: false);
+  final WallInput _tiefenInput = WallInput(
+    hintText: "Tiefe der Einkerbung",
+    maxText: "Keine Tiefe",
+    drawingGrundflaeche: false,
+    btnText: "Keine",
+    useMaxValue: true,
+  );
 
   InputState get state {
     return _state;
   }
 
-  AusnahmeInput();
+  AusnahmePopup();
 
   void _changeState(InputState newState) {
     _state = newState;
@@ -45,10 +44,37 @@ class AusnahmeInput {
 
   void _init() {
     switch (_state) {
+      case InputState.inputEinkerbung:
+        _content = SizedBox(
+          height: 175,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Wählen Sie die tiefe der Einkerbung"),
+              const SizedBox(
+                height: 10,
+              ),
+              einheitSelector,
+              const SizedBox(
+                height: 10,
+              ),
+              _tiefenInput,
+              const SizedBox(
+                height: 10,
+              ),
+              const Text("Wählen Sie anschließend Ihren Ausgangspunkt!"),
+            ],
+          ),
+        );
+        _nextState = InputState.selectStartingpoint;
+        break;
       case InputState.selectStartingpoint:
         if (startingPoint == null) {
           _content = const Text("Bitte wählen Sie einen Ausgangspunkt!");
         } else {
+          if (_tiefenInput.value != 0) {
+            tiefe = einheitSelector.convertToMM(_tiefenInput.value);
+          }
           _content = SizedBox(
             height: 250,
             child: Column(
@@ -137,11 +163,40 @@ class AusnahmeInput {
         break;
       case InputState.draw:
         break;
+      default:
+        break;
+    }
+  }
+
+  Corner? calcStartingpointWithOffset() {
+    try {
+      double x = 0;
+      double y = 0;
+      if (_posX.text.isNotEmpty) {
+        x = double.parse(_posX.text);
+      }
+      if (_negX.text.isNotEmpty) {
+        x -= double.parse(_negX.text);
+      }
+      if (_posY.text.isNotEmpty) {
+        y = double.parse(_posY.text);
+      }
+      if (_negY.text.isNotEmpty) {
+        y -= double.parse(_negY.text);
+      }
+      x = einheitSelector.convertToMM(x);
+      y = einheitSelector.convertToMM(y);
+      Offset startingpointWithOffset = Offset(x, y) + startingPoint!.point;
+      startingPoint = Corner.fromPoint(point: startingpointWithOffset);
+      return startingPoint!;
+    } catch (e) {
+      _changeState(InputState.selectStartingpoint);
+      return null;
     }
   }
 
   void finish() {
-    _changeState(InputState.selectStartingpoint);
+    _changeState(InputState.inputEinkerbung);
     infront = null;
     startingPoint = null;
     behind = null;
@@ -149,6 +204,8 @@ class AusnahmeInput {
     _posX.text = "";
     _negY.text = "";
     _posY.text = "";
+    tiefe = double.infinity;
+    _tiefenInput.useMaxValue = true;
   }
 
   Future<void> display(BuildContext context) async {
@@ -157,7 +214,7 @@ class AusnahmeInput {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Werkstoff einzeichnen'),
+          title: const Text('Einkerbung einzeichnen'),
           content: _content,
           actions: <Widget>[
             ElevatedButton(

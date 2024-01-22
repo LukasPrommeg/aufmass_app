@@ -1,3 +1,4 @@
+import 'package:aufmass_app/Misc/alertinfo.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:aufmass_app/drawing_page/paint/corner.dart';
@@ -259,11 +260,17 @@ class PlanPageContent extends State<PlanPage> {
       ),
       body: Row(
         children: [
-          currentWallView != null?
           Expanded(
-            child: currentWallView!.drawingZone,
-          ):Expanded(
-            child: currentRoom.drawingZone,
+            child: Stack(
+              alignment: AlignmentDirectional.topCenter,
+              children: [
+                currentWallView != null ? currentWallView!.drawingZone : currentRoom.drawingZone,
+                const SizedBox(
+                  height: 100,
+                  child: AlertInfo(),
+                ),
+              ],
+            ),
           ),
           // Sidemenü rechts
           Visibility(

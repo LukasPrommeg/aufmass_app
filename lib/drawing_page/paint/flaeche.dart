@@ -135,6 +135,10 @@ class Flaeche extends ClickAble {
       ..style = PaintingStyle.fill;
     canvas.drawPath(areaPath, paint);
 
+    paintWalls(canvas, color, size, debug: debug);
+  }
+
+  void paintWalls(Canvas canvas, Color color, double size, {bool debug = false}) {
     walls.add(lastWall);
     for (Wall wall in _walls) {
       wall.paint(canvas, color, size);

@@ -1,4 +1,5 @@
 import 'package:aufmass_app/Einheiten/einheitselector.dart';
+import 'package:aufmass_app/Misc/input_utils.dart';
 import 'package:aufmass_app/PopUP/previewpainter.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff_controller.dart';
@@ -6,18 +7,6 @@ import 'package:aufmass_app/drawing_page/paint/corner.dart';
 import 'package:aufmass_app/drawing_page/paint/wall.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
-
-enum InputState {
-  selectWerkstoff,
-  selectStartingpoint,
-  draw,
-}
-
-class InputStateEventArgs extends EventArgs {
-  final InputState value;
-
-  InputStateEventArgs({required this.value});
-}
 
 class WerkstoffInputPopup {
   InputState _state = InputState.selectWerkstoff;
@@ -177,7 +166,7 @@ class WerkstoffInputPopup {
           _nextState = InputState.draw;
         }
         break;
-      case InputState.draw:
+      default:
         break;
     }
   }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/CircleSlider/sliderpainter.dart';
 
-//TODO: schaun ob immutable möglich
 //ignore: must_be_immutable
 class CircleSlider extends StatelessWidget {
   final double radius;
