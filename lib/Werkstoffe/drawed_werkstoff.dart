@@ -1,4 +1,4 @@
-import 'package:aufmass_app/Misc/clickable.dart';
+import 'package:aufmass_app/2D_Objects/clickable.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';

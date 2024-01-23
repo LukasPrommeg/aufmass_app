@@ -1,11 +1,11 @@
-import 'package:aufmass_app/PopUP/walllengthinput.dart';
-import 'package:aufmass_app/drawing_page/paint/corner.dart';
+import 'package:aufmass_app/Misc/lengthinput.dart';
+import 'package:aufmass_app/2D_Objects/corner.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/CircleSlider/circleslider.dart';
 import 'package:event/event.dart';
 import 'package:aufmass_app/Einheiten/einheitcontroller.dart';
 import 'package:aufmass_app/Einheiten/einheitselector.dart';
-import 'package:aufmass_app/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/2D_Objects/wall.dart';
 
 class WallInputPopup {
   final double sliderRange;
@@ -49,7 +49,7 @@ class WallInputPopup {
   }
 
   Future<void> display(BuildContext context, bool drawingGrundflache) async {
-    WallInput wallInput = WallInput(
+    LengthInput wallInput = LengthInput(
       drawingGrundflaeche: drawingGrundflache,
       hintText: "Länge der Wand",
     );

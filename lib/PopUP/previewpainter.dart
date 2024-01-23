@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:aufmass_app/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/2D_Objects/wall.dart';
 import 'package:flutter/material.dart';
 
 class PreviewPainter extends CustomPainter {

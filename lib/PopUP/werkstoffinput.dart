@@ -3,8 +3,8 @@ import 'package:aufmass_app/Misc/input_utils.dart';
 import 'package:aufmass_app/PopUP/previewpainter.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff_controller.dart';
-import 'package:aufmass_app/drawing_page/paint/corner.dart';
-import 'package:aufmass_app/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/2D_Objects/corner.dart';
+import 'package:aufmass_app/2D_Objects/wall.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 

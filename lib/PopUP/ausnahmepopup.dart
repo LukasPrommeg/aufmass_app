@@ -1,9 +1,9 @@
 import 'package:aufmass_app/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/Misc/input_utils.dart';
 import 'package:aufmass_app/PopUP/previewpainter.dart';
-import 'package:aufmass_app/PopUP/walllengthinput.dart';
-import 'package:aufmass_app/drawing_page/paint/corner.dart';
-import 'package:aufmass_app/drawing_page/paint/wall.dart';
+import 'package:aufmass_app/Misc/lengthinput.dart';
+import 'package:aufmass_app/2D_Objects/corner.dart';
+import 'package:aufmass_app/2D_Objects/wall.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +23,7 @@ class AusnahmePopup {
   final TextEditingController _negY = TextEditingController();
   final TextEditingController _posY = TextEditingController();
   final EinheitSelector einheitSelector = EinheitSelector(setGlobal: false);
-  final WallInput _tiefenInput = WallInput(
+  final LengthInput _tiefenInput = LengthInput(
     hintText: "Tiefe der Einkerbung",
     maxText: "Keine Tiefe",
     drawingGrundflaeche: false,
