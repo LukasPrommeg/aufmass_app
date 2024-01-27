@@ -45,8 +45,7 @@ class AusnahmePopup {
   void _init() {
     switch (_state) {
       case InputState.inputEinkerbung:
-        _content = SizedBox(
-          height: 175,
+        _content = SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -75,8 +74,7 @@ class AusnahmePopup {
           if (_tiefenInput.value != 0) {
             tiefe = einheitSelector.convertToMM(_tiefenInput.value);
           }
-          _content = SizedBox(
-            height: 250,
+          _content = SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
