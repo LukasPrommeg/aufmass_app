@@ -1,4 +1,5 @@
 import 'package:aufmass_app/Misc/alertinfo.dart';
+import 'package:aufmass_app/Misc/loadingblur.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:aufmass_app/2D_Objects/corner.dart';
@@ -268,58 +269,63 @@ class PlanPageContent extends State<PlanPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Text(currentRoom.name),
-            if (currentWallView != null) ...[
-              const SizedBox(
-                width: 20,
-              ),
-              IconButton(
-                onPressed: () {
-                  switchRoom(currentRoom);
-                },
-                tooltip: "Zurück",
-                icon: const Icon(Icons.arrow_back),
-              ),
-              const SizedBox(
-                width: 20,
-              ),
-              Text(currentWallView!.name),
-            ]
-          ],
-        ),
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.purple,
-        actions: [
-          IconButton(
-            icon: Icon(isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
-            onPressed: toggleRightColumnVisibility,
-          ),
-        ],
-      ),
-      body: Row(
-        children: [
-          Expanded(
-            child: Stack(
-              alignment: AlignmentDirectional.topCenter,
+    return Stack(
+      children: [
+        Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            title: Row(
               children: [
-                currentWallView != null ? currentWallView!.drawingZone : currentRoom.drawingZone,
-                SizedBox(
-                  height: 100,
-                  child: AlertInfo(),
-                ),
+                Text(currentRoom.name),
+                if (currentWallView != null) ...[
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      switchRoom(currentRoom);
+                    },
+                    tooltip: "Zurück",
+                    icon: const Icon(Icons.arrow_back),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Text(currentWallView!.name),
+                ]
               ],
             ),
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.purple,
+            actions: [
+              IconButton(
+                icon: Icon(isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
+                onPressed: toggleRightColumnVisibility,
+              ),
+            ],
           ),
-          _buildRightSideMenu(),
-        ],
-      ),
-      floatingActionButton: floatingButton,
-      drawer: _buildLeftSideMenu(),
+          body: Row(
+            children: [
+              Expanded(
+                child: Stack(
+                  alignment: AlignmentDirectional.topCenter,
+                  children: [
+                    currentWallView != null ? currentWallView!.drawingZone : currentRoom.drawingZone,
+                    SizedBox(
+                      height: 100,
+                      child: AlertInfo(),
+                    ),
+                  ],
+                ),
+              ),
+              _buildRightSideMenu(),
+            ],
+          ),
+          floatingActionButton: floatingButton,
+          drawer: _buildLeftSideMenu(),
+        ),
+        LoadingBlur(),
+      ],
     );
   }
 

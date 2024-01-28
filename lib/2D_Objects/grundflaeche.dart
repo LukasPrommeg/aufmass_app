@@ -84,7 +84,7 @@ class Grundflaeche extends Flaeche {
     return contains;
   }
 
-  double findMaxLength(Corner startingPoint, double angle) {
+  Future<double> findMaxLength(Corner startingPoint, double angle) async {
     //TODO: async
     double stepLength = 0.001;
 
@@ -93,6 +93,8 @@ class Grundflaeche extends Flaeche {
     Offset origin = startingPoint.point;
 
     do {
+      await Future<void>.delayed(Duration.zero);
+
       origin += einheitsVektor;
       length += stepLength;
     } while (unscaledPath.contains(origin));

@@ -3,6 +3,7 @@ import 'package:aufmass_app/Misc/alertinfo.dart';
 import 'package:aufmass_app/2D_Objects/clickable.dart';
 import 'package:aufmass_app/2D_Objects/einkerbung.dart';
 import 'package:aufmass_app/Misc/input_utils.dart';
+import 'package:aufmass_app/Misc/loadingblur.dart';
 import 'package:aufmass_app/PopUP/ausnahmepopup.dart';
 import 'package:aufmass_app/PopUP/selectactionpopup.dart';
 import 'package:aufmass_app/PopUP/werkstoffinput.dart';
@@ -64,7 +65,10 @@ class PaintController {
   PaintController() {
     polyPainter = PolyPainter(repaint: _repaint);
     linePainter = LinePainter(repaint: _repaint);
-    _wallPopup.addWallEvent.subscribe((args) => addWall(args));
+    _wallPopup.addWallEvent.subscribe((args) async {
+      LoadingBlur().enableBlur();
+      addWall(args).then((value) => LoadingBlur().disableBlur());
+    });
     _einheitController.updateEinheitEvent.subscribe((args) => repaint());
     _selectActionPopup.selectEvent.subscribe((args) {
       if (args != null) {
@@ -243,7 +247,7 @@ class PaintController {
     }
   }
 
-  void addWall(Wall? wall) {
+  Future<void> addWall(Wall? wall) async {
     if (wall != null) {
       if (wall.length == 0) {
         if (_drawingAusnahme) {
@@ -251,14 +255,14 @@ class PaintController {
           if (walls.isNotEmpty && linePainter.selectedCorner != null) {
             startPoint = linePainter.selectedCorner!;
           }
-          double length = grundFlaeche!.findMaxLength(startPoint, wall.angle);
+          double length = await grundFlaeche!.findMaxLength(startPoint, wall.angle);
           wall = Wall.fromStart(angle: wall.angle, length: length, start: Corner.fromPoint(point: Offset.zero));
         } else if (_drawingWerkstoff) {
           Corner startPoint = _werkstoffPopup.startingPoint!;
           if (walls.isNotEmpty && linePainter.selectedCorner != null) {
             startPoint = linePainter.selectedCorner!;
           }
-          double length = grundFlaeche!.findMaxLength(startPoint, wall.angle);
+          double length = await grundFlaeche!.findMaxLength(startPoint, wall.angle);
           wall = Wall.fromStart(angle: wall.angle, length: length, start: Corner.fromPoint(point: Offset.zero));
         }
       }
