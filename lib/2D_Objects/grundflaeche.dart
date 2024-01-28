@@ -85,19 +85,30 @@ class Grundflaeche extends Flaeche {
   }
 
   Future<double> findMaxLength(Corner startingPoint, double angle) async {
-    //TODO: async
-    double stepLength = 0.001;
+    List<double> stepLengths = [10000, 5000, 1000, 500, 100, 50, 10, 5, 1, 0.5, 0.1, 0.75, 0.5, 0.25, 0.1, 0.075, 0.05, 0.025, 0.01, 0.0075, 0.005, 0.0025, 0.001];
 
     double length = 0;
-    Offset einheitsVektor = Offset.fromDirection((angle - 90) * pi / 180, stepLength);
+    Offset einheitsVektor = Offset.fromDirection((angle - 90) * pi / 180, stepLengths.first);
     Offset origin = startingPoint.point;
 
-    do {
-      await Future<void>.delayed(Duration.zero);
+    int iterations = 0;
 
-      origin += einheitsVektor;
-      length += stepLength;
-    } while (unscaledPath.contains(origin));
+    for (double step in stepLengths) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      einheitsVektor = Offset.fromDirection((angle - 90) * pi / 180, step);
+
+      Offset next = origin + einheitsVektor;
+
+      while (unscaledPath.contains(next)) {
+        origin = next;
+        length += step;
+        next += einheitsVektor;
+        iterations++;
+      }
+    }
+
+    print(iterations.toString() + "-" + length.toString());
 
     return double.parse(length.toStringAsFixed(2));
   }
