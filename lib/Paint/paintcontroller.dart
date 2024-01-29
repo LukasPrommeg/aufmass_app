@@ -255,7 +255,7 @@ class PaintController {
           if (walls.isNotEmpty && linePainter.selectedCorner != null) {
             startPoint = linePainter.selectedCorner!;
           }
-          double length = await grundFlaeche!.findMaxLength(startPoint, wall.angle);
+          double length = await grundFlaeche!.findMaxLength(startPoint, wall.angle, forEinkerbung: true);
           wall = Wall.fromStart(angle: wall.angle, length: length, start: Corner.fromPoint(point: Offset.zero));
         } else if (_drawingWerkstoff) {
           Corner startPoint = _werkstoffPopup.startingPoint!;
@@ -269,7 +269,7 @@ class PaintController {
       if (walls.isEmpty) {
         if (_drawingWerkstoff || _drawingAusnahme) {
           wall = Wall.fromStart(angle: wall.angle, length: wall.length, start: linePainter.selectedCorner!);
-          if (!grundFlaeche!.containsFullWall(wall)) {
+          if (!grundFlaeche!.containsFullWall(wall, forEinkerbung: _drawingAusnahme)) {
             polyPainter.hiddenCorners
                 .removeWhere((element) => element.point.dx.roundToDouble() == wall!.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
             AlertInfo().newAlert("Außerhalb des Raums");
@@ -292,7 +292,7 @@ class PaintController {
             } else {
               wall = Wall.fromEnd(angle: wall.angle - 180, length: wall.length, end: walls.first.start);
             }
-            if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall)) {
+            if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall, forEinkerbung: _drawingAusnahme)) {
               polyPainter.hiddenCorners
                   .removeWhere((element) => element.point.dx.roundToDouble() == wall!.start.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.start.point.dy.roundToDouble());
               AlertInfo().newAlert("Außerhalb des Raums");
@@ -303,7 +303,7 @@ class PaintController {
             walls.insert(0, wall);
           } else if (linePainter.selectedCorner! == walls.last.end) {
             wall = Wall.fromStart(angle: wall.angle, length: wall.length, start: walls.last.end);
-            if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall)) {
+            if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall, forEinkerbung: _drawingAusnahme)) {
               polyPainter.hiddenCorners
                   .removeWhere((element) => element.point.dx.roundToDouble() == wall!.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
               AlertInfo().newAlert("Außerhalb des Raums");
@@ -476,7 +476,9 @@ class PaintController {
   }
 
   void finishEinkerbung() {
-    grundFlaeche?.addEinkerbung(Einkerbung(tiefe: _ausnahmePopup.tiefe, walls: List.from(walls)));
+    Einkerbung einkerbung = Einkerbung(tiefe: _ausnahmePopup.tiefe, walls: List.from(walls));
+    einkerbung.initScale(scalingData.scale, scalingData.center);
+    grundFlaeche?.addEinkerbung(einkerbung);
     _drawingAusnahme = false;
     _ausnahmePopup.finish();
     polyPainter.selectCorner = false;
