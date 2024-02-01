@@ -135,21 +135,7 @@ class PaintController {
       linePainter.reset();
       polyPainter.reset();
       _drawingWerkstoff = false;
-      addWall(Wall.fromStart(angle: 0, length: 6000, start: Corner.fromPoint(point: Offset.zero)));
-      linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 90, length: 4260, start: Corner.fromPoint(point: Offset.zero)));
-      linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 180, length: 2280, start: Corner.fromPoint(point: Offset.zero)));
-      linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 90, length: 6960, start: Corner.fromPoint(point: Offset.zero)));
-      linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 180, length: 1050, start: Corner.fromPoint(point: Offset.zero)));
-      linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 270, length: 4330, start: Corner.fromPoint(point: Offset.zero)));
-      linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 180, length: 2670, start: Corner.fromPoint(point: Offset.zero)));
-      linePainter.selectedCorner = walls.last.end;
-      addWall(null);
+      setupWohnzimmer();
     }
   }
 
@@ -160,6 +146,40 @@ class PaintController {
 
   bool get isDrawing {
     return walls.isNotEmpty;
+  }
+
+  Future<void> setupWohnzimmer() async {
+    addWall(Wall.fromStart(angle: 0, length: 6000, start: Corner.fromPoint(point: Offset.zero)));
+    linePainter.selectedCorner = walls.last.end;
+    addWall(Wall.fromStart(angle: 90, length: 4260, start: Corner.fromPoint(point: Offset.zero)));
+    linePainter.selectedCorner = walls.last.end;
+    addWall(Wall.fromStart(angle: 180, length: 2280, start: Corner.fromPoint(point: Offset.zero)));
+    linePainter.selectedCorner = walls.last.end;
+    addWall(Wall.fromStart(angle: 90, length: 6960, start: Corner.fromPoint(point: Offset.zero)));
+    linePainter.selectedCorner = walls.last.end;
+    addWall(Wall.fromStart(angle: 180, length: 1050, start: Corner.fromPoint(point: Offset.zero)));
+    linePainter.selectedCorner = walls.last.end;
+    addWall(Wall.fromStart(angle: 270, length: 4330, start: Corner.fromPoint(point: Offset.zero)));
+    linePainter.selectedCorner = walls.last.end;
+    addWall(Wall.fromStart(angle: 180, length: 2670, start: Corner.fromPoint(point: Offset.zero)));
+    linePainter.selectedCorner = walls.last.end;
+    addWall(null);
+
+    _ausnahmePopup.startingPoint = grundFlaeche!.walls[5].end;
+    _drawingAusnahme = true;
+    linePainter.isDrawing = true;
+    _ausnahmePopup.setState(InputState.draw);
+    linePainter.selectedCorner = grundFlaeche!.walls[5].end;
+    await addWall(Wall(angle: 270, length: 0, start: _ausnahmePopup.startingPoint!, end: Corner.fromPoint(point: Offset.zero)));
+    linePainter.selectedCorner = walls.last.end;
+    tap(grundFlaeche!.walls.first.start.scaled!);
+    linePainter.selectedCorner = walls.last.end;
+    tap(grundFlaeche!.walls[6].end.scaled!);
+    linePainter.selectedCorner = walls.last.end;
+    await addWall(null);
+
+    _drawingAusnahme = false;
+    linePainter.isDrawing = false;
   }
 
   void repaint() {

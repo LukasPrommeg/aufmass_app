@@ -234,4 +234,9 @@ class AusnahmePopup {
       },
     );
   }
+
+  //TODO: zum Testen
+  void setState(InputState state) {
+    _state = state;
+  }
 }
