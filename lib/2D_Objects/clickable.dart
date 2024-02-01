@@ -7,6 +7,7 @@ abstract class ClickAble extends EventArgs {
   bool selected = false;
   Offset posBeschriftung = const Offset(0, 0);
   Rect size = Rect.zero;
+  Path unscaledPath = Path();
 
   @protected
   Offset offset = Offset.infinite;

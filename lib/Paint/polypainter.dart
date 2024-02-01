@@ -42,6 +42,8 @@ class PolyPainter extends CustomPainter {
         _grundFlaeche!.paintCornerHB(canvas, hiddenCorners, Colors.purple);
         selectedCorner?.selected = false;
       }
+      //TODO: TEMP
+      _grundFlaeche!.paintOverlaps(canvas);
     }
   }
 

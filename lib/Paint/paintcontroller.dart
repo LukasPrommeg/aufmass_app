@@ -458,13 +458,20 @@ class PaintController {
         indexOfFirstLaengenWerkstoff++;
         break;
       case WerkstoffTyp.point:
-        //TODO: Make sure they are inside of the room
-        _werkstoffe.add(drawedWerkstoff);
-
+        if (grundFlaeche!.unscaledPath.contains((drawedWerkstoff.clickAble as Corner).point)) {
+          _werkstoffe.add(drawedWerkstoff);
+        } else {
+          AlertInfo().newAlert("Außerhalb des Raums");
+        }
         break;
       default:
         return;
     }
+
+    for (Einkerbung einkerbung in grundFlaeche!.einkerbungen) {
+      einkerbung.findOverlap([drawedWerkstoff]);
+    }
+
     _drawingWerkstoff = false;
     _werkstoffPopup.finish();
     polyPainter.selectCorner = false;
@@ -478,6 +485,7 @@ class PaintController {
   void finishEinkerbung() {
     Einkerbung einkerbung = Einkerbung(tiefe: _ausnahmePopup.tiefe, walls: List.from(walls));
     einkerbung.initScale(scalingData.scale, scalingData.center);
+    einkerbung.findOverlap(_werkstoffe);
     grundFlaeche?.addEinkerbung(einkerbung);
     _drawingAusnahme = false;
     _ausnahmePopup.finish();

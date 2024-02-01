@@ -36,6 +36,10 @@ class Grundflaeche extends Flaeche {
     area += einkerbung.area;
   }
 
+  List<Einkerbung> get einkerbungen {
+    return _einkerbungen;
+  }
+
   @override
   void initScale(double scale, Offset center) {
     super.initScale(scale, center);
@@ -61,6 +65,13 @@ class Grundflaeche extends Flaeche {
       super.paintLaengen(canvas, color, laengenSize);
     }
     super.areaPath = temp;
+  }
+
+//TODO: TEMP
+  void paintOverlaps(Canvas canvas) {
+    for (Einkerbung einkerbung in einkerbungen) {
+      einkerbung.paintIntersects(canvas);
+    }
   }
 
   bool containsFullWall(Wall wall, {bool forEinkerbung = false}) {

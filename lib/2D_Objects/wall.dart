@@ -15,7 +15,13 @@ class Wall extends ClickAble {
   late Corner end;
   int id = 0;
 
-  Wall({required this.angle, required this.length, required this.start, required this.end}) : super(hbSize: hbSizeDefine);
+  Wall({required this.angle, required this.length, required this.start, required this.end}) : super(hbSize: hbSizeDefine) {
+    size = size.expandToInclude(Rect.fromPoints(start.point, end.point));
+
+    if (length > 0) {
+      calcUnscaledPath();
+    }
+  }
 
   Wall.clone(Wall wall) : this(angle: wall.angle, length: wall.length, start: wall.start, end: wall.end);
 
@@ -28,6 +34,10 @@ class Wall extends ClickAble {
     end = Corner.fromPoint(point: start.point + Offset(x, y));
 
     size = size.expandToInclude(Rect.fromPoints(start.point, end.point));
+
+    if (length > 0) {
+      calcUnscaledPath();
+    }
   }
 
   Wall.fromEnd({required this.angle, required this.length, required this.end}) : super(hbSize: hbSizeDefine) {
@@ -39,6 +49,33 @@ class Wall extends ClickAble {
     start = Corner.fromPoint(point: end.point - Offset(x, y));
 
     size = size.expandToInclude(Rect.fromPoints(start.point, end.point));
+
+    if (length > 0) {
+      calcUnscaledPath();
+    }
+  }
+
+  void calcUnscaledPath() {
+    unscaledPath = Path();
+
+    Offset diff = end.point - start.point;
+
+    double calcAngle = atan(diff.dy / diff.dx);
+
+    //x = sin
+    double x = -sin(calcAngle) * 0.01 * -1;
+    //y = cos
+    double y = cos(calcAngle) * 0.01 * -1;
+
+    Offset endOffset = Offset(x, y);
+
+    List<Offset> points = [];
+
+    points.add(start.point + endOffset);
+    points.add(start.point - endOffset);
+    points.add(end.point - endOffset);
+    points.add(end.point + endOffset);
+    unscaledPath.addPolygon(points, true);
   }
 
   ClickAble? findClickedPart(Offset position) {
