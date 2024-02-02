@@ -60,6 +60,14 @@ class Einkerbung extends Flaeche {
           return;
       }
 
+      Path areaIntersect = Path.combine(PathOperation.intersect, unscaledPath, werkstoff.clickAble.unscaledPath);
+      print(areaIntersect.getBounds());
+      canvas.drawPath(areaIntersect, paintGreen);
+      List<Offset> points = [];
+      points.add(areaIntersect.getBounds().topLeft * scale - center);
+      points.add(areaIntersect.getBounds().bottomRight * scale - center);
+      canvas.drawPoints(PointMode.lines, points, paintGreen);
+
       for (Wall line in lines) {
         walls.add(lastWall);
         walls.forEach((element) {
@@ -71,9 +79,7 @@ class Einkerbung extends Flaeche {
               List<Offset> points = [];
               points.add(intersection.getBounds().topLeft * scale - center);
               points.add(intersection.getBounds().bottomRight * scale - center);
-              print("PAINTING LINE");
               canvas.drawPoints(PointMode.lines, points, paintBlue);
-              print("PAINTED");
             } else {
               canvas.drawPoints(PointMode.points, [intersection.getBounds().center * scale - center], paintRed);
             }
