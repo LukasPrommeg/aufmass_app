@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:aufmass_app/2D_Objects/flaeche.dart';
 import 'package:aufmass_app/2D_Objects/wall.dart';
+import 'package:aufmass_app/Misc/overlap.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/material.dart';
 class Einkerbung extends Flaeche {
   String name;
   double tiefe;
-  Map<String, List<Werkstoff>> laibungOverlaps = <String, List<Werkstoff>>{};
 
   //temp
   List<DrawedWerkstoff> overlappingWerkstoffe = [];
@@ -19,13 +19,7 @@ class Einkerbung extends Flaeche {
     required this.name,
     required this.tiefe,
     required List<Wall> walls,
-  }) : super(walls: walls) {
-    walls.add(lastWall);
-    for (Wall wall in this.walls) {
-      laibungOverlaps[wall.uuid] = [];
-    }
-    walls.removeLast();
-  }
+  }) : super(walls: walls);
 
   void paintIntersects(Canvas canvas) {
     var paintGreen = Paint()
@@ -51,7 +45,10 @@ class Einkerbung extends Flaeche {
     int overlaps = 0;
 
     for (DrawedWerkstoff werkstoff in overlappingWerkstoffe) {
-      List<Wall> lines;
+      Overlap overlap = Overlap(einkerbung: this, overlapObj: werkstoff.clickAble, werkstoff: werkstoff.werkstoff);
+      overlap.initScale(scale, center);
+      overlap.paint(canvas);
+      /*List<Wall> lines = [];
 
       switch (werkstoff.werkstoff.typ) {
         case WerkstoffTyp.flaeche:
@@ -101,7 +98,7 @@ class Einkerbung extends Flaeche {
           }
         });
         walls.removeLast();
-      }
+      }*/
     }
     print("THERE ARE " + overlaps.toString() + " OVERLAPTS");
   }
