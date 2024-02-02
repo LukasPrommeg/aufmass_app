@@ -166,6 +166,8 @@ class PaintController {
     addWall(null);
 
     _ausnahmePopup.startingPoint = grundFlaeche!.walls[5].end;
+    _ausnahmePopup.tiefe = 500;
+    _ausnahmePopup.name = "Podest";
     _drawingAusnahme = true;
     linePainter.isDrawing = true;
     _ausnahmePopup.setState(InputState.draw);
@@ -503,7 +505,7 @@ class PaintController {
   }
 
   void finishEinkerbung() {
-    Einkerbung einkerbung = Einkerbung(tiefe: _ausnahmePopup.tiefe, walls: List.from(walls));
+    Einkerbung einkerbung = Einkerbung(tiefe: _ausnahmePopup.tiefe, walls: List.from(walls), name: _ausnahmePopup.name);
     einkerbung.initScale(scalingData.scale, scalingData.center);
     einkerbung.findOverlap(_werkstoffe);
     grundFlaeche?.addEinkerbung(einkerbung);

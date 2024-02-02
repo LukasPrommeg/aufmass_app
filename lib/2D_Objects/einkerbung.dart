@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:aufmass_app/2D_Objects/flaeche.dart';
 import 'package:aufmass_app/2D_Objects/wall.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
@@ -7,6 +6,7 @@ import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:flutter/material.dart';
 
 class Einkerbung extends Flaeche {
+  String name;
   double tiefe;
   Map<String, List<Werkstoff>> laibungOverlaps = <String, List<Werkstoff>>{};
 
@@ -16,6 +16,7 @@ class Einkerbung extends Flaeche {
   Offset center = Offset.zero;
 
   Einkerbung({
+    required this.name,
     required this.tiefe,
     required List<Wall> walls,
   }) : super(walls: walls) {
@@ -42,12 +43,14 @@ class Einkerbung extends Flaeche {
       ..strokeWidth = 10
       ..style = PaintingStyle.stroke;
 
+    int overlaps = 0;
+
     for (DrawedWerkstoff werkstoff in overlappingWerkstoffe) {
       List<Wall> lines;
 
       switch (werkstoff.werkstoff.typ) {
         case WerkstoffTyp.flaeche:
-          lines = (werkstoff.clickAble as Flaeche).walls;
+          lines = List<Wall>.from((werkstoff.clickAble as Flaeche).walls);
           lines.add((werkstoff.clickAble as Flaeche).lastWall);
           break;
         case WerkstoffTyp.linie:
@@ -63,14 +66,26 @@ class Einkerbung extends Flaeche {
           Path intersection = Path.combine(PathOperation.intersect, line.unscaledPath, element.unscaledPath);
           //print(intersection.getBounds());
           if (!intersection.getBounds().isEmpty) {
-            print("OVERLAPPING");
-            canvas.drawPoints(PointMode.points, [intersection.getBounds().center * scale - center], paintRed);
+            Offset diff = intersection.getBounds().topLeft - intersection.getBounds().bottomRight;
+            if (diff.distance >= 1) {
+              List<Offset> points = [];
+              points.add(intersection.getBounds().topLeft * scale - center);
+              points.add(intersection.getBounds().bottomRight * scale - center);
+              print("PAINTING LINE");
+              canvas.drawPoints(PointMode.lines, points, paintBlue);
+              print("PAINTED");
+            } else {
+              canvas.drawPoints(PointMode.points, [intersection.getBounds().center * scale - center], paintRed);
+            }
+
+            overlaps++;
             //laibungOverlaps[element.uuid]!.add(werkstoff.werkstoff);
           }
         });
         walls.removeLast();
       }
     }
+    print("THERE ARE " + overlaps.toString() + " OVERLAPTS");
   }
 
   @override

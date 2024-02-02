@@ -6,6 +6,7 @@ import 'package:aufmass_app/2D_Objects/corner.dart';
 import 'package:aufmass_app/2D_Objects/wall.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AusnahmePopup {
   InputState _state = InputState.inputEinkerbung;
@@ -17,12 +18,14 @@ class AusnahmePopup {
   Corner? startingPoint;
   Wall? behind;
   double tiefe = double.infinity;
+  String name = "Einkerbung";
 
   final TextEditingController _negX = TextEditingController();
   final TextEditingController _posX = TextEditingController();
   final TextEditingController _negY = TextEditingController();
   final TextEditingController _posY = TextEditingController();
   final EinheitSelector einheitSelector = EinheitSelector(setGlobal: false);
+  final TextEditingController _nameInput = TextEditingController();
   final LengthInput _tiefenInput = LengthInput(
     hintText: "Tiefe der Einkerbung",
     maxText: "Keine Tiefe",
@@ -49,7 +52,14 @@ class AusnahmePopup {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Wählen Sie die tiefe der Einkerbung"),
+              const Text("Einkerbung einstellen"),
+              const SizedBox(
+                height: 10,
+              ),
+              TextField(
+                controller: _nameInput,
+                decoration: InputDecoration(hintText: "Name der Einkerbung"),
+              ),
               const SizedBox(
                 height: 10,
               ),
@@ -73,6 +83,9 @@ class AusnahmePopup {
         } else {
           if (_tiefenInput.value != 0) {
             tiefe = einheitSelector.convertToMM(_tiefenInput.value);
+          }
+          if (_nameInput.text.isNotEmpty) {
+            name = _nameInput.text;
           }
           _content = SingleChildScrollView(
             child: Column(
@@ -202,7 +215,9 @@ class AusnahmePopup {
     _posX.text = "";
     _negY.text = "";
     _posY.text = "";
+    _nameInput.text = "";
     tiefe = double.infinity;
+    name = "Einkerbung";
     _tiefenInput.useMaxValue = true;
   }
 
