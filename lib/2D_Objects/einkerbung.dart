@@ -43,6 +43,11 @@ class Einkerbung extends Flaeche {
       ..strokeWidth = 10
       ..style = PaintingStyle.stroke;
 
+    var paintYellow = Paint()
+      ..color = Colors.yellow
+      ..strokeWidth = 5
+      ..style = PaintingStyle.stroke;
+
     int overlaps = 0;
 
     for (DrawedWerkstoff werkstoff in overlappingWerkstoffe) {
@@ -61,31 +66,38 @@ class Einkerbung extends Flaeche {
       }
 
       Path areaIntersect = Path.combine(PathOperation.intersect, unscaledPath, werkstoff.clickAble.unscaledPath);
-      print(areaIntersect.getBounds());
-      canvas.drawPath(areaIntersect, paintGreen);
-      List<Offset> points = [];
-      points.add(areaIntersect.getBounds().topLeft * scale - center);
-      points.add(areaIntersect.getBounds().bottomRight * scale - center);
-      canvas.drawPoints(PointMode.lines, points, paintGreen);
+      if (!areaIntersect.getBounds().isEmpty) {
+        List<Offset> points = [];
+        points.add(areaIntersect.getBounds().topLeft * scale - center);
+        points.add(areaIntersect.getBounds().bottomRight * scale - center);
+        canvas.drawPoints(PointMode.lines, points, paintGreen);
+      }
 
       for (Wall line in lines) {
         walls.add(lastWall);
         walls.forEach((element) {
-          Path intersection = Path.combine(PathOperation.intersect, line.unscaledPath, element.unscaledPath);
+          Path lineIntersect = Path.combine(PathOperation.intersect, line.unscaledPath, element.unscaledPath);
           //print(intersection.getBounds());
-          if (!intersection.getBounds().isEmpty) {
-            Offset diff = intersection.getBounds().topLeft - intersection.getBounds().bottomRight;
-            if (diff.distance >= 1) {
-              List<Offset> points = [];
-              points.add(intersection.getBounds().topLeft * scale - center);
-              points.add(intersection.getBounds().bottomRight * scale - center);
-              canvas.drawPoints(PointMode.lines, points, paintBlue);
-            } else {
-              canvas.drawPoints(PointMode.points, [intersection.getBounds().center * scale - center], paintRed);
-            }
+          if (!lineIntersect.getBounds().isEmpty) {
+            Offset diff = lineIntersect.getBounds().topLeft - lineIntersect.getBounds().bottomRight;
 
+            if (diff.distance <= 0.1) {
+              canvas.drawPoints(PointMode.points, [lineIntersect.getBounds().center * scale - center], paintRed);
+            } else {
+              List<Offset> points = [];
+              points.add(lineIntersect.getBounds().topLeft * scale - center);
+              points.add(lineIntersect.getBounds().bottomRight * scale - center);
+              //canvas.drawPoints(PointMode.lines, points, paintBlue);
+            }
             overlaps++;
             //laibungOverlaps[element.uuid]!.add(werkstoff.werkstoff);
+          }
+          Path areaLineIntersect = Path.combine(PathOperation.intersect, element.unscaledPath, werkstoff.clickAble.unscaledPath);
+          if (!areaLineIntersect.getBounds().isEmpty) {
+            List<Offset> points = [];
+            points.add(areaLineIntersect.getBounds().topLeft * scale - center);
+            points.add(areaLineIntersect.getBounds().bottomRight * scale - center);
+            canvas.drawPoints(PointMode.lines, points, paintYellow);
           }
         });
         walls.removeLast();
