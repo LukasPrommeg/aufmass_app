@@ -5,6 +5,7 @@ import 'package:aufmass_app/2D_Objects/flaeche.dart';
 import 'package:aufmass_app/2D_Objects/wall.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 class Overlap {
   final Einkerbung einkerbung;
@@ -36,18 +37,58 @@ class Overlap {
         return;
     }
     calcLaibungIntersects(lines);
-    calcWerkstofflinesInsideEinkerbung(lines);
+    List<Wall> werkstoffLines = calcWerkstofflinesInsideEinkerbung(lines);
 
     if (werkstoff.typ == WerkstoffTyp.flaeche) {
-      calcBorderInsideWerkstoffarea();
+      laibungOverlaps.addAll(calcBorderInsideWerkstoffarea());
+
       List<Wall> walls = List.from(laibungOverlaps);
+      walls.addAll(werkstoffLines);
+      walls = sortWalls(walls);
+
       walls.removeLast();
       flaeche = Flaeche(walls: walls);
       flaeche!.selected = true;
+      laibungIntersects.clear();
+    } else if (werkstoff.typ == WerkstoffTyp.linie) {
+      laibungOverlaps.addAll(werkstoffLines);
     }
     if (laibungIntersects.isNotEmpty || laibungOverlaps.isNotEmpty || flaeche != null) {
       _isOverlapping = true;
     }
+  }
+
+  List<Wall> sortWalls(List<Wall> walls) {
+    List<Wall> avaivable = List.from(walls);
+    List<Wall> out = [avaivable.first];
+    avaivable.removeAt(0);
+
+    for (int i = 1; i < walls.length; i++) {
+      Wall? matchEndStart = avaivable.singleWhereOrNull((element) => doEndsMatch(out.last.end, element.start));
+      Wall? matchEndEnd = avaivable.singleWhereOrNull((element) => doEndsMatch(out.last.end, element.end));
+      if (matchEndEnd != null) {
+        avaivable.remove(matchEndEnd);
+        matchEndEnd = Wall(angle: matchEndEnd.angle, length: matchEndEnd.length, start: matchEndEnd.end, end: matchEndEnd.start);
+        out.add(matchEndEnd);
+      } else if (matchEndStart != null) {
+        out.add(matchEndStart);
+        avaivable.remove(matchEndStart);
+      }
+    }
+/*    try {
+      out.add(avaivable.single);
+    } catch (e) {
+      //TODO: ERROR beim Sortieren
+      print("ERROR beim Sortieren");
+    }*/
+    return out;
+  }
+
+  bool doEndsMatch(Corner end1, Corner end2) {
+    if (end1.point.dx.roundToDouble() == end2.point.dx.roundToDouble() && end1.point.dy.roundToDouble() == end2.point.dy.roundToDouble()) {
+      return true;
+    }
+    return false;
   }
 
   void calcLaibungIntersects(List<Wall> lines) {
@@ -75,20 +116,23 @@ class Overlap {
     einkerbung.walls.removeLast();
   }
 
-  void calcWerkstofflinesInsideEinkerbung(List<Wall> lines) {
+  List<Wall> calcWerkstofflinesInsideEinkerbung(List<Wall> lines) {
+    List<Wall> result = [];
     for (Wall line in lines) {
       Path overlap = Path.combine(PathOperation.intersect, line.unscaledPath, einkerbung.unscaledPath);
       if (!overlap.getBounds().isEmpty) {
         if (overlap.getBounds().size.longestSide >= 0.1) {
           Wall laibungOverlap = calcLengthOfOverlap(Wall.clone(line));
           laibungOverlap.selected = true;
-          laibungOverlaps.add(laibungOverlap);
+          result.add(laibungOverlap);
         }
       }
     }
+    return result;
   }
 
-  void calcBorderInsideWerkstoffarea() {
+  List<Wall> calcBorderInsideWerkstoffarea() {
+    List<Wall> result = [];
     einkerbung.walls.add(einkerbung.lastWall);
     for (Wall borderSide in einkerbung.walls) {
       Path overlap = Path.combine(PathOperation.intersect, borderSide.unscaledPath, overlapObj.unscaledPath);
@@ -96,11 +140,12 @@ class Overlap {
         if (overlap.getBounds().size.longestSide >= 0.1) {
           Wall laibungOverlap = calcLengthOfOverlap(Wall.clone(borderSide));
           laibungOverlap.selected = true;
-          laibungOverlaps.add(laibungOverlap);
+          result.add(laibungOverlap);
         }
       }
     }
     einkerbung.walls.removeLast();
+    return result;
   }
 
   Wall calcLengthOfOverlap(Wall input) {
@@ -109,6 +154,13 @@ class Overlap {
     for (Corner end in laibungIntersects) {
       if (input.unscaledPath.contains(end.point)) {
         limits.add(end);
+      }
+    }
+    if (limits.length == 1) {
+      if (einkerbung.unscaledPath.contains(input.start.point) && overlapObj.unscaledPath.contains(input.start.point)) {
+        limits.add(Corner.clone(input.start));
+      } else if (einkerbung.unscaledPath.contains(input.end.point) && overlapObj.unscaledPath.contains(input.end.point)) {
+        limits.add(Corner.clone(input.end));
       }
     }
     if (limits.length == 2) {
@@ -122,18 +174,24 @@ class Overlap {
     }
   }
 
-  void paint(Canvas canvas) {
+  void paint(Canvas canvas, {bool debug = false}) {
     if (editMode) {
       for (Corner corner in laibungIntersects) {
-        corner.paint(canvas, Colors.green, 10);
+        if (debug) {
+          corner.paint(canvas, Colors.green, 10);
+        }
         corner.paintHB(canvas);
       }
       for (Wall wall in laibungOverlaps) {
-        wall.paint(canvas, Colors.yellow, 5);
+        if (debug) {
+          wall.paint(canvas, Colors.yellow, 5);
+        }
         wall.paintHB(canvas);
       }
       if (flaeche != null) {
-        flaeche!.paint(canvas, Colors.red, 2.5);
+        if (debug) {
+          flaeche!.paint(canvas, Colors.red, 2.5);
+        }
         flaeche!.paintHB(canvas);
       }
     }
@@ -159,11 +217,14 @@ class Overlap {
       }
     }
     for (Wall wall in laibungOverlaps) {
-      print(wall.start.point.toString() + "-" + wall.end.point.toString());
       if (wall.contains(position)) {
         wall.selected = !wall.selected;
         return true;
       }
+    }
+    if (flaeche != null && flaeche!.contains(position)) {
+      flaeche!.selected = !flaeche!.selected;
+      return true;
     }
     return false;
   }
