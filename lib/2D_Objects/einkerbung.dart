@@ -100,7 +100,6 @@ class Einkerbung extends Flaeche {
         walls.removeLast();
       }*/
     }
-    print("THERE ARE " + overlaps.toString() + " OVERLAPTS");
   }
 
   @override
