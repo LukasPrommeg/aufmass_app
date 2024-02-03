@@ -4,6 +4,7 @@ import 'package:aufmass_app/2D_Objects/clickable.dart';
 import 'package:aufmass_app/2D_Objects/einkerbung.dart';
 import 'package:aufmass_app/Misc/input_utils.dart';
 import 'package:aufmass_app/Misc/loadingblur.dart';
+import 'package:aufmass_app/Misc/overlap.dart';
 import 'package:aufmass_app/PopUP/ausnahmepopup.dart';
 import 'package:aufmass_app/PopUP/selectactionpopup.dart';
 import 'package:aufmass_app/PopUP/werkstoffinput.dart';
@@ -403,6 +404,19 @@ class PaintController {
         _ausnahmePopup.behind = null;
       }
     } else {
+      if (grundFlaeche != null) {
+        for (Einkerbung einkerbung in grundFlaeche!.einkerbungen) {
+          for (Overlap overlap in einkerbung.overlaps) {
+            if (overlap.editMode) {
+              if (overlap.tap(position)) {
+                _updateScaleAndCenter();
+                repaint();
+                return;
+              }
+            }
+          }
+        }
+      }
       EventArgs? result = findClickedObject(position);
 
       if (result != null) {

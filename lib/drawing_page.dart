@@ -1,6 +1,7 @@
 import 'package:aufmass_app/2D_Objects/einkerbung.dart';
 import 'package:aufmass_app/Misc/alertinfo.dart';
 import 'package:aufmass_app/Misc/loadingblur.dart';
+import 'package:aufmass_app/Misc/overlap.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:aufmass_app/2D_Objects/corner.dart';
@@ -611,16 +612,19 @@ class PlanPageContent extends State<PlanPage> {
                           title: Text("Werkstoffe"),
                           shape: const Border(),
                           children: [
-                            for (DrawedWerkstoff werkstoff in (clickedThing as Einkerbung).overlappingWerkstoffe)
+                            for (Overlap overlap in (clickedThing as Einkerbung).overlaps)
                               ListTile(
                                 enableFeedback: false,
-                                iconColor: werkstoff.werkstoff.color,
+                                iconColor: overlap.werkstoff.color,
                                 title: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(werkstoff.werkstoff.name),
+                                    Text(overlap.werkstoff.name),
                                     IconButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        overlap.editMode = !overlap.editMode;
+                                        //TODO: repaint
+                                      },
                                       icon: Icon(Icons.edit_square),
                                     ),
                                   ],

@@ -1,11 +1,8 @@
-import 'dart:ui';
-
 import 'package:aufmass_app/2D_Objects/clickable.dart';
 import 'package:aufmass_app/2D_Objects/corner.dart';
 import 'package:aufmass_app/2D_Objects/einkerbung.dart';
 import 'package:aufmass_app/2D_Objects/flaeche.dart';
 import 'package:aufmass_app/2D_Objects/wall.dart';
-import 'package:aufmass_app/Misc/alertinfo.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:flutter/material.dart';
 
@@ -14,10 +11,15 @@ class Overlap {
   final ClickAble overlapObj;
   final Werkstoff werkstoff;
   final List<Corner> laibungIntersects = [];
-  final List<Wall> laibungOverlaps = [];
-  //final Map<Corner, bool> laibungOverlaps = <Corner, bool>{};
-  //final Map<String, List<Werkstoff>> laibungOverlaps = <String, List<Werkstoff>>{};
+  final List<Wall> laibungOverlaps = []; //TODO: Duplikate!!
   Flaeche? flaeche;
+
+  bool editMode = false;
+  bool _isOverlapping = false;
+
+  bool get isOverlapping {
+    return _isOverlapping;
+  }
 
   Overlap({required this.einkerbung, required this.overlapObj, required this.werkstoff}) {
     List<Wall> lines = [];
@@ -41,8 +43,11 @@ class Overlap {
       List<Wall> walls = List.from(laibungOverlaps);
       walls.removeLast();
       flaeche = Flaeche(walls: walls);
+      flaeche!.selected = true;
     }
-    //calcEinkerbungBorderOverlaps(lines);
+    if (laibungIntersects.isNotEmpty || laibungOverlaps.isNotEmpty || flaeche != null) {
+      _isOverlapping = true;
+    }
   }
 
   void calcLaibungIntersects(List<Wall> lines) {
@@ -55,43 +60,19 @@ class Overlap {
           if (diff.distance.abs() <= 0.1) {
             Offset point = lineIntersect.getBounds().center;
             if (laibungIntersects.where((element) => element.point.dx.roundToDouble() == point.dx.roundToDouble() && element.point.dy.roundToDouble() == point.dy.roundToDouble()).isEmpty) {
-              laibungIntersects.add(Corner.fromPoint(point: lineIntersect.getBounds().center));
+              Corner laibungIntersect = Corner.fromPoint(point: lineIntersect.getBounds().center);
+              laibungIntersect.selected = true;
+              laibungIntersects.add(laibungIntersect);
             }
           } else {
-            laibungOverlaps.add(Wall.clone(borderSide));
+            Wall laibungOverlap = Wall.clone(borderSide);
+            laibungOverlap.selected = true;
+            laibungOverlaps.add(laibungOverlap);
           }
         }
       }
     }
     einkerbung.walls.removeLast();
-    print("FOUND " + laibungIntersects.length.toString() + " INTERSECTS");
-    print("FOUND " + laibungOverlaps.length.toString() + " OVERLAPS");
-  }
-
-/*
-  void calcEinkerbungBorderOverlaps(List<Wall> lines) {
-    einkerbung.walls.add(einkerbung.lastWall);
-    for (Wall borderSide in einkerbung.walls) {
-      Path areaLineIntersect = Path.combine(PathOperation.intersect, borderSide.unscaledPath, overlapObj.unscaledPath);
-      if (!areaLineIntersect.getBounds().isEmpty) {
-        //laibungOverlaps.add(Wall.clone(borderSide));
-      }
-    }
-    einkerbung.walls.removeLast();
-    print("FOUND " + laibungOverlaps.length.toString() + " OVERLAPS");
-  }
-*/
-  void calcAreaOverlap(List<Wall> lines) {
-    Path areaIntersect = Path.combine(PathOperation.intersect, einkerbung.unscaledPath, overlapObj.unscaledPath);
-    if (!areaIntersect.getBounds().isEmpty) {
-      Rect area = areaIntersect.getBounds();
-      List<Wall> walls = [
-        Wall(angle: 0, length: 0, start: Corner.fromPoint(point: area.topLeft), end: Corner.fromPoint(point: area.topRight)),
-        Wall(angle: 0, length: 0, start: Corner.fromPoint(point: area.topRight), end: Corner.fromPoint(point: area.bottomRight)),
-        Wall(angle: 0, length: 0, start: Corner.fromPoint(point: area.bottomRight), end: Corner.fromPoint(point: area.bottomLeft)),
-      ];
-      flaeche = Flaeche(walls: walls);
-    }
   }
 
   void calcWerkstofflinesInsideEinkerbung(List<Wall> lines) {
@@ -100,7 +81,8 @@ class Overlap {
       if (!overlap.getBounds().isEmpty) {
         if (overlap.getBounds().size.longestSide >= 0.1) {
           Wall laibungOverlap = calcLengthOfOverlap(Wall.clone(line));
-          laibungOverlaps.add(Wall.clone(laibungOverlap));
+          laibungOverlap.selected = true;
+          laibungOverlaps.add(laibungOverlap);
         }
       }
     }
@@ -113,7 +95,8 @@ class Overlap {
       if (!overlap.getBounds().isEmpty) {
         if (overlap.getBounds().size.longestSide >= 0.1) {
           Wall laibungOverlap = calcLengthOfOverlap(Wall.clone(borderSide));
-          laibungOverlaps.add(Wall.clone(laibungOverlap));
+          laibungOverlap.selected = true;
+          laibungOverlaps.add(laibungOverlap);
         }
       }
     }
@@ -140,14 +123,19 @@ class Overlap {
   }
 
   void paint(Canvas canvas) {
-    for (Corner corner in laibungIntersects) {
-      corner.paint(canvas, Colors.green, 10);
-    }
-    for (Wall wall in laibungOverlaps) {
-      wall.paint(canvas, Colors.yellow, 5);
-    }
-    if (flaeche != null) {
-      flaeche!.paint(canvas, Colors.red, 2.5);
+    if (editMode) {
+      for (Corner corner in laibungIntersects) {
+        corner.paint(canvas, Colors.green, 10);
+        corner.paintHB(canvas);
+      }
+      for (Wall wall in laibungOverlaps) {
+        wall.paint(canvas, Colors.yellow, 5);
+        wall.paintHB(canvas);
+      }
+      if (flaeche != null) {
+        flaeche!.paint(canvas, Colors.red, 2.5);
+        flaeche!.paintHB(canvas);
+      }
     }
   }
 
@@ -161,5 +149,22 @@ class Overlap {
     for (Wall wall in laibungOverlaps) {
       wall.initScale(scale, center);
     }
+  }
+
+  bool tap(Offset position) {
+    for (Corner corner in laibungIntersects) {
+      if (corner.contains(position)) {
+        corner.selected = !corner.selected;
+        return true;
+      }
+    }
+    for (Wall wall in laibungOverlaps) {
+      print(wall.start.point.toString() + "-" + wall.end.point.toString());
+      if (wall.contains(position)) {
+        wall.selected = !wall.selected;
+        return true;
+      }
+    }
+    return false;
   }
 }
