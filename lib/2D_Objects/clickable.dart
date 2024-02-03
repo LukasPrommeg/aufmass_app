@@ -1,3 +1,4 @@
+import 'package:aufmass_app/2D_Objects/flaeche.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 
@@ -69,9 +70,16 @@ abstract class ClickAble extends EventArgs {
       }
     }
 
-    Paint areaPaint = Paint()
-      ..color = _paintStyle.color.withOpacity(0.2)
-      ..style = PaintingStyle.fill;
+    Paint areaPaint;
+    if (this is Flaeche) {
+      areaPaint = Paint()
+        ..color = _paintStyle.color.withOpacity(0.4)
+        ..style = PaintingStyle.fill;
+    } else {
+      areaPaint = Paint()
+        ..color = _paintStyle.color.withOpacity(0.2)
+        ..style = PaintingStyle.fill;
+    }
 
     calcHitbox();
 

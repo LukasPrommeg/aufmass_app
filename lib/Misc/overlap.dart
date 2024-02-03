@@ -176,11 +176,11 @@ class Overlap {
 
   void paint(Canvas canvas, {bool debug = false}) {
     if (editMode) {
-      for (Corner corner in laibungIntersects) {
+      if (flaeche != null) {
         if (debug) {
-          corner.paint(canvas, Colors.green, 10);
+          flaeche!.paint(canvas, Colors.red, 2.5);
         }
-        corner.paintHB(canvas);
+        flaeche!.paintHB(canvas);
       }
       for (Wall wall in laibungOverlaps) {
         if (debug) {
@@ -188,11 +188,11 @@ class Overlap {
         }
         wall.paintHB(canvas);
       }
-      if (flaeche != null) {
+      for (Corner corner in laibungIntersects) {
         if (debug) {
-          flaeche!.paint(canvas, Colors.red, 2.5);
+          corner.paint(canvas, Colors.green, 10);
         }
-        flaeche!.paintHB(canvas);
+        corner.paintHB(canvas);
       }
     }
   }
