@@ -21,6 +21,9 @@ class Einkerbung extends Flaeche {
 
   void paintIntersects(Canvas canvas) {
     for (Overlap overlap in overlaps) {
+      overlap = Overlap(einkerbung: overlap.einkerbung, overlapObj: overlap.overlapObj, werkstoff: overlap.werkstoff);
+      overlap.editMode = true;
+      overlap.initScale(scale, center);
       overlap.paint(canvas);
     }
   }
