@@ -59,13 +59,13 @@ class CircleSlider extends StatelessWidget {
       key: boxKey,
       behavior: HitTestBehavior.translucent,
       onTapUp: (details) {
-        _updateValWithPoint(details.localPosition);
+        _updateValWithPoint(details.localPosition, false);
       },
       onPanStart: (details) {
-        _updateValWithPoint(details.localPosition);
+        _updateValWithPoint(details.localPosition, false);
       },
       onPanUpdate: (details) {
-        _updateValWithPoint(details.localPosition);
+        _updateValWithPoint(details.localPosition, true);
       },
       child: Theme(
         data: ThemeData(
@@ -127,12 +127,12 @@ class CircleSlider extends StatelessWidget {
     );
   }
 
-  void _updateValWithPoint(Offset point) {
+  void _updateValWithPoint(Offset point, bool dragging) {
     RenderBox painterBox = boxKey.currentContext!.findRenderObject() as RenderBox;
 
     Offset offset = Offset(painterBox.size.width, painterBox.size.height);
 
-    sliderPainter.updateValueWithPoint(point - (offset / 2));
+    sliderPainter.updateValueWithPoint(point - (offset / 2), dragging);
     centerTextFieldController.value = TextEditingValue(
         text: (sliderPainter.val * -1) /*.abs()*/
             .toStringAsFixed(0));

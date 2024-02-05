@@ -28,10 +28,16 @@ class Grundflaeche extends Flaeche {
 
   void addEinkerbung(Einkerbung newEinkerbung) {
     _einkerbungen.add(newEinkerbung);
+    area -= newEinkerbung.area;
   }
 
   void removeEinkerbung(Einkerbung einkerbung) {
     _einkerbungen.remove(einkerbung);
+    area += einkerbung.area;
+  }
+
+  List<Einkerbung> get einkerbungen {
+    return _einkerbungen;
   }
 
   @override
@@ -39,6 +45,7 @@ class Grundflaeche extends Flaeche {
     super.initScale(scale, center);
 
     for (Einkerbung einkerbung in _einkerbungen) {
+      area -= einkerbung.area;
       einkerbung.initScale(scale, center);
     }
   }
@@ -60,7 +67,14 @@ class Grundflaeche extends Flaeche {
     super.areaPath = temp;
   }
 
-  bool containsFullWall(Wall wall) {
+//TODO: TEMP
+  void paintOverlaps(Canvas canvas) {
+    for (Einkerbung einkerbung in einkerbungen) {
+      einkerbung.paintIntersects(canvas);
+    }
+  }
+
+  bool containsFullWall(Wall wall, {bool forEinkerbung = false}) {
     Path wallPath = Path();
     wallPath.moveTo(wall.start.point.dx, wall.start.point.dy);
     wallPath.lineTo(wall.end.point.dx, wall.end.point.dy);
@@ -68,12 +82,20 @@ class Grundflaeche extends Flaeche {
     bool contains = true;
     PathMetrics pathMetrics = wallPath.computeMetrics();
 
+    Path temp = Path.from(unscaledPath);
+
+    if (forEinkerbung) {
+      for (Einkerbung einkerbung in _einkerbungen) {
+        temp = Path.combine(PathOperation.difference, temp, einkerbung.unscaledPath);
+      }
+    }
+
     pathMetrics.toList().forEach((element) {
       for (var i = 0; i < element.length; i++) {
         Tangent? tangent = element.getTangentForOffset(i.toDouble());
         if (tangent != null) {
           Offset pos = Offset(tangent.position.dx.roundToDouble(), tangent.position.dy.roundToDouble());
-          if (!unscaledPath.contains(pos)) {
+          if (!temp.contains(pos)) {
             contains = false;
             break;
           }
@@ -84,18 +106,35 @@ class Grundflaeche extends Flaeche {
     return contains;
   }
 
-  double findMaxLength(Corner startingPoint, double angle) {
-    //TODO: async
-    double stepLength = 0.001;
+  Future<double> findMaxLength(Corner startingPoint, double angle, {bool forEinkerbung = false}) async {
+    List<double> stepLengths = [10000, 5000, 1000, 500, 100, 50, 10, 5, 1, 0.5, 0.1, 0.75, 0.5, 0.25, 0.1, 0.075, 0.05, 0.025, 0.01, 0.0075, 0.005, 0.0025, 0.001];
 
     double length = 0;
-    Offset einheitsVektor = Offset.fromDirection((angle - 90) * pi / 180, stepLength);
+    Offset einheitsVektor = Offset.fromDirection((angle - 90) * pi / 180, stepLengths.first);
     Offset origin = startingPoint.point;
 
-    do {
-      origin += einheitsVektor;
-      length += stepLength;
-    } while (unscaledPath.contains(origin));
+    Path temp = Path.from(unscaledPath);
+
+    if (forEinkerbung) {
+      for (Einkerbung einkerbung in _einkerbungen) {
+        temp = Path.combine(PathOperation.difference, temp, einkerbung.unscaledPath);
+      }
+    }
+
+    for (double step in stepLengths) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      //await Future<void>.delayed(Duration.zero);
+
+      einheitsVektor = Offset.fromDirection((angle - 90) * pi / 180, step);
+
+      Offset next = origin + einheitsVektor;
+
+      while (temp.contains(next)) {
+        origin = next;
+        length += step;
+        next += einheitsVektor;
+      }
+    }
 
     return double.parse(length.toStringAsFixed(2));
   }

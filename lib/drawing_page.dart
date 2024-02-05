@@ -1,4 +1,7 @@
+import 'package:aufmass_app/2D_Objects/einkerbung.dart';
 import 'package:aufmass_app/Misc/alertinfo.dart';
+import 'package:aufmass_app/Misc/loadingblur.dart';
+import 'package:aufmass_app/Misc/overlap.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:aufmass_app/2D_Objects/corner.dart';
@@ -268,57 +271,63 @@ class PlanPageContent extends State<PlanPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Text(currentRoom.name),
-            if (currentWallView != null) ...[
-              const SizedBox(
-                width: 20,
-              ),
-              IconButton(
-                onPressed: () {
-                  switchRoom(currentRoom);
-                },
-                tooltip: "Zurück",
-                icon: const Icon(Icons.arrow_back),
-              ),
-              const SizedBox(
-                width: 20,
-              ),
-              Text(currentWallView!.name),
-            ]
-          ],
-        ),
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.purple,
-        actions: [
-          IconButton(
-            icon: Icon(isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
-            onPressed: toggleRightColumnVisibility,
-          ),
-        ],
-      ),
-      body: Row(
-        children: [
-          Expanded(
-            child: Stack(
-              alignment: AlignmentDirectional.topCenter,
+    return Stack(
+      children: [
+        Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            title: Row(
               children: [
-                currentWallView != null ? currentWallView!.drawingZone : currentRoom.drawingZone,
-                SizedBox(
-                  height: 100,
-                  child: AlertInfo(),
-                ),
+                Text(currentRoom.name),
+                if (currentWallView != null) ...[
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      switchRoom(currentRoom);
+                    },
+                    tooltip: "Zurück",
+                    icon: const Icon(Icons.arrow_back),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Text(currentWallView!.name),
+                ]
               ],
             ),
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.purple,
+            actions: [
+              IconButton(
+                icon: Icon(isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
+                onPressed: toggleRightColumnVisibility,
+              ),
+            ],
           ),
-          _buildRightSideMenu(),
-        ],
-      ),
-      floatingActionButton: floatingButton,
-      drawer: _buildLeftSideMenu(),
+          body: Row(
+            children: [
+              Expanded(
+                child: Stack(
+                  alignment: AlignmentDirectional.topCenter,
+                  children: [
+                    currentWallView != null ? currentWallView!.drawingZone : currentRoom.drawingZone,
+                    SizedBox(
+                      height: 100,
+                      child: AlertInfo(),
+                    ),
+                  ],
+                ),
+              ),
+              _buildRightSideMenu(),
+            ],
+          ),
+          floatingActionButton: floatingButton,
+          drawer: _buildLeftSideMenu(),
+        ),
+        LoadingBlur(),
+      ],
     );
   }
 
@@ -490,74 +499,149 @@ class PlanPageContent extends State<PlanPage> {
     return Visibility(
       visible: isRightColumnVisible,
       child: Container(
-        width: 200,
+        width: 250,
         color: Colors.grey[200],
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (clickedThing is Flaeche) Text("Fläche: ${EinheitController().convertToSelected(clickedThing.area)} ${EinheitController().selectedEinheit.name}"), //have to reload for it to work
-            clickedThing is Wall && currentWallView == null
-                ? Column(children: [
-                    Text(clickedThing.length.toString()),
-                    Text(currentRoom.walls[clickedThing.uuid]!.height.toString()),
-                    TextField(
-                      controller: setWallHeightController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Wandhöhe',
-                      ),
-                      onChanged: (value) {
-                        //TODO: change Wall height
-                        //currentRoom.walls[clickedThing.uuid]!.height = double.tryParse(value) ?? 2;
-                        setState(() {}); // Trigger a rebuild
-                      },
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  clickedThing.runtimeType.toString(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Divider(),
+                EinheitSelector(
+                  setGlobal: true,
+                ),
+                const Divider(),
+              ],
+            ),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  if (clickedThing is Flaeche) Text("Fläche: ${EinheitController().convertToSelected(clickedThing.area)} ${EinheitController().selectedEinheit.name}"), //have to reload for it to work
+                  clickedThing is Wall && currentWallView == null
+                      ? Column(children: [
+                          Text(clickedThing.length.toString()),
+                          Text(currentRoom.walls[clickedThing.uuid]!.height.toString()),
+                          TextField(
+                            controller: setWallHeightController,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'Wandhöhe',
+                            ),
+                            onChanged: (value) {
+                              //TODO: change Wall height
+                              //currentRoom.walls[clickedThing.uuid]!.height = double.tryParse(value) ?? 2;
+                              setState(() {}); // Trigger a rebuild
+                            },
+                          ),
+                          const Text("Wand automatisch zeichnen?"), //Wand kann direkt mit länge * eingestellter höhe gezeichnet werden
+                          Checkbox(
+                            value: autoDrawWall,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                autoDrawWall = value!;
+                              });
+                            },
+                          ),
+                          if (currentRoom.walls.containsKey(clickedThing.uuid))
+                            ElevatedButton(
+                              onPressed: () {
+                                switchView(currentRoom.walls[clickedThing.uuid]!);
+                              },
+                              child: const Text('Wand anzeigen'),
+                            ),
+                        ])
+                      : Container(),
+                  if (clickedThing is DrawedWerkstoff)
+                    Text(
+                      clickedThing?.werkstoff != null ? "Selected Werkstoff: ${clickedThing.werkstoff.name}" : "Select a Werkstoff",
+                      style: const TextStyle(fontSize: 18),
                     ),
-                    const Text("Wand automatisch zeichnen?"), //Wand kann direkt mit länge * eingestellter höhe gezeichnet werden
-                    Checkbox(
-                      value: autoDrawWall,
-                      onChanged: (bool? value) {
+                  if (clickedThing is DrawedWerkstoff)
+                    //dropdownbutton with different werkstoffe; unklar: nur Werkstoffe vom selben Typ (wenn Fläche nur Flächen etc)
+                    DropdownButton<Werkstoff>(
+                      value: WerkstoffController()
+                          .werkstoffe
+                          .first, //cant be: cant have value: clickedThing?.werkstoff ?? WerkstoffController().werkstoffe.first, because clickedThing.werkstoff is not in the list of werkstoffe
+                      onChanged: (Werkstoff? newValue) {
                         setState(() {
-                          autoDrawWall = value!;
+                          if (clickedThing != null) {
+                            clickedThing.werkstoff = newValue;
+                          }
                         });
                       },
+                      items: WerkstoffController().werkstoffe.map<DropdownMenuItem<Werkstoff>>((Werkstoff werkstoff2) {
+                        print("Creating DropdownMenuItem for Werkstoff: $werkstoff2");
+                        return DropdownMenuItem<Werkstoff>(
+                          value: werkstoff2,
+                          child: Text(werkstoff2.name),
+                        );
+                      }).toList(),
                     ),
-                    if (currentRoom.walls.containsKey(clickedThing.uuid))
-                      ElevatedButton(
-                        onPressed: () {
-                          switchView(currentRoom.walls[clickedThing.uuid]!);
-                        },
-                        child: const Text('Wand anzeigen'),
-                      ),
-                  ])
-                : Container(),
-            if (clickedThing is DrawedWerkstoff)
-              Text(
-                clickedThing?.werkstoff != null ? "Selected Werkstoff: ${clickedThing.werkstoff.name}" : "Select a Werkstoff",
-                style: const TextStyle(fontSize: 18),
+                  if (clickedThing is Grundflaeche)
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ExpansionTile(
+                          title: Text("Einkerbungen"),
+                          shape: const Border(),
+                          children: [
+                            for (Einkerbung einkerbung in (clickedThing as Grundflaeche).einkerbungen)
+                              ListTile(
+                                title: Text(einkerbung.name),
+                                onTap: () {
+                                  clickedThing = einkerbung;
+                                  setRightColumnVisibility(true);
+                                },
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  if (clickedThing is Einkerbung)
+                    Column(
+                      children: [
+                        const Divider(),
+                        ExpansionTile(
+                          title: Text("Werkstoffe"),
+                          shape: const Border(),
+                          children: [
+                            for (Overlap overlap in (clickedThing as Einkerbung).overlaps)
+                              ListTile(
+                                enableFeedback: false,
+                                iconColor: overlap.werkstoff.color,
+                                title: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(overlap.werkstoff.name),
+                                    IconButton(
+                                      onPressed: () {
+                                        overlap.editMode = !overlap.editMode;
+                                        //TODO: repaint
+                                      },
+                                      icon: Icon(Icons.edit_square),
+                                    ),
+                                  ],
+                                ),
+                                onTap: () {
+                                  //clickedThing = einkerbung;
+                                  setRightColumnVisibility(true);
+                                },
+                                leading: Icon(Icons.circle),
+                              ),
+                          ],
+                        ),
+                        const Divider(),
+                      ],
+                    ),
+                ],
               ),
-            if (clickedThing is DrawedWerkstoff)
-              //dropdownbutton with different werkstoffe; unklar: nur Werkstoffe vom selben Typ (wenn Fläche nur Flächen etc)
-              DropdownButton<Werkstoff>(
-                value: WerkstoffController()
-                    .werkstoffe
-                    .first, //cant be: cant have value: clickedThing?.werkstoff ?? WerkstoffController().werkstoffe.first, because clickedThing.werkstoff is not in the list of werkstoffe
-                onChanged: (Werkstoff? newValue) {
-                  setState(() {
-                    if (clickedThing != null) {
-                      clickedThing.werkstoff = newValue;
-                    }
-                  });
-                },
-                items: WerkstoffController().werkstoffe.map<DropdownMenuItem<Werkstoff>>((Werkstoff werkstoff2) {
-                  print("Creating DropdownMenuItem for Werkstoff: $werkstoff2");
-                  return DropdownMenuItem<Werkstoff>(
-                    value: werkstoff2,
-                    child: Text(werkstoff2.name),
-                  );
-                }).toList(),
-              ),
-            EinheitSelector(
-              setGlobal: true,
             ),
           ],
         ),

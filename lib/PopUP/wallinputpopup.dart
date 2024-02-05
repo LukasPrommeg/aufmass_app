@@ -59,8 +59,7 @@ class WallInputPopup {
       builder: (context) {
         return AlertDialog(
           title: const Text('Wand hinzufügen'),
-          content: SizedBox(
-            height: 320,
+          content: SingleChildScrollView(
             child: Column(
               children: [
                 wallInput,

@@ -76,10 +76,10 @@ class SliderPainter extends CustomPainter {
     canvas.drawPoints(PointMode.points, [hitBox.calcPointFromAngle(val + centerAngle, radius)], paint);
   }
 
-  void updateValueWithPoint(Offset point) {
+  void updateValueWithPoint(Offset point, bool dragging) {
     repaint.value++;
 
-    if (isInsideBounds(point)) {
+    if (isInsideBounds(point) || dragging) {
       PathMetrics pathMetrics = path.computeMetrics();
 
       double minDistance = double.infinity;

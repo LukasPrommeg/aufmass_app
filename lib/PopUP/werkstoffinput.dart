@@ -51,8 +51,7 @@ class WerkstoffInputPopup {
         }
         selectedWerkstoff = dropdownList.first.value;
 
-        _content = SizedBox(
-          height: 125,
+        _content = SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -80,8 +79,7 @@ class WerkstoffInputPopup {
         if (startingPoint == null) {
           _content = const Text("Bitte wählen Sie einen Ausgangspunkt!");
         } else {
-          _content = SizedBox(
-            height: 250,
+          _content = SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

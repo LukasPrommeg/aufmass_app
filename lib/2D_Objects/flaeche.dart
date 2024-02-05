@@ -10,7 +10,6 @@ class Flaeche extends ClickAble {
   List<Wall> _walls = [];
   late Wall lastWall;
   Path areaPath = Path();
-  Path unscaledPath = Path();
   double area = 0;
 
   List<Wall> get walls {

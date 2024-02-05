@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   event: ^2.1.2
   meta: ^1.9.1
+  flutter_spinkit: ^5.2.0
+  collection: ^1.17.2
 
 
 dev_dependencies:
