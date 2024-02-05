@@ -266,7 +266,7 @@ class PlanPageContent extends State<PlanPage> {
   }
 
   void createPDF() {
-    PDFExport.generatePDF();
+    PDFExport().generatePDF(projektName);
   }
 
   @override
