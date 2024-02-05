@@ -10,9 +10,6 @@ class Einkerbung extends Flaeche {
   double tiefe;
   List<Overlap> overlaps = [];
 
-  double scale = 0;
-  Offset center = Offset.zero;
-
   Einkerbung({
     required this.name,
     required this.tiefe,
@@ -21,9 +18,6 @@ class Einkerbung extends Flaeche {
 
   void paintIntersects(Canvas canvas) {
     for (Overlap overlap in overlaps) {
-      overlap = Overlap(einkerbung: overlap.einkerbung, overlapObj: overlap.overlapObj, werkstoff: overlap.werkstoff);
-      overlap.editMode = true;
-      overlap.initScale(scale, center);
       overlap.paint(canvas);
     }
   }
@@ -34,8 +28,6 @@ class Einkerbung extends Flaeche {
       overlap.initScale(scale, center);
     }
     super.initScale(scale, center);
-    this.scale = scale;
-    this.center = center;
   }
 
   void findOverlap(List<DrawedWerkstoff> werkstoffe) {

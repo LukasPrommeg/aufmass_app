@@ -12,7 +12,7 @@ class Overlap {
   final ClickAble overlapObj;
   final Werkstoff werkstoff;
   final List<Corner> laibungIntersects = [];
-  final List<Wall> laibungOverlaps = []; //TODO: Duplikate!!
+  final List<Wall> laibungOverlaps = [];
   Flaeche? flaeche;
 
   bool editMode = false;
@@ -46,44 +46,39 @@ class Overlap {
       List<Wall> walls = List.from(laibungOverlaps);
       walls.addAll(werkstoffLines);
 
-      print("---------------");
-      for (Wall wall in walls) {
-        print(wall.start.point.toString() + "->" + wall.end.point.toString());
-      }
-      print("---------------");
-
-      print("SUM OF OVERLAPS BEFORE SORTING: " + walls.length.toString());
-
       walls = sortWallsAndRemoveDuplicates(walls);
 
-      print("SUM OF OVERLAPS AFTER SORTING: " + walls.length.toString());
       walls.removeLast();
-      //flaeche = Flaeche(walls: walls);
-      //flaeche!.selected = true;
-      //laibungIntersects.clear();
-      laibungOverlaps.addAll(werkstoffLines);
+      flaeche = Flaeche(walls: walls);
+      flaeche!.selected = true;
+      laibungIntersects.clear();
     } else if (werkstoff.typ == WerkstoffTyp.linie) {
       laibungOverlaps.addAll(werkstoffLines);
     }
+
+    List<Wall> temp = List.from(laibungOverlaps);
+    laibungOverlaps.clear();
+    laibungOverlaps.addAll(removeDuplicateWalls(temp));
+
     if (laibungIntersects.isNotEmpty || laibungOverlaps.isNotEmpty || flaeche != null) {
       _isOverlapping = true;
     }
   }
 
-  List<Wall> sortWallsAndRemoveDuplicates(List<Wall> walls) {
+  List<Wall> removeDuplicateWalls(List<Wall> walls) {
     List<Wall> avaivable = List.from(walls);
-    print("----");
     for (int i = 0; i < avaivable.length; i++) {
       List<Wall> matches = avaivable.where((element) => wallsAreEqual(avaivable[i], element)).toList();
       matches.removeLast();
-      print(matches.length.toString() + " Matches");
       for (Wall match in matches) {
         avaivable.remove(match);
       }
     }
-    print("----");
+    return avaivable;
+  }
 
-    print("SUM OF OVERLAPS AFTER REMOVING DUPLICATES: " + avaivable.length.toString());
+  List<Wall> sortWallsAndRemoveDuplicates(List<Wall> walls) {
+    List<Wall> avaivable = removeDuplicateWalls(walls);
 
     List<Wall> out = [avaivable.first];
     avaivable.removeAt(0);
@@ -155,7 +150,6 @@ class Overlap {
       }
     }
     einkerbung.walls.removeLast();
-    print("OVERLAPPING LAIBUNGEN:" + result.length.toString());
     return result;
   }
 
@@ -171,7 +165,6 @@ class Overlap {
         }
       }
     }
-    print("OVERLAPPING LINES INSIDE EINKERBUNG:" + result.length.toString());
     return result;
   }
 
@@ -189,7 +182,6 @@ class Overlap {
       }
     }
     einkerbung.walls.removeLast();
-    print("OVERLAPPING BORDERSIDES:" + result.length.toString());
     return result;
   }
 
@@ -219,25 +211,25 @@ class Overlap {
     }
   }
 
-  void paint(Canvas canvas, {bool debug = true}) {
+  void paint(Canvas canvas, {bool debug = false}) {
     if (editMode) {
       if (flaeche != null) {
         if (debug) {
           flaeche!.paint(canvas, Colors.red, 2.5);
         }
-        //flaeche!.paintHB(canvas);
+        flaeche!.paintHB(canvas);
       }
       for (Wall wall in laibungOverlaps) {
         if (debug) {
           wall.paint(canvas, Colors.yellow, 5);
         }
-        //wall.paintHB(canvas);
+        wall.paintHB(canvas);
       }
       for (Corner corner in laibungIntersects) {
         if (debug) {
           corner.paint(canvas, Colors.green, 10);
         }
-        //corner.paintHB(canvas);
+        corner.paintHB(canvas);
       }
     }
   }
