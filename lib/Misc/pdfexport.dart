@@ -1,23 +1,110 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class PDFExport {
-  static Future<void> generatePDF() async {
+  // Singleton instance
+  static final PDFExport _instance = PDFExport._internal();
+
+  factory PDFExport() {
+    return _instance;
+  }
+
+  PDFExport._internal();
+
+  // Test Variablen
+  List<tempRoom> rooms = [
+    new tempRoom(name: "Wohnzimmer", size: 20),
+    new tempRoom(name: "Küche", size: 10),
+    new tempRoom(name: "Bad", size: 5)
+  ];
+
+  Future<void> generatePDF(String projectName) async {
     final pdf = pw.Document();
 
-    // Add content to the PDF
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) => pw.Center(
-          child: pw.Text('Test!'),
-        ),
+    final ByteData image = await rootBundle.load('assets/eberl_logo.png');
+    Uint8List imageData = (image).buffer.asUint8List();
+
+    //Header
+    pw.Widget header = pw.Header(
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(projectName),
+            ],
+          ),
+          pw.Container(
+              width: 50.0,
+              height: 50.0,
+              child: pw.Image(pw.MemoryImage(imageData))
+          ),
+        ],
       ),
     );
 
-    // Save the PDF to a file
+    // Deckblatt
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) => pw.Center(
+          child: pw.Text(projectName),
+        ),
+      ),
+    );
+    //Auflistung von Räumen
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: pw.EdgeInsets.all(10),
+        build: (pw.Context context) => [
+          header,
+          pw.Text('Räume', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+          pw.ListView.builder(
+            itemCount: rooms.length,
+            itemBuilder: (pw.Context context, int index) {
+              var room = rooms[index];
+              return pw.Container(
+                alignment: pw.Alignment.centerLeft,
+                child: pw.Text(room.name),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+
+    // Seite pro Raum
+    for (var room in rooms) {
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          margin: pw.EdgeInsets.all(10),
+          build: (pw.Context context) => [
+            header,
+            pw.SizedBox(height: 20),
+            pw.Text('Room Name: ${room.name}'),
+            pw.SizedBox(height: 10),
+            pw.Text('Room Size: ${room.size}'),
+          ],
+        ),
+      );
+    }
     final file = File('example.pdf');
     await file.writeAsBytes(await pdf.save());
     print('PDF saved to ${file.path}');
   }
+}
+//testklasse
+class tempRoom {
+  String name;
+  int size;
+
+  tempRoom({
+    required this.name,
+    required this.size,
+  });
 }
