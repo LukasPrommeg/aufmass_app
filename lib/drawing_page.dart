@@ -530,7 +530,8 @@ class PlanPageContent extends State<PlanPage> {
             SingleChildScrollView(
               child: Column(
                 children: [
-                  if (clickedThing is Flaeche) Text("Fläche: ${EinheitController().convertToSelected(clickedThing.area)} ${EinheitController().selectedEinheit.name}"), //have to reload for it to work
+                  if (clickedThing is Flaeche)
+                    Text("Fläche: ${EinheitController().convertToSelectedSquared(clickedThing.area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}"), //have to reload for it to work
                   clickedThing is Wall && currentWallView == null
                       ? Column(children: [
                           Text(clickedThing.length.toString()),
@@ -566,9 +567,46 @@ class PlanPageContent extends State<PlanPage> {
                         ])
                       : Container(),
                   if (clickedThing is DrawedWerkstoff)
-                    Text(
-                      clickedThing?.werkstoff != null ? "Selected Werkstoff: ${clickedThing.werkstoff.name}" : "Select a Werkstoff",
-                      style: const TextStyle(fontSize: 18),
+                    Column(
+                      children: [
+                        Text(
+                          clickedThing?.werkstoff != null ? "Selected Werkstoff: ${clickedThing.werkstoff.name}" : "Select a Werkstoff",
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const Divider(),
+                        Text((clickedThing as DrawedWerkstoff).amountStr),
+                        const Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Beschriftung"),
+                            Switch(
+                              value: (clickedThing as DrawedWerkstoff).hasBeschriftung,
+                              onChanged: (value) {
+                                repaintDrawing();
+                                setState(() {
+                                  (clickedThing as DrawedWerkstoff).hasBeschriftung = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Längen"),
+                            Switch(
+                              value: (clickedThing as DrawedWerkstoff).hasLaengen,
+                              onChanged: (value) {
+                                repaintDrawing();
+                                setState(() {
+                                  (clickedThing as DrawedWerkstoff).hasLaengen = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   if (clickedThing is DrawedWerkstoff)
                     //dropdownbutton with different werkstoffe; unklar: nur Werkstoffe vom selben Typ (wenn Fläche nur Flächen etc)
@@ -615,8 +653,8 @@ class PlanPageContent extends State<PlanPage> {
                   if (clickedThing is Einkerbung)
                     Column(
                       children: [
-                        Text("Tiefe: ${EinheitController().convertToSelected((clickedThing as Einkerbung).tiefe)} ${EinheitController().selectedEinheit.name}"),
-                        Text("Fläche: ${EinheitController().convertToSelectedSquared((clickedThing as Einkerbung).area)} ${EinheitController().selectedEinheit.name}²"),
+                        Text("Tiefe: ${EinheitController().convertToSelected((clickedThing as Einkerbung).tiefe).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}"),
+                        Text("Fläche: ${EinheitController().convertToSelectedSquared((clickedThing as Einkerbung).area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²"),
                         const Divider(),
                         ExpansionTile(
                           title: Text("Werkstoffe"),
@@ -625,11 +663,11 @@ class PlanPageContent extends State<PlanPage> {
                             for (Overlap overlap in (clickedThing as Einkerbung).overlaps)
                               ListTile(
                                 enableFeedback: false,
-                                iconColor: overlap.werkstoff.color,
+                                iconColor: overlap.werkstoff.werkstoff.color,
                                 title: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(overlap.werkstoff.name),
+                                    Text(overlap.werkstoff.werkstoff.name),
                                     Switch(
                                       value: overlap.editMode,
                                       onChanged: (value) {

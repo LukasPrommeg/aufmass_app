@@ -32,7 +32,7 @@ class Einkerbung extends Flaeche {
 
   void findOverlap(List<DrawedWerkstoff> werkstoffe) {
     for (DrawedWerkstoff werkstoff in werkstoffe) {
-      Overlap overlap = Overlap(einkerbung: this, overlapObj: werkstoff.clickAble, werkstoff: werkstoff.werkstoff);
+      Overlap overlap = Overlap(einkerbung: this, werkstoff: werkstoff);
       if (overlap.isOverlapping) {
         overlaps.add(overlap);
       }

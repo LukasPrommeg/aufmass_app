@@ -30,6 +30,7 @@ class Flaeche extends ClickAble {
 
     calcSize();
     _calcLastWall();
+    _calcArea();
   }
 
   Wall? detectClickedWall(Offset position) {
@@ -102,6 +103,22 @@ class Flaeche extends ClickAble {
     lastWall.uuid = uuid;
   }
 
+  void _calcArea() {
+    walls.add(lastWall);
+
+    for (int i = 0; i < walls.length; i++) {
+      if (i == walls.length - 1) {
+        area += walls[i].end.point.dx * (walls[0].end.point).dy;
+        area -= walls[i].end.point.dy * (walls[0].end.point).dx;
+      } else {
+        area += walls[i].end.point.dx * (walls[i + 1].end.point).dy;
+        area -= walls[i].end.point.dy * (walls[i + 1].end.point).dx;
+      }
+    }
+    area = area.abs() / 2;
+    walls.removeLast();
+  }
+
   @override
   void initScale(double scale, Offset center) {
     posBeschriftung = Offset.zero;
@@ -116,15 +133,12 @@ class Flaeche extends ClickAble {
 
     _calcLastWall();
 
+    _calcArea();
+
     walls.add(lastWall);
 
     for (int i = 0; i < walls.length; i++) {
-      if (i == walls.length - 1) {
-        area += walls[i].end.point.dx * (walls[0].end.point).dy;
-        area -= walls[i].end.point.dy * (walls[0].end.point).dx;
-      } else {
-        area += walls[i].end.point.dx * (walls[i + 1].end.point).dy;
-        area -= walls[i].end.point.dy * (walls[i + 1].end.point).dx;
+      if (i != walls.length - 1) {
         areaPath.lineTo(walls[i].end.scaled!.dx, walls[i].end.scaled!.dy);
       }
       posBeschriftung += walls[i].start.point;
@@ -132,7 +146,6 @@ class Flaeche extends ClickAble {
     posBeschriftung = (Offset(posBeschriftung.dx / (walls.length), posBeschriftung.dy / (walls.length)) * scale) - center;
 
     walls.removeLast();
-    area = area.abs() / 2;
     areaPath.close();
 
     calcSize();

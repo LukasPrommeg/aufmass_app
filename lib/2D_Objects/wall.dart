@@ -9,8 +9,8 @@ const double hbSizeDefine = 10;
 
 class Wall extends ClickAble {
   String uuid = UniqueKey().toString();
-  final double angle;
-  final double length;
+  late double angle;
+  late double length;
   late Corner start;
   late Corner end;
   int id = 0;
@@ -53,6 +53,15 @@ class Wall extends ClickAble {
     if (length > 0) {
       calcUnscaledPath();
     }
+  }
+
+  Wall.fromPoints({required this.start, required this.end}) : super(hbSize: hbSizeDefine) {
+    //TODO: CALC ANGLE
+    angle = 0;
+
+    Offset diff = start.point - end.point;
+
+    length = diff.distance.abs().roundToDouble();
   }
 
   void calcUnscaledPath() {

@@ -167,7 +167,7 @@ class PaintController {
     addWall(null);
 
     _ausnahmePopup.startingPoint = grundFlaeche!.walls[5].end;
-    _ausnahmePopup.tiefe = 500;
+    _ausnahmePopup.tiefe = 100;
     _ausnahmePopup.name = "Podest";
     _drawingAusnahme = true;
     linePainter.isDrawing = true;
