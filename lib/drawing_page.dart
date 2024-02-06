@@ -269,6 +269,14 @@ class PlanPageContent extends State<PlanPage> {
     PDFExport().generatePDF(projektName);
   }
 
+  void repaintDrawing() {
+    if (currentWallView != null) {
+      currentWallView!.paintController.repaint();
+    } else {
+      currentRoom.paintController.repaint();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -607,6 +615,8 @@ class PlanPageContent extends State<PlanPage> {
                   if (clickedThing is Einkerbung)
                     Column(
                       children: [
+                        Text("Tiefe: ${EinheitController().convertToSelected((clickedThing as Einkerbung).tiefe)} ${EinheitController().selectedEinheit.name}"),
+                        Text("Fläche: ${EinheitController().convertToSelectedSquared((clickedThing as Einkerbung).area)} ${EinheitController().selectedEinheit.name}²"),
                         const Divider(),
                         ExpansionTile(
                           title: Text("Werkstoffe"),
@@ -620,12 +630,14 @@ class PlanPageContent extends State<PlanPage> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(overlap.werkstoff.name),
-                                    IconButton(
-                                      onPressed: () {
-                                        overlap.editMode = !overlap.editMode;
-                                        //TODO: repaint
+                                    Switch(
+                                      value: overlap.editMode,
+                                      onChanged: (value) {
+                                        repaintDrawing();
+                                        setState(() {
+                                          overlap.editMode = value;
+                                        });
                                       },
-                                      icon: Icon(Icons.edit_square),
                                     ),
                                   ],
                                 ),
@@ -633,7 +645,7 @@ class PlanPageContent extends State<PlanPage> {
                                   //clickedThing = einkerbung;
                                   setRightColumnVisibility(true);
                                 },
-                                leading: Icon(Icons.circle),
+                                leading: Icon(Icons.edit_square),
                               ),
                           ],
                         ),
