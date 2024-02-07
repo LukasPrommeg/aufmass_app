@@ -1,0 +1,590 @@
+@startuml
+set namespaceSeparator ::
+
+class "aufmass_app::main.dart::Controller" {
+}
+
+abstract class "aufmass_app::PlanPage::2D_Objects::clickable.dart::ClickAble" {
+  +double hbSize
+  +bool selected
+  +bool contains()
+  +void moveTo()
+  +void paintHB()
+  +void paint()
+  +void paintBeschriftung()
+  +void paintLaengen()
+  #void calcHitbox()
+  +void initScale()
+}
+
+class "aufmass_app::PlanPage::2D_Objects::corner.dart::Corner" {
+  #void calcHitbox()
+  +void initScale()
+  +void paint()
+  +void paintBeschriftung()
+  +void paintLaengen()
+}
+
+"aufmass_app::PlanPage::2D_Objects::clickable.dart::ClickAble" <|-- "aufmass_app::PlanPage::2D_Objects::corner.dart::Corner"
+
+class "aufmass_app::PlanPage::2D_Objects::einkerbung.dart::Einkerbung" {
+  +String name
+  +double tiefe
+  +List<Overlap> overlaps
+  +void paintIntersects()
+  +void initScale()
+  +void findOverlap()
+}
+
+"aufmass_app::PlanPage::2D_Objects::flaeche.dart::Flaeche" <|-- "aufmass_app::PlanPage::2D_Objects::einkerbung.dart::Einkerbung"
+
+class "aufmass_app::PlanPage::2D_Objects::flaeche.dart::Flaeche" {
+  -List<Wall> _walls
+  +Wall lastWall
+  +double area
+  +List<Wall> walls
+  +Wall? detectClickedWall()
+  +Corner? detectClickedCorner()
+  +ClickAble? detectClickedPart()
+  +void calcSize()
+  -void _calcLastWall()
+  -void _calcArea()
+  +void initScale()
+  +void calcHitbox()
+  +void paint()
+  +void paintWalls()
+  +void paintBeschriftung()
+  +void paintLaengen()
+  +void paintCornerHB()
+  +Corner? findCornerAtPoint()
+  +List<Wall> findWallsAroundCorner()
+}
+
+"aufmass_app::PlanPage::2D_Objects::flaeche.dart::Flaeche" o-- "aufmass_app::PlanPage::2D_Objects::wall.dart::Wall"
+"aufmass_app::PlanPage::2D_Objects::clickable.dart::ClickAble" <|-- "aufmass_app::PlanPage::2D_Objects::flaeche.dart::Flaeche"
+
+class "aufmass_app::PlanPage::2D_Objects::grundflaeche.dart::Grundflaeche" {
+  +String raumName
+  -List<Einkerbung> _einkerbungen
+  +bool hasBeschriftung
+  +bool hasLaengen
+  +double drawSize
+  +double textSize
+  +double laengenSize
+  +List<Einkerbung> einkerbungen
+  +void addEinkerbung()
+  +void removeEinkerbung()
+  +void initScale()
+  +void paintGrundflaeche()
+  +void paintOverlaps()
+  +bool containsFullWall()
+  +dynamic findMaxLength()
+}
+
+"aufmass_app::PlanPage::2D_Objects::flaeche.dart::Flaeche" <|-- "aufmass_app::PlanPage::2D_Objects::grundflaeche.dart::Grundflaeche"
+
+class "aufmass_app::PlanPage::2D_Objects::wall.dart::Wall" {
+  +double angle
+  +double length
+  +Corner start
+  +Corner end
+  +int id
+  +void calcUnscaledPath()
+  +ClickAble? findClickedPart()
+  +void calcHitbox()
+  +void initScale()
+  +void paint()
+  +void paintBeschriftung()
+  +void paintLaengen()
+}
+
+"aufmass_app::PlanPage::2D_Objects::wall.dart::Wall" o-- "aufmass_app::PlanPage::2D_Objects::corner.dart::Corner"
+"aufmass_app::PlanPage::2D_Objects::clickable.dart::ClickAble" <|-- "aufmass_app::PlanPage::2D_Objects::wall.dart::Wall"
+
+class "aufmass_app::PlanPage::Background::planbackground.dart::PlanBackground" {
+  +RasterPainter rasterPainter
+  +void updateScaleAndRect()
+  +void updateSize()
+}
+
+"aufmass_app::PlanPage::Background::planbackground.dart::PlanBackground" o-- "aufmass_app::PlanPage::Background::rasterpainter.dart::RasterPainter"
+
+class "aufmass_app::PlanPage::Background::rasterpainter.dart::RasterPainter" {
+  +ScalingData scalingData
+  +void paint()
+  +bool shouldRepaint()
+}
+
+"aufmass_app::PlanPage::Background::rasterpainter.dart::RasterPainter" o-- "aufmass_app::PlanPage::Paint::paintcontroller.dart::ScalingData"
+
+class "aufmass_app::PlanPage::CircleSlider::circleslider.dart::CircleSlider" {
+  +double radius
+  +double hitboxSize
+  +double centerAngle
+  +double maxAngle
+  +bool isFirstWall
+  +SliderPainter sliderPainter
+  +double value
+  -void _updateValWithPoint()
+}
+
+"aufmass_app::PlanPage::CircleSlider::circleslider.dart::CircleSlider" o-- "aufmass_app::PlanPage::CircleSlider::sliderpainter.dart::SliderPainter"
+
+class "aufmass_app::PlanPage::CircleSlider::sliderhitbox.dart::SliderHitBox" {
+  +double radius
+  +double hitBoxSize
+  +double innerRadius
+  +double outerRadius
+  +double range
+  +double centerAngle
+  +Offset calcPointFromAngle()
+  +bool isInsideBounds()
+}
+
+class "aufmass_app::PlanPage::CircleSlider::sliderpainter.dart::SliderPainter" {
+  +double radius
+  +double hitboxSize
+  +double centerAngle
+  +double maxAngle
+  +bool isFirstWall
+  +SliderHitBox hitBox
+  +double val
+  +void paint()
+  +void updateValueWithPoint()
+  +double calcOffset()
+  +bool isInsideBounds()
+  +void updateValueWithAngle()
+  +bool shouldRepaint()
+}
+
+"aufmass_app::PlanPage::CircleSlider::sliderpainter.dart::SliderPainter" o-- "aufmass_app::PlanPage::CircleSlider::sliderhitbox.dart::SliderHitBox"
+
+class "aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::EinheitEventArgs" {
+  +Einheit selected
+}
+
+"aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::EinheitEventArgs" o-- "aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::Einheit"
+
+class "aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::EinheitController" {
+  {static} -EinheitController _instance
+  -Set<Einheit> _einheitSelection
+  +Einheit selectedEinheit
+  +double convertToSelected()
+  +double convertToSelectedSquared()
+}
+
+"aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::EinheitController" o-- "aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::EinheitController"
+"aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::EinheitController" o-- "aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::Einheit"
+
+class "aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::Einheit" {
+  +int index
+  {static} +List<Einheit> values
+  {static} +Einheit mm
+  {static} +Einheit cm
+  {static} +Einheit m
+}
+
+"aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::Einheit" o-- "aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::Einheit"
+
+class "aufmass_app::PlanPage::Einheiten::einheitselector.dart::EinheitSelector" {
+  +EinheitController controller
+  +bool setGlobal
+  +Einheit selected
+  +State<EinheitSelector> createState()
+  +double convertToMM()
+}
+
+"aufmass_app::PlanPage::Einheiten::einheitselector.dart::EinheitSelector" o-- "aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::EinheitController"
+"aufmass_app::PlanPage::Einheiten::einheitselector.dart::EinheitSelector" o-- "aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::Einheit"
+
+class "aufmass_app::PlanPage::Einheiten::einheitselector.dart::_EinheitSelectorState" {
+  -List<ButtonSegment<Einheit>> _segments
+}
+
+class "aufmass_app::PlanPage::Misc::actionselector.dart::ActionSelector" {
+  +String selected
+  +State<ActionSelector> createState()
+}
+
+class "aufmass_app::PlanPage::Misc::actionselector.dart::_ActionSelectorState" {
+  +List<ButtonSegment<String>> segments
+}
+
+class "aufmass_app::PlanPage::Misc::alertinfo.dart::AlertInfo" {
+  {static} -AlertInfo _instance
+  +String text
+  +dynamic newAlert()
+  +State<AlertInfo> createState()
+}
+
+"aufmass_app::PlanPage::Misc::alertinfo.dart::AlertInfo" o-- "aufmass_app::PlanPage::Misc::alertinfo.dart::AlertInfo"
+
+class "aufmass_app::PlanPage::Misc::alertinfo.dart::_AlertInfoState" {
+  {static} +bool blocked
+  +void initState()
+  -dynamic _fadeOut()
+}
+
+class "aufmass_app::PlanPage::Misc::input_utils.dart::InputStateEventArgs" {
+  +InputState value
+}
+
+"aufmass_app::PlanPage::Misc::input_utils.dart::InputStateEventArgs" o-- "aufmass_app::PlanPage::Misc::input_utils.dart::InputState"
+
+class "aufmass_app::PlanPage::Misc::input_utils.dart::InputState" {
+  +int index
+  {static} +List<InputState> values
+  {static} +InputState selectWerkstoff
+  {static} +InputState inputEinkerbung
+  {static} +InputState selectStartingpoint
+  {static} +InputState draw
+}
+
+"aufmass_app::PlanPage::Misc::input_utils.dart::InputState" o-- "aufmass_app::PlanPage::Misc::input_utils.dart::InputState"
+
+class "aufmass_app::PlanPage::Misc::lengthinput.dart::LengthInput" {
+  +String hintText
+  +String maxText
+  +String btnText
+  +double value
+  +bool useMaxValue
+  +bool drawingGrundflaeche
+  +State<LengthInput> createState()
+}
+
+class "aufmass_app::PlanPage::Misc::lengthinput.dart::_LengthInputState" {
+  +List<bool> selection
+  +void initState()
+  +void submitValue()
+}
+
+class "aufmass_app::PlanPage::Misc::loadingblur.dart::LoadingBlur" {
+  {static} -LoadingBlur _instance
+  -bool _blur
+  +dynamic enableBlur()
+  +dynamic disableBlur()
+  +State<LoadingBlur> createState()
+}
+
+"aufmass_app::PlanPage::Misc::loadingblur.dart::LoadingBlur" o-- "aufmass_app::PlanPage::Misc::loadingblur.dart::LoadingBlur"
+
+class "aufmass_app::PlanPage::Misc::loadingblur.dart::_LoadingBlurState" {
+  +void initState()
+  -void _update()
+}
+
+class "aufmass_app::PlanPage::Misc::overlap.dart::Overlap" {
+  +Einkerbung einkerbung
+  +DrawedWerkstoff werkstoff
+  +List<Corner> laibungIntersects
+  +List<Wall> laibungOverlaps
+  +Flaeche? flaeche
+  +bool editMode
+  -bool _isOverlapping
+  +bool isOverlapping
+  +List<Wall> removeDuplicateWalls()
+  +List<Wall> sortWallsAndRemoveDuplicates()
+  +bool doEndsMatch()
+  +bool wallsAreEqual()
+  +List<Wall> calcLaibungIntersects()
+  +List<Wall> calcWerkstofflinesInsideEinkerbung()
+  +List<Wall> calcBorderInsideWerkstoffarea()
+  +Wall calcLengthOfOverlap()
+  +void modifyAmountOfWerkstoff()
+  +void paint()
+  +void initScale()
+  +bool tap()
+}
+
+"aufmass_app::PlanPage::Misc::overlap.dart::Overlap" o-- "aufmass_app::PlanPage::2D_Objects::einkerbung.dart::Einkerbung"
+"aufmass_app::PlanPage::Misc::overlap.dart::Overlap" o-- "aufmass_app::Werkstoffe::drawed_werkstoff.dart::DrawedWerkstoff"
+"aufmass_app::PlanPage::Misc::overlap.dart::Overlap" o-- "aufmass_app::PlanPage::2D_Objects::flaeche.dart::Flaeche"
+
+class "aufmass_app::PlanPage::Misc::pdfexport.dart::PDFExport" {
+  {static} -PDFExport _instance
+  +List<tempRoom> rooms
+  +dynamic generatePDF()
+}
+
+"aufmass_app::PlanPage::Misc::pdfexport.dart::PDFExport" o-- "aufmass_app::PlanPage::Misc::pdfexport.dart::PDFExport"
+
+class "aufmass_app::PlanPage::Misc::pdfexport.dart::tempRoom" {
+  +String name
+  +int size
+}
+
+class "aufmass_app::PlanPage::Paint::drawing_zone.dart::DrawingZone" {
+  +PaintController paintController
+  +PlanBackground planBackground
+  +void updateDrawingScale()
+  +void tapUP()
+  +void finishArea()
+}
+
+"aufmass_app::PlanPage::Paint::drawing_zone.dart::DrawingZone" o-- "aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController"
+"aufmass_app::PlanPage::Paint::drawing_zone.dart::DrawingZone" o-- "aufmass_app::PlanPage::Background::planbackground.dart::PlanBackground"
+
+class "aufmass_app::PlanPage::Paint::linepainter.dart::LinePainter" {
+  -List<Wall> _walls
+  -List<Corner> _ends
+  +bool isDrawing
+  +Corner? selectedCorner
+  +void drawWalls()
+  +bool finishArea()
+  +void reset()
+  +Corner? detectClickedCorner()
+  +void paint()
+  +bool shouldRepaint()
+}
+
+"aufmass_app::PlanPage::Paint::linepainter.dart::LinePainter" o-- "aufmass_app::PlanPage::2D_Objects::corner.dart::Corner"
+
+class "aufmass_app::PlanPage::Paint::paintcontroller.dart::ScalingData" {
+  +double scale
+}
+
+class "aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController" {
+  +PolyPainter polyPainter
+  +LinePainter linePainter
+  -EinheitController _einheitController
+  -WallInputPopup _wallPopup
+  -SelectActionPopup _selectActionPopup
+  -WerkstoffInputPopup _werkstoffPopup
+  -AusnahmePopup _ausnahmePopup
+  +ScalingData scalingData
+  +List<Wall> walls
+  -int _wallCount
+  -String _flaechenName
+  +Grundflaeche? grundFlaeche
+  -List<DrawedWerkstoff> _werkstoffe
+  -bool _drawingWerkstoff
+  -bool _drawingAusnahme
+  +int indexOfFirstLaengenWerkstoff
+  +String roomName
+  +bool isDrawing
+  +dynamic setupWohnzimmer()
+  +void repaint()
+  +void handleWerkstoffInputState()
+  +void handleEinkerbungInput()
+  +dynamic addWall()
+  +void tap()
+  +EventArgs? findClickedObject()
+  +void finishArea()
+  +void finishWerkstoff()
+  +void finishEinkerbung()
+  +void undo()
+  -void _updateScaleAndCenter()
+  -void _drawWithScale()
+  +dynamic displayDialog()
+}
+
+"aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController" o-- "aufmass_app::PlanPage::Paint::polypainter.dart::PolyPainter"
+"aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController" o-- "aufmass_app::PlanPage::Paint::linepainter.dart::LinePainter"
+"aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController" o-- "aufmass_app::PlanPage::Einheiten::einheitcontroller.dart::EinheitController"
+"aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController" o-- "aufmass_app::PlanPage::PopUP::wallinputpopup.dart::WallInputPopup"
+"aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController" o-- "aufmass_app::PlanPage::PopUP::selectactionpopup.dart::SelectActionPopup"
+"aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController" o-- "aufmass_app::PlanPage::PopUP::werkstoffinput.dart::WerkstoffInputPopup"
+"aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController" o-- "aufmass_app::PlanPage::PopUP::ausnahmepopup.dart::AusnahmePopup"
+"aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController" o-- "aufmass_app::PlanPage::Paint::paintcontroller.dart::ScalingData"
+"aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController" o-- "aufmass_app::PlanPage::2D_Objects::grundflaeche.dart::Grundflaeche"
+
+class "aufmass_app::PlanPage::Paint::plancanvas.dart::PlanCanvas" {
+  +PaintController paintController
+}
+
+"aufmass_app::PlanPage::Paint::plancanvas.dart::PlanCanvas" o-- "aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController"
+
+class "aufmass_app::PlanPage::Paint::polypainter.dart::PolyPainter" {
+  -List<DrawedWerkstoff> _werkstoffe
+  -Grundflaeche? _grundFlaeche
+  +DrawedWerkstoff? clickedWerkstoff
+  +bool selectCorner
+  +List<Corner> hiddenCorners
+  +Corner? selectedCorner
+  +void reset()
+  +void drawGrundflaeche()
+  +void drawWerkstoffe()
+  +void paint()
+  +bool shouldRepaint()
+}
+
+"aufmass_app::PlanPage::Paint::polypainter.dart::PolyPainter" o-- "aufmass_app::PlanPage::2D_Objects::grundflaeche.dart::Grundflaeche"
+"aufmass_app::PlanPage::Paint::polypainter.dart::PolyPainter" o-- "aufmass_app::Werkstoffe::drawed_werkstoff.dart::DrawedWerkstoff"
+"aufmass_app::PlanPage::Paint::polypainter.dart::PolyPainter" o-- "aufmass_app::PlanPage::2D_Objects::corner.dart::Corner"
+
+class "aufmass_app::PlanPage::planpage.dart::PlanPage" {
+  +State<PlanPage> createState()
+}
+
+class "aufmass_app::PlanPage::planpage.dart::PlanPageContent" {
+  +List<Room> rooms
+  +Room currentRoom
+  +RoomWall? currentWallView
+  +String projektName
+  +String selectedDropdownValue
+  +bool isRightColumnVisible
+  +bool autoDrawWall
+  +dynamic clickedThing
+  +void initState()
+  +void switchView()
+  +void switchRoom()
+  +void handleClickedEvent()
+  +void addNewRoom()
+  +void renameRoom()
+  +void renameProject()
+  +void toggleRightColumnVisibility()
+  +void setRightColumnVisibility()
+  +void switchFloating()
+  +void createPDF()
+  +void repaintDrawing()
+}
+
+"aufmass_app::PlanPage::planpage.dart::PlanPageContent" o-- "aufmass_app::PlanPage::Room_Parts::room.dart::Room"
+"aufmass_app::PlanPage::planpage.dart::PlanPageContent" o-- "aufmass_app::PlanPage::Room_Parts::room_wall.dart::RoomWall"
+
+class "aufmass_app::PlanPage::PopUP::ausnahmepopup.dart::AusnahmePopup" {
+  -InputState _state
+  -InputState _nextState
+  +Wall? infront
+  +Corner? startingPoint
+  +Wall? behind
+  +double tiefe
+  +String name
+  +EinheitSelector einheitSelector
+  -LengthInput _tiefenInput
+  +InputState state
+  -void _changeState()
+  -void _init()
+  +Corner? calcStartingpointWithOffset()
+  +void finish()
+  +dynamic display()
+  +void setState()
+}
+
+"aufmass_app::PlanPage::PopUP::ausnahmepopup.dart::AusnahmePopup" o-- "aufmass_app::PlanPage::Misc::input_utils.dart::InputState"
+"aufmass_app::PlanPage::PopUP::ausnahmepopup.dart::AusnahmePopup" o-- "aufmass_app::PlanPage::2D_Objects::wall.dart::Wall"
+"aufmass_app::PlanPage::PopUP::ausnahmepopup.dart::AusnahmePopup" o-- "aufmass_app::PlanPage::2D_Objects::corner.dart::Corner"
+"aufmass_app::PlanPage::PopUP::ausnahmepopup.dart::AusnahmePopup" o-- "aufmass_app::PlanPage::Einheiten::einheitselector.dart::EinheitSelector"
+"aufmass_app::PlanPage::PopUP::ausnahmepopup.dart::AusnahmePopup" o-- "aufmass_app::PlanPage::Misc::lengthinput.dart::LengthInput"
+
+class "aufmass_app::PlanPage::PopUP::previewpainter.dart::PreviewPainter" {
+  +Wall infront
+  +Wall behind
+  +void paint()
+  +bool shouldRepaint()
+}
+
+"aufmass_app::PlanPage::PopUP::previewpainter.dart::PreviewPainter" o-- "aufmass_app::PlanPage::2D_Objects::wall.dart::Wall"
+
+class "aufmass_app::PlanPage::PopUP::selectactionpopup.dart::SelectActionEventArgs" {
+}
+
+class "aufmass_app::PlanPage::PopUP::selectactionpopup.dart::SelectActionPopup" {
+  +String selected
+  +dynamic display()
+}
+
+class "aufmass_app::PlanPage::PopUP::wallinputpopup.dart::WallInputPopup" {
+  +double sliderRange
+  +EinheitSelector einheitSelector
+  +CircleSlider slider
+  +void init()
+  +Wall convertToMM()
+  +dynamic display()
+}
+
+"aufmass_app::PlanPage::PopUP::wallinputpopup.dart::WallInputPopup" o-- "aufmass_app::PlanPage::Einheiten::einheitselector.dart::EinheitSelector"
+"aufmass_app::PlanPage::PopUP::wallinputpopup.dart::WallInputPopup" o-- "aufmass_app::PlanPage::CircleSlider::circleslider.dart::CircleSlider"
+
+class "aufmass_app::PlanPage::PopUP::werkstoffinput.dart::WerkstoffInputPopup" {
+  -InputState _state
+  -InputState _nextState
+  +Wall? infront
+  +Corner? startingPoint
+  +Wall? behind
+  +Werkstoff? selectedWerkstoff
+  +int amountOfDrawedPoints
+  +EinheitSelector einheitSelector
+  +InputState state
+  -void _changeState()
+  -void _init()
+  +Corner? calcStartingpointWithOffset()
+  +bool werkStoffneedsmorePoints()
+  +void finish()
+  +dynamic display()
+}
+
+"aufmass_app::PlanPage::PopUP::werkstoffinput.dart::WerkstoffInputPopup" o-- "aufmass_app::PlanPage::Misc::input_utils.dart::InputState"
+"aufmass_app::PlanPage::PopUP::werkstoffinput.dart::WerkstoffInputPopup" o-- "aufmass_app::PlanPage::2D_Objects::wall.dart::Wall"
+"aufmass_app::PlanPage::PopUP::werkstoffinput.dart::WerkstoffInputPopup" o-- "aufmass_app::PlanPage::2D_Objects::corner.dart::Corner"
+"aufmass_app::PlanPage::PopUP::werkstoffinput.dart::WerkstoffInputPopup" o-- "aufmass_app::Werkstoffe::werkstoff.dart::Werkstoff"
+"aufmass_app::PlanPage::PopUP::werkstoffinput.dart::WerkstoffInputPopup" o-- "aufmass_app::PlanPage::Einheiten::einheitselector.dart::EinheitSelector"
+
+class "aufmass_app::PlanPage::Room_Parts::room.dart::Room" {
+  +String name
+  +DrawingZone drawingZone
+  +PaintController paintController
+  -Map<String, RoomWall> _walls
+  +Map<String, RoomWall> walls
+}
+
+"aufmass_app::PlanPage::Room_Parts::room.dart::Room" o-- "aufmass_app::PlanPage::paint::drawing_zone.dart::DrawingZone"
+"aufmass_app::PlanPage::Room_Parts::room.dart::Room" o-- "aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController"
+
+class "aufmass_app::PlanPage::Room_Parts::room_wall.dart::RoomWall" {
+  +Wall wall
+  +double height
+  +String name
+  +PaintController paintController
+  +DrawingZone drawingZone
+}
+
+"aufmass_app::PlanPage::Room_Parts::room_wall.dart::RoomWall" o-- "aufmass_app::PlanPage::2D_Objects::wall.dart::Wall"
+"aufmass_app::PlanPage::Room_Parts::room_wall.dart::RoomWall" o-- "aufmass_app::PlanPage::Paint::paintcontroller.dart::PaintController"
+"aufmass_app::PlanPage::Room_Parts::room_wall.dart::RoomWall" o-- "aufmass_app::PlanPage::Paint::drawing_zone.dart::DrawingZone"
+
+class "aufmass_app::Werkstoffe::drawed_werkstoff.dart::DrawedWerkstoff" {
+  +ClickAble clickAble
+  -Werkstoff _werkstoff
+  +double amount
+  +bool hasBeschriftung
+  +bool hasLaengen
+  +double drawSize
+  +double textSize
+  +double laengenSize
+  +String amountStr
+  +Werkstoff werkstoff
+  +void paint()
+  +bool contains()
+}
+
+"aufmass_app::Werkstoffe::drawed_werkstoff.dart::DrawedWerkstoff" o-- "aufmass_app::PlanPage::2D_Objects::clickable.dart::ClickAble"
+"aufmass_app::Werkstoffe::drawed_werkstoff.dart::DrawedWerkstoff" o-- "aufmass_app::Werkstoffe::werkstoff.dart::Werkstoff"
+
+class "aufmass_app::Werkstoffe::werkstoff.dart::Werkstoff" {
+  +String name
+  +WerkstoffTyp typ
+}
+
+"aufmass_app::Werkstoffe::werkstoff.dart::Werkstoff" o-- "aufmass_app::Werkstoffe::werkstoff.dart::WerkstoffTyp"
+
+class "aufmass_app::Werkstoffe::werkstoff.dart::WerkstoffTyp" {
+  +int index
+  {static} +List<WerkstoffTyp> values
+  {static} +WerkstoffTyp flaeche
+  {static} +WerkstoffTyp linie
+  {static} +WerkstoffTyp point
+  {static} +WerkstoffTyp stk
+}
+
+"aufmass_app::Werkstoffe::werkstoff.dart::WerkstoffTyp" o-- "aufmass_app::Werkstoffe::werkstoff.dart::WerkstoffTyp"
+
+class "aufmass_app::Werkstoffe::werkstoff_controller.dart::WerkstoffController" {
+  {static} -WerkstoffController _instance
+  +List<Werkstoff> werkstoffe
+}
+
+"aufmass_app::Werkstoffe::werkstoff_controller.dart::WerkstoffController" o-- "aufmass_app::Werkstoffe::werkstoff_controller.dart::WerkstoffController"
+
+
+@enduml

@@ -1,8 +1,8 @@
-import 'package:aufmass_app/2D_Objects/clickable.dart';
-import 'package:aufmass_app/2D_Objects/corner.dart';
-import 'package:aufmass_app/2D_Objects/flaeche.dart';
-import 'package:aufmass_app/2D_Objects/wall.dart';
-import 'package:aufmass_app/Einheiten/einheitcontroller.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/clickable.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/flaeche.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
+import 'package:aufmass_app/PlanPage/Einheiten/einheitcontroller.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +97,8 @@ class DrawedWerkstoff extends EventArgs {
         tempAmount = (clickAble as Wall).length;
         (clickAble as Wall).length = amount;
       }
-      clickAble.paintBeschriftung(canvas, werkstoff.color, werkstoff.name, textSize);
+      clickAble.paintBeschriftung(
+          canvas, werkstoff.color, werkstoff.name, textSize);
       if (clickAble is Flaeche) {
         (clickAble as Flaeche).area = tempAmount;
       } else if (clickAble is Wall) {

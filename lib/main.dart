@@ -1,5 +1,6 @@
+import 'package:dcdg/dcdg.dart';
 import 'package:flutter/material.dart';
-import 'package:aufmass_app/drawing_page.dart';
+import 'package:aufmass_app/PlanPage/planpage.dart';
 
 void main() {
   runApp(const Controller());

@@ -14,6 +14,7 @@ dependencies:
   meta: ^1.9.1
   flutter_spinkit: ^5.2.0
   collection: ^1.17.2
+  dcdg: ^4.1.0
 
 dev_dependencies:
   flutter_test:

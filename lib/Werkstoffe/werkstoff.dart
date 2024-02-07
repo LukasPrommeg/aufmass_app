@@ -7,6 +7,7 @@ enum WerkstoffTyp {
   stk,
 }
 
+//TODO: DB Speichern
 class Werkstoff {
   final String name;
   final Color color;
