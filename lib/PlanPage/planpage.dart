@@ -1,9 +1,7 @@
-import 'package:aufmass_app/PlanPage/2D_Objects/einkerbung.dart';
 import 'package:aufmass_app/PlanPage/Misc/alertinfo.dart';
 import 'package:aufmass_app/PlanPage/Misc/loadingblur.dart';
-import 'package:aufmass_app/PlanPage/Misc/overlap.dart';
+import 'package:aufmass_app/PlanPage/re_sidemenu.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
-import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/flaeche.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/grundflaeche.dart';
@@ -11,11 +9,8 @@ import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/PlanPage/Room_Parts/room.dart';
-import 'package:aufmass_app/PlanPage/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/PlanPage/Paint/paintcontroller.dart';
 import 'package:aufmass_app/PlanPage/Misc/pdfexport.dart';
-import 'package:aufmass_app/Werkstoffe/Werkstoff_controller.dart';
-import 'Einheiten/einheitcontroller.dart';
 import 'Room_Parts/room_wall.dart';
 
 class PlanPage extends StatefulWidget {
@@ -26,6 +21,7 @@ class PlanPage extends StatefulWidget {
 }
 
 class PlanPageContent extends State<PlanPage> {
+  RightPlanpageSidemenu? rightSidemenu;
   late Widget floatingButton;
   final List<Room> rooms = []; //TODO: LADEN AUS DB
   late Room currentRoom;
@@ -96,8 +92,7 @@ class PlanPageContent extends State<PlanPage> {
       currentWallView!.paintController.updateDrawingState.subscribe((args) {
         switchFloating();
       });
-      currentWallView!.paintController.clickedEvent
-          .subscribe((args) => handleClickedEvent(args));
+      currentWallView!.paintController.clickedEvent.subscribe((args) => handleClickedEvent(args));
       switchFloating();
     });
   }
@@ -111,15 +106,16 @@ class PlanPageContent extends State<PlanPage> {
       currentRoom.paintController.updateDrawingState.subscribe((args) {
         switchFloating();
       });
-      currentRoom.paintController.clickedEvent
-          .subscribe((args) => handleClickedEvent(args));
+      currentRoom.paintController.clickedEvent.subscribe((args) => handleClickedEvent(args));
       switchFloating();
     });
   }
 
   void handleClickedEvent(EventArgs? clicked) {
     if (clicked == null) {
-      setRightColumnVisibility(false);
+      setState(() {
+        rightSidemenu = null;
+      });
       clickedThing = null;
     } else {
       switch (clicked.runtimeType) {
@@ -130,23 +126,6 @@ class PlanPageContent extends State<PlanPage> {
         case Wall:
           print("Wall-${(clicked as Wall).uuid}");
           clickedThing = clicked;
-          if (currentWallView == null &&
-              !currentRoom.walls.containsKey(clickedThing.uuid)) {
-            //wenn derzeit nicht in wallview und wall zum erstenmal angelickt wird
-            RoomWall roomWall = RoomWall(
-                wall: clickedThing,
-                height: 2500,
-                name: "Wand",
-                paintController: PaintController());
-            currentRoom.walls[clickedThing.uuid] = roomWall;
-            AlertInfo().newAlert("generated Wall");
-          }
-          if (currentRoom.walls.containsKey(clickedThing.uuid)) {
-            setWallHeightController.text =
-                currentRoom.walls[clickedThing.uuid]!.height.toString();
-          } else {
-            AlertInfo().newAlert("text");
-          }
           break;
         case Flaeche:
           print("Flaeche");
@@ -157,15 +136,14 @@ class PlanPageContent extends State<PlanPage> {
           clickedThing = (clicked as Grundflaeche);
           break;
         case DrawedWerkstoff:
-          print(
-              "Werkstoff-${(clicked as DrawedWerkstoff).clickAble.runtimeType}");
+          print("Werkstoff-${(clicked as DrawedWerkstoff).clickAble.runtimeType}");
           clickedThing = clicked;
           break;
         default:
           print("Shouldn't be possible");
           break;
       }
-      setRightColumnVisibility(true);
+      enableRightSidemenu(clickedThing);
     }
   }
 
@@ -204,22 +182,50 @@ class PlanPageContent extends State<PlanPage> {
   }
 
   void toggleRightColumnVisibility() {
+    RightPlanpageSidemenu? side;
+
+    if (rightSidemenu == null) {
+      bool isWallView = false;
+
+      if (currentWallView != null) {
+        isWallView = true;
+      }
+
+      side = RightPlanpageSidemenu(
+        clickedThing: clickedThing,
+        isWallView: isWallView,
+        generatedWalls: currentRoom.walls.keys.toList(),
+        onRepaintNeeded: repaintDrawing,
+        onWallViewGenerated: (roomWall) => openWallViewCallback(roomWall),
+      );
+    }
     setState(() {
-      isRightColumnVisible = !isRightColumnVisible;
+      rightSidemenu = side;
     });
   }
 
-  void setRightColumnVisibility(bool visible) {
+  void enableRightSidemenu(dynamic clicked) {
+    bool isWallView = false;
+
+    if (currentWallView != null) {
+      isWallView = true;
+    }
+
     setState(() {
-      isRightColumnVisible = visible;
+      rightSidemenu = RightPlanpageSidemenu(
+        key: UniqueKey(),
+        clickedThing: clickedThing,
+        isWallView: isWallView,
+        generatedWalls: currentRoom.walls.keys.toList(),
+        onRepaintNeeded: repaintDrawing,
+        onWallViewGenerated: (roomWall) => openWallViewCallback(roomWall),
+      );
     });
   }
 
   void switchFloating() {
     setState(() {
-      if (currentRoom.paintController.isDrawing ||
-          (currentWallView != null &&
-              currentWallView!.paintController.isDrawing)) {
+      if (currentRoom.paintController.isDrawing || (currentWallView != null && currentWallView!.paintController.isDrawing)) {
         floatingButton = Column(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -320,9 +326,7 @@ class PlanPageContent extends State<PlanPage> {
             backgroundColor: Colors.purple,
             actions: [
               IconButton(
-                icon: Icon(isRightColumnVisible
-                    ? Icons.visibility_off
-                    : Icons.visibility),
+                icon: Icon(isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
                 onPressed: toggleRightColumnVisibility,
               ),
             ],
@@ -333,9 +337,7 @@ class PlanPageContent extends State<PlanPage> {
                 child: Stack(
                   alignment: AlignmentDirectional.topCenter,
                   children: [
-                    currentWallView != null
-                        ? currentWallView!.drawingZone
-                        : currentRoom.drawingZone,
+                    currentWallView != null ? currentWallView!.drawingZone : currentRoom.drawingZone,
                     SizedBox(
                       height: 100,
                       child: AlertInfo(),
@@ -343,7 +345,7 @@ class PlanPageContent extends State<PlanPage> {
                   ],
                 ),
               ),
-              _buildRightSideMenu(),
+              if (rightSidemenu != null) rightSidemenu!,
             ],
           ),
           floatingActionButton: floatingButton,
@@ -401,8 +403,7 @@ class PlanPageContent extends State<PlanPage> {
                         title: const Text('Projekt umbenennen'),
                         content: TextField(
                           controller: renameProjectController,
-                          decoration:
-                              const InputDecoration(labelText: 'Projektname'),
+                          decoration: const InputDecoration(labelText: 'Projektname'),
                         ),
                         actions: [
                           TextButton(
@@ -456,8 +457,7 @@ class PlanPageContent extends State<PlanPage> {
                         title: const Text('Raum hinzufügen'),
                         content: TextField(
                           controller: newRoomController,
-                          decoration: const InputDecoration(
-                              labelText: 'Name des Raumes'),
+                          decoration: const InputDecoration(labelText: 'Name des Raumes'),
                         ),
                         actions: [
                           TextButton(
@@ -491,8 +491,7 @@ class PlanPageContent extends State<PlanPage> {
                         title: const Text('Raum umbenennen'),
                         content: TextField(
                           controller: renameRoomController,
-                          decoration: const InputDecoration(
-                              labelText: 'Name des Raumes'),
+                          decoration: const InputDecoration(labelText: 'Name des Raumes'),
                         ),
                         actions: [
                           TextButton(
@@ -520,219 +519,15 @@ class PlanPageContent extends State<PlanPage> {
     );
   }
 
-  Widget _buildRightSideMenu() {
-    // Sidemenü rechts
-    return Visibility(
-      visible: isRightColumnVisible,
-      child: Container(
-        width: 250,
-        color: Colors.grey[200],
-        child: Column(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  clickedThing.runtimeType.toString(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Divider(),
-                EinheitSelector(
-                  setGlobal: true,
-                ),
-                const Divider(),
-              ],
-            ),
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  if (clickedThing is Flaeche)
-                    Text(
-                        "Fläche: ${EinheitController().convertToSelectedSquared(clickedThing.area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}"), //have to reload for it to work
-                  clickedThing is Wall && currentWallView == null
-                      ? Column(children: [
-                          Text(clickedThing.length.toString()),
-                          Text(currentRoom.walls[clickedThing.uuid]!.height
-                              .toString()),
-                          TextField(
-                            controller: setWallHeightController,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              labelText: 'Wandhöhe',
-                            ),
-                            onChanged: (value) {
-                              //TODO: change Wall height
-                              //currentRoom.walls[clickedThing.uuid]!.height = double.tryParse(value) ?? 2;
-                              setState(() {}); // Trigger a rebuild
-                            },
-                          ),
-                          const Text(
-                              "Wand automatisch zeichnen?"), //Wand kann direkt mit länge * eingestellter höhe gezeichnet werden
-                          Checkbox(
-                            value: autoDrawWall,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                autoDrawWall = value!;
-                              });
-                            },
-                          ),
-                          if (currentRoom.walls.containsKey(clickedThing.uuid))
-                            ElevatedButton(
-                              onPressed: () {
-                                switchView(
-                                    currentRoom.walls[clickedThing.uuid]!);
-                              },
-                              child: const Text('Wand anzeigen'),
-                            ),
-                        ])
-                      : Container(),
-                  if (clickedThing is DrawedWerkstoff)
-                    Column(
-                      children: [
-                        Text(
-                          clickedThing?.werkstoff != null
-                              ? "Selected Werkstoff: ${clickedThing.werkstoff.name}"
-                              : "Select a Werkstoff",
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                        const Divider(),
-                        Text((clickedThing as DrawedWerkstoff).amountStr),
-                        const Divider(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Beschriftung"),
-                            Switch(
-                              value: (clickedThing as DrawedWerkstoff)
-                                  .hasBeschriftung,
-                              onChanged: (value) {
-                                repaintDrawing();
-                                setState(() {
-                                  (clickedThing as DrawedWerkstoff)
-                                      .hasBeschriftung = value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Längen"),
-                            Switch(
-                              value:
-                                  (clickedThing as DrawedWerkstoff).hasLaengen,
-                              onChanged: (value) {
-                                repaintDrawing();
-                                setState(() {
-                                  (clickedThing as DrawedWerkstoff).hasLaengen =
-                                      value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  if (clickedThing is DrawedWerkstoff)
-                    //dropdownbutton with different werkstoffe; unklar: nur Werkstoffe vom selben Typ (wenn Fläche nur Flächen etc)
-                    DropdownButton<Werkstoff>(
-                      value: WerkstoffController()
-                          .werkstoffe
-                          .first, //cant be: cant have value: clickedThing?.werkstoff ?? WerkstoffController().werkstoffe.first, because clickedThing.werkstoff is not in the list of werkstoffe
-                      onChanged: (Werkstoff? newValue) {
-                        setState(() {
-                          if (clickedThing != null) {
-                            clickedThing.werkstoff = newValue;
-                          }
-                        });
-                      },
-                      items: WerkstoffController()
-                          .werkstoffe
-                          .map<DropdownMenuItem<Werkstoff>>(
-                              (Werkstoff werkstoff2) {
-                        print(
-                            "Creating DropdownMenuItem for Werkstoff: $werkstoff2");
-                        return DropdownMenuItem<Werkstoff>(
-                          value: werkstoff2,
-                          child: Text(werkstoff2.name),
-                        );
-                      }).toList(),
-                    ),
-                  if (clickedThing is Grundflaeche)
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ExpansionTile(
-                          title: Text("Einkerbungen"),
-                          shape: const Border(),
-                          children: [
-                            for (Einkerbung einkerbung
-                                in (clickedThing as Grundflaeche).einkerbungen)
-                              ListTile(
-                                title: Text(einkerbung.name),
-                                onTap: () {
-                                  clickedThing = einkerbung;
-                                  setRightColumnVisibility(true);
-                                },
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  if (clickedThing is Einkerbung)
-                    Column(
-                      children: [
-                        Text(
-                            "Tiefe: ${EinheitController().convertToSelected((clickedThing as Einkerbung).tiefe).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}"),
-                        Text(
-                            "Fläche: ${EinheitController().convertToSelectedSquared((clickedThing as Einkerbung).area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²"),
-                        const Divider(),
-                        ExpansionTile(
-                          title: Text("Werkstoffe"),
-                          shape: const Border(),
-                          children: [
-                            for (Overlap overlap
-                                in (clickedThing as Einkerbung).overlaps)
-                              ListTile(
-                                enableFeedback: false,
-                                iconColor: overlap.werkstoff.werkstoff.color,
-                                title: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(overlap.werkstoff.werkstoff.name),
-                                    Switch(
-                                      value: overlap.editMode,
-                                      onChanged: (value) {
-                                        repaintDrawing();
-                                        setState(() {
-                                          overlap.editMode = value;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                onTap: () {
-                                  //clickedThing = einkerbung;
-                                  setRightColumnVisibility(true);
-                                },
-                                leading: Icon(Icons.edit_square),
-                              ),
-                          ],
-                        ),
-                        const Divider(),
-                      ],
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void openWallViewCallback(RoomWall roomWall) {
+    if (currentRoom.walls.containsKey(roomWall.wall.uuid)) {
+      switchView(currentRoom.walls[roomWall.wall.uuid]!);
+    } else {
+      currentRoom.walls[roomWall.wall.uuid] = roomWall;
+      switchView(currentRoom.walls[roomWall.wall.uuid]!);
+    }
+    setState(() {
+      rightSidemenu = null;
+    });
   }
 }
