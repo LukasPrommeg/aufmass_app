@@ -1,9 +1,7 @@
 import 'package:aufmass_app/PlanPage/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/PlanPage/Misc/input_utils.dart';
-import 'package:aufmass_app/PlanPage/PopUP/previewpainter.dart';
 import 'package:aufmass_app/PlanPage/Misc/lengthinput.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,9 +12,7 @@ class AusnahmePopup {
   Widget _content = const Scaffold();
   final inputStateChangedEvent = Event<InputStateEventArgs>();
 
-  Wall? infront;
   Corner? startingPoint;
-  Wall? behind;
   double tiefe = double.infinity;
   String name = "Einkerbung";
 
@@ -111,9 +107,7 @@ class AusnahmePopup {
                         controller: _negY,
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                            hintText: "Abstand",
-                            prefixIcon: Icon(Icons.arrow_circle_up)),
+                        decoration: const InputDecoration(hintText: "Abstand", prefixIcon: Icon(Icons.arrow_circle_up)),
                       ),
                     ),
                   ],
@@ -130,18 +124,12 @@ class AusnahmePopup {
                         controller: _negX,
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                            hintText: "Abstand",
-                            prefixIcon: Icon(Icons.arrow_circle_left_outlined)),
+                        decoration: const InputDecoration(hintText: "Abstand", prefixIcon: Icon(Icons.arrow_circle_left_outlined)),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 125,
                       height: 50,
-                      child: CustomPaint(
-                        painter: PreviewPainter(const Offset(125, 50),
-                            infront: infront!, behind: behind!),
-                      ),
                     ),
                     SizedBox(
                       width: 125,
@@ -149,10 +137,7 @@ class AusnahmePopup {
                         controller: _posX,
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                            hintText: "Abstand",
-                            suffixIcon:
-                                Icon(Icons.arrow_circle_right_outlined)),
+                        decoration: const InputDecoration(hintText: "Abstand", suffixIcon: Icon(Icons.arrow_circle_right_outlined)),
                       ),
                     ),
                   ],
@@ -169,9 +154,7 @@ class AusnahmePopup {
                         controller: _posY,
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                            hintText: "Abstand",
-                            prefixIcon: Icon(Icons.arrow_circle_down)),
+                        decoration: const InputDecoration(hintText: "Abstand", prefixIcon: Icon(Icons.arrow_circle_down)),
                       ),
                     ),
                   ],
@@ -218,9 +201,7 @@ class AusnahmePopup {
 
   void finish() {
     _changeState(InputState.inputEinkerbung);
-    infront = null;
     startingPoint = null;
-    behind = null;
     _negX.text = "";
     _posX.text = "";
     _negY.text = "";

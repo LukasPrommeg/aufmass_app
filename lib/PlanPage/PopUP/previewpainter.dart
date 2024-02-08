@@ -1,4 +1,4 @@
-import 'dart:math';
+/*import 'dart:math';
 import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
 import 'package:flutter/material.dart';
 
@@ -71,4 +71,4 @@ class PreviewPainter extends CustomPainter {
   bool shouldRepaint(PreviewPainter oldDelegate) {
     return false;
   }
-}
+}*/
