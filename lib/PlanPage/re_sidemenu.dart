@@ -30,9 +30,7 @@ class RightPlanpageSidemenu extends StatefulWidget {
     required this.generatedWalls,
     required this.onRepaintNeeded,
     required this.onWallViewGenerated,
-  }) {
-    print("ASD");
-  }
+  });
 
   @override
   State<RightPlanpageSidemenu> createState() => _RightPlanpageSidemenuState();
@@ -49,8 +47,6 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
     super.initState();
 
     clickedThing = widget.clickedThing;
-
-    print("I FICK DEI MAM" + clickedThing.runtimeType.toString());
   }
 
   @override
