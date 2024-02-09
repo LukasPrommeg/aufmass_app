@@ -4,16 +4,14 @@ import 'package:aufmass_app/PlanPage/2D_Objects/clickable.dart';
 
 const double hbSizeDefine = 20;
 
-class Corner extends ClickAble {
+class Punkt extends ClickAble {
   final Offset point;
   Offset? scaled;
   late Path path;
 
-  Corner({required this.point, required this.scaled, required this.path})
-      : super(hbSize: hbSizeDefine);
+  Punkt({required this.point, required this.scaled, required this.path}) : super(hbSize: hbSizeDefine);
 
-  Corner.fromPoint({required this.point, double hitboxSize = hbSizeDefine})
-      : super(hbSize: hitboxSize) {
+  Punkt.fromPoint({required this.point, double hitboxSize = hbSizeDefine}) : super(hbSize: hitboxSize) {
     path = Path();
     Radius radius = Radius.circular(hbSize);
 
@@ -26,8 +24,7 @@ class Corner extends ClickAble {
     size = size.expandToInclude(Rect.fromPoints(point, point));
   }
 
-  Corner.clone(Corner corner)
-      : this(point: corner.point, scaled: corner.scaled, path: corner.path);
+  Punkt.clone(Punkt corner) : this(point: corner.point, scaled: corner.scaled, path: corner.path);
 
   @override
   @protected
@@ -72,10 +69,7 @@ class Corner extends ClickAble {
     );
     textPainter.layout();
 
-    textPainter.paint(
-        canvas,
-        Offset(scaled!.dx - (textPainter.width / 2),
-            scaled!.dy - textPainter.height));
+    textPainter.paint(canvas, Offset(scaled!.dx - (textPainter.width / 2), scaled!.dy - textPainter.height));
   }
 
   @override

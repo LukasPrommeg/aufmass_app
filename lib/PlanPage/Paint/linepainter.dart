@@ -1,18 +1,18 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/punkt.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/linie.dart';
 
 class LinePainter extends CustomPainter {
   LinePainter({required Listenable repaint}) : super(repaint: repaint);
-  List<Wall> _walls = [];
-  final List<Corner> _ends = [];
+  List<Linie> _walls = [];
+  final List<Punkt> _ends = [];
   bool isDrawing = false;
 
-  Corner? selectedCorner;
+  Punkt? selectedCorner;
 
-  void drawWalls(List<Wall> walls) {
+  void drawWalls(List<Linie> walls) {
     _walls.clear();
     _ends.clear();
     if (walls.isEmpty) {
@@ -43,8 +43,8 @@ class LinePainter extends CustomPainter {
     selectedCorner = null;
   }
 
-  Corner? detectClickedCorner(Offset location) {
-    for (Corner corner in _ends) {
+  Punkt? detectClickedCorner(Offset location) {
+    for (Punkt corner in _ends) {
       if (corner.contains(location)) {
         return corner;
       }
@@ -70,12 +70,12 @@ class LinePainter extends CustomPainter {
       return;
     }
 
-    for (Wall wall in _walls) {
+    for (Linie wall in _walls) {
       wall.paint(canvas, Colors.black, 5);
       wall.paintLaengen(canvas, Colors.black, 20);
     }
 
-    for (Corner corner in _ends) {
+    for (Punkt corner in _ends) {
       if (selectedCorner != null && selectedCorner!.point == corner.point) {
         corner.selected = true;
       }

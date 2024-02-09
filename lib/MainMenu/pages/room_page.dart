@@ -1,16 +1,13 @@
 import 'dart:async';
 
-import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:provider/provider.dart';
-import 'package:aufmass_app/Hive/HiveOperator.dart';
+import 'package:aufmass_app/Hive/hive_operator.dart';
 import 'package:aufmass_app/MainMenu/classes/Baustelle.dart';
 import 'package:aufmass_app/MainMenu/classes/Room.dart';
-import 'package:aufmass_app/MainMenu/cards/RoomCard.dart';
-import 'package:aufmass_app/MainMenu/dialogs/deleteDialog.dart';
-import 'package:aufmass_app/MainMenu/dialogs/textInputDialog.dart';
-import 'package:aufmass_app/MainMenu/pages/homePage.dart';
+import 'package:aufmass_app/MainMenu/cards/room_card.dart';
+import 'package:aufmass_app/MainMenu/dialogs/delete_dialog.dart';
+import 'package:aufmass_app/MainMenu/dialogs/textinput_dialog.dart';
+import 'package:aufmass_app/MainMenu/pages/home_page.dart';
 
 class Rooms extends StatefulWidget {
   const Rooms({super.key});
@@ -35,14 +32,13 @@ class _RoomsState extends State<Rooms> {
       future: HiveOperator().getListFromHive(HiveOperator().roomBoxString),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
           List<Room> temp = [];
-          for(Room r in snapshot.data!) {
-            if(r.baustellenKey == _baustellenKey)
-            {
+          for (Room r in snapshot.data!) {
+            if (r.baustellenKey == _baustellenKey) {
               temp.add(r);
             }
           }
@@ -52,7 +48,7 @@ class _RoomsState extends State<Rooms> {
             appBar: AppBar(
               title: Text(_baustellenName),
               leading: IconButton(
-                icon: Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back),
                 onPressed: () {
                   Navigator.pushReplacementNamed(context, "/home");
                 },
@@ -62,13 +58,13 @@ class _RoomsState extends State<Rooms> {
                   onPressed: () {
                     _showPutDialog(context);
                   },
-                  icon: Icon(Icons.create),
+                  icon: const Icon(Icons.create),
                 ),
                 IconButton(
                   onPressed: () {
                     _showDeleteDialog(context);
                   },
-                  icon: Icon(Icons.delete),
+                  icon: const Icon(Icons.delete),
                   color: Colors.blue,
                 ),
               ],
@@ -84,7 +80,7 @@ class _RoomsState extends State<Rooms> {
               }),
             ),
             floatingActionButton: FloatingActionButton(
-              child: Icon(Icons.add),
+              child: const Icon(Icons.add),
               onPressed: () {
                 _showAddDialog(context);
               },
@@ -99,7 +95,7 @@ class _RoomsState extends State<Rooms> {
     String? result = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
-        return TextInputDialog("Raum hinzufügen", "Bitte Raumnamen eingeben");
+        return const TextInputDialog("Raum hinzufügen", "Bitte Raumnamen eingeben");
       },
     );
 
@@ -111,9 +107,8 @@ class _RoomsState extends State<Rooms> {
       List<Room> boxRooms = await HiveOperator().getListFromHive(HiveOperator().roomBoxString);
 
       setState(() {
-        for(Room r in boxRooms) {
-          if(r.baustellenKey == _baustellenKey)
-          {
+        for (Room r in boxRooms) {
+          if (r.baustellenKey == _baustellenKey) {
             temp.add(r);
           }
         }
@@ -127,12 +122,12 @@ class _RoomsState extends State<Rooms> {
     String? result = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
-        return TextInputDialog("Baustellenname ändern", "Bitte Baustellenname eingeben");
+        return const TextInputDialog("Baustellenname ändern", "Bitte Baustellenname eingeben");
       },
     );
 
     if (result != null) {
-      Baustelle b = new Baustelle(result);
+      Baustelle b = Baustelle(result);
       await HiveOperator().changeInHive(b, _superBaustelle.key, "baustellenBox");
 
       //RELOAD [
@@ -142,9 +137,9 @@ class _RoomsState extends State<Rooms> {
       // Push a new route while removing the previous route
       navigator.pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (context) => Home(),
+          builder: (context) => const Home(),
         ),
-            (route) => false,
+        (route) => false,
       );
       // ]
     }
@@ -154,7 +149,7 @@ class _RoomsState extends State<Rooms> {
     bool? result = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return DeleteDialog("Baustelle löschen");
+        return const DeleteDialog(title: "Baustelle löschen");
       },
     );
 
@@ -171,9 +166,9 @@ class _RoomsState extends State<Rooms> {
       // Push a new route while removing the previous route
       navigator.pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (context) => Home(),
+          builder: (context) => const Home(),
         ),
-            (route) => false,
+        (route) => false,
       );
       // ]
     }

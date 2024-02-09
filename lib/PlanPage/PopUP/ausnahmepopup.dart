@@ -1,10 +1,9 @@
 import 'package:aufmass_app/PlanPage/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/PlanPage/Misc/input_utils.dart';
 import 'package:aufmass_app/PlanPage/Misc/lengthinput.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/punkt.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class AusnahmePopup {
   InputState _state = InputState.inputEinkerbung;
@@ -12,7 +11,7 @@ class AusnahmePopup {
   Widget _content = const Scaffold();
   final inputStateChangedEvent = Event<InputStateEventArgs>();
 
-  Corner? startingPoint;
+  Punkt? startingPoint;
   double tiefe = double.infinity;
   String name = "Einkerbung";
 
@@ -54,7 +53,7 @@ class AusnahmePopup {
               ),
               TextField(
                 controller: _nameInput,
-                decoration: InputDecoration(hintText: "Name der Einkerbung"),
+                decoration: const InputDecoration(hintText: "Name der Einkerbung"),
               ),
               const SizedBox(
                 height: 10,
@@ -172,7 +171,7 @@ class AusnahmePopup {
     }
   }
 
-  Corner? calcStartingpointWithOffset() {
+  Punkt? calcStartingpointWithOffset() {
     try {
       double x = 0;
       double y = 0;
@@ -191,7 +190,7 @@ class AusnahmePopup {
       x = einheitSelector.convertToMM(x);
       y = einheitSelector.convertToMM(y);
       Offset startingpointWithOffset = Offset(x, y) + startingPoint!.point;
-      startingPoint = Corner.fromPoint(point: startingpointWithOffset);
+      startingPoint = Punkt.fromPoint(point: startingpointWithOffset);
       return startingPoint!;
     } catch (e) {
       _changeState(InputState.selectStartingpoint);

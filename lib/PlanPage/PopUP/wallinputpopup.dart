@@ -1,15 +1,15 @@
 import 'package:aufmass_app/PlanPage/Misc/lengthinput.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/punkt.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/PlanPage/CircleSlider/circleslider.dart';
 import 'package:event/event.dart';
 import 'package:aufmass_app/PlanPage/Einheiten/einheitcontroller.dart';
 import 'package:aufmass_app/PlanPage/Einheiten/einheitselector.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/linie.dart';
 
 class WallInputPopup {
   final double sliderRange;
-  final addWallEvent = Event<Wall>();
+  final addWallEvent = Event<Linie>();
   EinheitSelector einheitSelector = EinheitSelector(
     setGlobal: false,
   );
@@ -34,19 +34,13 @@ class WallInputPopup {
     );
   }
 
-  Wall convertToMM(Wall wall) {
+  Linie convertToMM(Linie wall) {
     switch (einheitSelector.selected) {
       case Einheit.cm:
-        wall = Wall.fromStart(
-            angle: wall.angle,
-            length: wall.length * 10,
-            start: Corner.fromPoint(point: Offset.zero));
+        wall = Linie.fromStart(angle: wall.angle, length: wall.length * 10, start: Punkt.fromPoint(point: Offset.zero));
         break;
       case Einheit.m:
-        wall = Wall.fromStart(
-            angle: wall.angle,
-            length: wall.length * 1000,
-            start: Corner.fromPoint(point: Offset.zero));
+        wall = Linie.fromStart(angle: wall.angle, length: wall.length * 1000, start: Punkt.fromPoint(point: Offset.zero));
         break;
       default:
         break;
@@ -77,9 +71,7 @@ class WallInputPopup {
                   child: Stack(alignment: Alignment.bottomLeft, children: [
                     Text(
                       'Winkel: ',
-                      style: TextStyle(
-                          color: Color.fromARGB(255, 90, 90, 90),
-                          decoration: TextDecoration.underline),
+                      style: TextStyle(color: Color.fromARGB(255, 90, 90, 90), decoration: TextDecoration.underline),
                       textAlign: TextAlign.center,
                     ),
                   ]),
@@ -122,10 +114,7 @@ class WallInputPopup {
                 }
                 double angle = slider.centerAngle;
                 angle += -slider.value;
-                Wall wall = convertToMM(Wall.fromStart(
-                    angle: angle,
-                    length: length,
-                    start: Corner.fromPoint(point: Offset.zero)));
+                Linie wall = convertToMM(Linie.fromStart(angle: angle, length: length, start: Punkt.fromPoint(point: Offset.zero)));
                 addWallEvent.broadcast(wall);
                 Navigator.pop(context);
               },

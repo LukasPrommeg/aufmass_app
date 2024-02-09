@@ -10,23 +10,25 @@ import 'package:aufmass_app/PlanPage/PopUP/selectactionpopup.dart';
 import 'package:aufmass_app/PlanPage/PopUP/werkstoffinput.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/punkt.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/flaeche.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/grundflaeche.dart';
+import 'package:collection/collection.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/PlanPage/Einheiten/einheitcontroller.dart';
 import 'package:aufmass_app/PlanPage/PopUP/wallinputpopup.dart';
 import 'package:aufmass_app/PlanPage/Paint/linepainter.dart';
 import 'package:aufmass_app/PlanPage/Paint/polypainter.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/linie.dart';
 
 class ScalingData extends EventArgs {
   final double scale;
   final Rect rect;
   final Offset center;
+  final Size? canvasSize;
 
-  ScalingData({required this.scale, required this.rect, required this.center});
+  ScalingData({required this.scale, required this.rect, required this.center, required this.canvasSize});
 }
 
 class PaintController {
@@ -46,16 +48,13 @@ class PaintController {
   final AusnahmePopup _ausnahmePopup = AusnahmePopup();
 
   //Member
-  ScalingData scalingData = ScalingData(scale: 1, rect: Rect.zero, center: Offset.zero);
-  late Size? _canvasSize;
-  List<Wall> walls = [];
+  ScalingData scalingData = ScalingData(scale: 1, rect: Rect.zero, center: Offset.zero, canvasSize: null);
+  List<Linie> walls = [];
   int _wallCount = 0;
   String _flaechenName = "";
-  Grundflaeche? grundFlaeche; //TODO: DB Speichern
-  final List<DrawedWerkstoff> _werkstoffe = []; //TODO: DB Speichern
+  Grundflaeche? grundFlaeche;
   bool _drawingWerkstoff = false;
   bool _drawingAusnahme = false;
-  int indexOfFirstLaengenWerkstoff = 0;
 
   //Events
   final updateScaleRectEvent = Event<ScalingData>();
@@ -80,68 +79,56 @@ class PaintController {
     _ausnahmePopup.inputStateChangedEvent.subscribe((args) => handleEinkerbungInput(args));
   }
 
-  set roomName(String string) {
+  set flaechenName(String string) {
     _flaechenName = string;
     if (grundFlaeche != null) {
       grundFlaeche!.raumName = string;
     }
     if (string.toLowerCase() == "testpoly") {
-      _werkstoffe.clear();
-      walls.clear();
-      _wallCount = 0;
-      linePainter.reset();
-      polyPainter.reset();
-      _drawingWerkstoff = false;
-      addWall(Wall.fromStart(angle: 0, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      grundFlaeche = null;
+      reset();
+      addWall(Linie.fromStart(angle: 0, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 30, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 30, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 60, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 60, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 90, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 90, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 120, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 120, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 150, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 150, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 180, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 180, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 210, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 210, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 240, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 240, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 270, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 270, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 300, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 300, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
       addWall(null);
     } else if (string.toLowerCase() == "testquad") {
-      _werkstoffe.clear();
-      walls.clear();
-      _wallCount = 0;
-      linePainter.reset();
-      polyPainter.reset();
-      _drawingWerkstoff = false;
-      addWall(Wall.fromStart(angle: 0, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      grundFlaeche = null;
+      reset();
+      addWall(Linie.fromStart(angle: 0, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 90, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 90, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
-      addWall(Wall.fromStart(angle: 180, length: 1000, start: Corner.fromPoint(point: Offset.zero)));
+      addWall(Linie.fromStart(angle: 180, length: 1000, start: Punkt.fromPoint(point: Offset.zero)));
       linePainter.selectedCorner = walls.last.end;
       addWall(null);
     } else if (string.toLowerCase() == "testwohnzimmer") {
-      _werkstoffe.clear();
-      walls.clear();
-      _wallCount = 0;
-      linePainter.reset();
-      polyPainter.reset();
-      _drawingWerkstoff = false;
+      grundFlaeche = null;
+      reset();
       setupWohnzimmer();
     }
   }
 
   set canvasSize(Size size) {
-    _canvasSize = size;
+    scalingData = ScalingData(scale: scalingData.scale, rect: scalingData.rect, center: scalingData.center, canvasSize: size);
     _updateScaleAndCenter();
   }
 
@@ -150,19 +137,19 @@ class PaintController {
   }
 
   Future<void> setupWohnzimmer() async {
-    addWall(Wall.fromStart(angle: 0, length: 6000, start: Corner.fromPoint(point: Offset.zero)));
+    addWall(Linie.fromStart(angle: 0, length: 6000, start: Punkt.fromPoint(point: Offset.zero)));
     linePainter.selectedCorner = walls.last.end;
-    addWall(Wall.fromStart(angle: 90, length: 4260, start: Corner.fromPoint(point: Offset.zero)));
+    addWall(Linie.fromStart(angle: 90, length: 4260, start: Punkt.fromPoint(point: Offset.zero)));
     linePainter.selectedCorner = walls.last.end;
-    addWall(Wall.fromStart(angle: 180, length: 2280, start: Corner.fromPoint(point: Offset.zero)));
+    addWall(Linie.fromStart(angle: 180, length: 2280, start: Punkt.fromPoint(point: Offset.zero)));
     linePainter.selectedCorner = walls.last.end;
-    addWall(Wall.fromStart(angle: 90, length: 6960, start: Corner.fromPoint(point: Offset.zero)));
+    addWall(Linie.fromStart(angle: 90, length: 6960, start: Punkt.fromPoint(point: Offset.zero)));
     linePainter.selectedCorner = walls.last.end;
-    addWall(Wall.fromStart(angle: 180, length: 1050, start: Corner.fromPoint(point: Offset.zero)));
+    addWall(Linie.fromStart(angle: 180, length: 1050, start: Punkt.fromPoint(point: Offset.zero)));
     linePainter.selectedCorner = walls.last.end;
-    addWall(Wall.fromStart(angle: 270, length: 4330, start: Corner.fromPoint(point: Offset.zero)));
+    addWall(Linie.fromStart(angle: 270, length: 4330, start: Punkt.fromPoint(point: Offset.zero)));
     linePainter.selectedCorner = walls.last.end;
-    addWall(Wall.fromStart(angle: 180, length: 2670, start: Corner.fromPoint(point: Offset.zero)));
+    addWall(Linie.fromStart(angle: 180, length: 2670, start: Punkt.fromPoint(point: Offset.zero)));
     linePainter.selectedCorner = walls.last.end;
     addWall(null);
 
@@ -173,7 +160,7 @@ class PaintController {
     linePainter.isDrawing = true;
     _ausnahmePopup.setState(InputState.draw);
     linePainter.selectedCorner = grundFlaeche!.walls[5].end;
-    await addWall(Wall(angle: 270, length: 0, start: _ausnahmePopup.startingPoint!, end: Corner.fromPoint(point: Offset.zero)));
+    await addWall(Linie(angle: 270, length: 0, start: _ausnahmePopup.startingPoint!, end: Punkt.fromPoint(point: Offset.zero)));
     linePainter.selectedCorner = walls.last.end;
     tap(grundFlaeche!.walls.first.start.scaled!);
     linePainter.selectedCorner = walls.last.end;
@@ -210,7 +197,7 @@ class PaintController {
               _drawingWerkstoff = true;
               polyPainter.selectCorner = true;
               _selectActionPopup.selected = "";
-              Corner? startPoly = grundFlaeche!.findCornerAtPoint(_werkstoffPopup.startingPoint!.point);
+              Punkt? startPoly = grundFlaeche!.findCornerAtPoint(_werkstoffPopup.startingPoint!.point);
               if (startPoly != null) {
                 polyPainter.hiddenCorners.add(startPoly);
               }
@@ -252,7 +239,7 @@ class PaintController {
             _drawingAusnahme = true;
             polyPainter.selectCorner = true;
             _selectActionPopup.selected = "";
-            Corner? startPoly = grundFlaeche!.findCornerAtPoint(_ausnahmePopup.startingPoint!.point);
+            Punkt? startPoly = grundFlaeche!.findCornerAtPoint(_ausnahmePopup.startingPoint!.point);
             if (startPoly != null) {
               polyPainter.hiddenCorners.add(startPoly);
             }
@@ -270,28 +257,28 @@ class PaintController {
     }
   }
 
-  Future<void> addWall(Wall? wall) async {
+  Future<void> addWall(Linie? wall) async {
     if (wall != null) {
       if (wall.length == 0) {
         if (_drawingAusnahme) {
-          Corner startPoint = _ausnahmePopup.startingPoint!;
+          Punkt startPoint = _ausnahmePopup.startingPoint!;
           if (walls.isNotEmpty && linePainter.selectedCorner != null) {
             startPoint = linePainter.selectedCorner!;
           }
           double length = await grundFlaeche!.findMaxLength(startPoint, wall.angle, forEinkerbung: true);
-          wall = Wall.fromStart(angle: wall.angle, length: length, start: Corner.fromPoint(point: Offset.zero));
+          wall = Linie.fromStart(angle: wall.angle, length: length, start: Punkt.fromPoint(point: Offset.zero));
         } else if (_drawingWerkstoff) {
-          Corner startPoint = _werkstoffPopup.startingPoint!;
+          Punkt startPoint = _werkstoffPopup.startingPoint!;
           if (walls.isNotEmpty && linePainter.selectedCorner != null) {
             startPoint = linePainter.selectedCorner!;
           }
           double length = await grundFlaeche!.findMaxLength(startPoint, wall.angle);
-          wall = Wall.fromStart(angle: wall.angle, length: length, start: Corner.fromPoint(point: Offset.zero));
+          wall = Linie.fromStart(angle: wall.angle, length: length, start: Punkt.fromPoint(point: Offset.zero));
         }
       }
       if (walls.isEmpty) {
         if (_drawingWerkstoff || _drawingAusnahme) {
-          wall = Wall.fromStart(angle: wall.angle, length: wall.length, start: linePainter.selectedCorner!);
+          wall = Linie.fromStart(angle: wall.angle, length: wall.length, start: linePainter.selectedCorner!);
           if (!grundFlaeche!.containsFullWall(wall, forEinkerbung: _drawingAusnahme)) {
             polyPainter.hiddenCorners
                 .removeWhere((element) => element.point.dx.roundToDouble() == wall!.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
@@ -311,9 +298,9 @@ class PaintController {
         } else {
           if (linePainter.selectedCorner! == walls.first.start) {
             if (wall.angle <= 180) {
-              wall = Wall.fromEnd(angle: wall.angle + 180, length: wall.length, end: walls.first.start);
+              wall = Linie.fromEnd(angle: wall.angle + 180, length: wall.length, end: walls.first.start);
             } else {
-              wall = Wall.fromEnd(angle: wall.angle - 180, length: wall.length, end: walls.first.start);
+              wall = Linie.fromEnd(angle: wall.angle - 180, length: wall.length, end: walls.first.start);
             }
             if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall, forEinkerbung: _drawingAusnahme)) {
               polyPainter.hiddenCorners
@@ -325,7 +312,7 @@ class PaintController {
             wall.id = _wallCount;
             walls.insert(0, wall);
           } else if (linePainter.selectedCorner! == walls.last.end) {
-            wall = Wall.fromStart(angle: wall.angle, length: wall.length, start: walls.last.end);
+            wall = Linie.fromStart(angle: wall.angle, length: wall.length, start: walls.last.end);
             if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall, forEinkerbung: _drawingAusnahme)) {
               polyPainter.hiddenCorners
                   .removeWhere((element) => element.point.dx.roundToDouble() == wall!.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
@@ -364,12 +351,12 @@ class PaintController {
         if (linePainter.selectedCorner == null && walls.isNotEmpty) {
           linePainter.selectedCorner = linePainter.detectClickedCorner(position);
         } else {
-          Corner? wallEnd = grundFlaeche?.detectClickedCorner(position);
+          Punkt? wallEnd = grundFlaeche?.detectClickedCorner(position);
           if (wallEnd != null && !polyPainter.hiddenCorners.contains(wallEnd)) {
             Offset diff = wallEnd.point - linePainter.selectedCorner!.point;
             double angle = (diff.direction * (180 / pi)) + 90;
             double length = sqrt(pow(diff.dx, 2) + pow(diff.dy, 2));
-            Wall wall = Wall(angle: angle, length: length, start: linePainter.selectedCorner!, end: wallEnd);
+            Linie wall = Linie(angle: angle, length: length, start: linePainter.selectedCorner!, end: wallEnd);
             polyPainter.hiddenCorners.add(wallEnd);
             addWall(wall);
           } else if (walls.isNotEmpty) {
@@ -399,7 +386,6 @@ class PaintController {
           for (Overlap overlap in einkerbung.overlaps) {
             if (overlap.editMode) {
               if (overlap.tap(position)) {
-                _updateScaleAndCenter();
                 repaint();
                 return;
               }
@@ -417,18 +403,17 @@ class PaintController {
       clickedEvent.broadcast(result);
     }
     _updateScaleAndCenter();
-    repaint();
   }
 
   EventArgs? findClickedObject(Offset position) {
     EventArgs? result;
-    for (DrawedWerkstoff werkstoff in _werkstoffe.reversed) {
-      if (werkstoff.contains(position)) {
-        return werkstoff;
-      }
-    }
 
     if (grundFlaeche != null) {
+      for (DrawedWerkstoff werkstoff in grundFlaeche!.werkstoffe.reversed) {
+        if (werkstoff.contains(position)) {
+          return werkstoff;
+        }
+      }
       result = grundFlaeche!.detectClickedWall(position);
       if (result != null) {
         return result;
@@ -445,9 +430,7 @@ class PaintController {
   void finishArea() {
     if (linePainter.finishArea()) {
       grundFlaeche = Grundflaeche(raumName: _flaechenName, walls: List.from(walls));
-      _wallCount = 0;
-      walls.clear();
-      updateDrawingState.broadcast();
+      reset();
     }
   }
 
@@ -462,65 +445,36 @@ class PaintController {
         clickAble = walls.first;
         break;
       case WerkstoffTyp.point:
-        clickAble = Corner.fromPoint(point: _werkstoffPopup.startingPoint!.point, hitboxSize: 10);
+        clickAble = Punkt.fromPoint(point: _werkstoffPopup.startingPoint!.point, hitboxSize: 10);
         clickAble.initScale(scalingData.scale, scalingData.center);
         break;
       default:
         return;
     }
     DrawedWerkstoff drawedWerkstoff = DrawedWerkstoff(clickAble: clickAble, werkstoff: werkstoff, hasBeschriftung: true);
-    switch (werkstoff.typ) {
-      //TODO: funktiert nicht?
-      case WerkstoffTyp.flaeche:
-        if (indexOfFirstLaengenWerkstoff == 0) {
-          _werkstoffe.insert(indexOfFirstLaengenWerkstoff, drawedWerkstoff);
-        } else {
-          _werkstoffe.insert(indexOfFirstLaengenWerkstoff - 1, drawedWerkstoff);
-        }
-        indexOfFirstLaengenWerkstoff++;
-        break;
-      case WerkstoffTyp.linie:
-        _werkstoffe.insert(indexOfFirstLaengenWerkstoff, drawedWerkstoff);
-        indexOfFirstLaengenWerkstoff++;
-        break;
-      case WerkstoffTyp.point:
-        if (grundFlaeche!.unscaledPath.contains((drawedWerkstoff.clickAble as Corner).point)) {
-          _werkstoffe.add(drawedWerkstoff);
-        } else {
-          AlertInfo().newAlert("Außerhalb des Raums");
-        }
-        break;
-      default:
-        return;
+
+    if (werkstoff.typ == WerkstoffTyp.point && !grundFlaeche!.unscaledPath.contains((drawedWerkstoff.clickAble as Punkt).point)) {
+      AlertInfo().newAlert("Außerhalb des Raums");
+      reset();
+      return;
     }
+    grundFlaeche!.werkstoffe.add(drawedWerkstoff);
+
+    grundFlaeche!.werkstoffe.sortBy<num>((element) => element.werkstoff.typ.index);
 
     for (Einkerbung einkerbung in grundFlaeche!.einkerbungen) {
       einkerbung.findOverlap([drawedWerkstoff]);
     }
-
-    _drawingWerkstoff = false;
-    _werkstoffPopup.finish();
-    polyPainter.selectCorner = false;
-    polyPainter.hiddenCorners.clear();
-    walls.clear();
-    _wallCount = 0;
-    linePainter.reset();
-    updateDrawingState.broadcast();
+    reset();
   }
 
   void finishEinkerbung() {
     Einkerbung einkerbung = Einkerbung(tiefe: _ausnahmePopup.tiefe, walls: List.from(walls), name: _ausnahmePopup.name);
     einkerbung.initScale(scalingData.scale, scalingData.center);
-    einkerbung.findOverlap(_werkstoffe);
+    einkerbung.findOverlap(grundFlaeche!.werkstoffe);
     grundFlaeche?.addEinkerbung(einkerbung);
-    _drawingAusnahme = false;
-    _ausnahmePopup.finish();
-    polyPainter.selectCorner = false;
-    polyPainter.hiddenCorners.clear();
-    walls.clear();
-    _wallCount = 0;
-    linePainter.reset();
-    updateDrawingState.broadcast();
+
+    reset();
   }
 
   void undo() {
@@ -540,50 +494,39 @@ class PaintController {
       });
       _wallCount--;
     } else {
-      walls.clear();
-      _wallCount = 0;
-      linePainter.reset();
-      if (_drawingWerkstoff) {
-        polyPainter.hiddenCorners.clear();
-        _drawingWerkstoff = false;
-        _werkstoffPopup.finish();
-      } else if (_drawingAusnahme) {
-        polyPainter.hiddenCorners.clear();
-        _drawingAusnahme = false;
-        _ausnahmePopup.finish();
-      }
-      updateDrawingState.broadcast();
+      reset();
     }
     _updateScaleAndCenter();
-    repaint();
   }
 
   void _updateScaleAndCenter() {
-    if (_canvasSize != null) {
+    if (scalingData.canvasSize != null) {
       Rect newRect = Rect.zero;
       if (walls.isNotEmpty) {
         newRect = Rect.fromPoints(walls.first.start.point, walls.first.start.point);
       }
-      for (Wall wall in walls) {
+      for (Linie wall in walls) {
         newRect = newRect.expandToInclude(Rect.fromPoints(wall.end.point, wall.end.point));
       }
       if (grundFlaeche != null) {
         newRect = newRect.expandToInclude(grundFlaeche!.size);
-      }
-      for (DrawedWerkstoff werkstoff in _werkstoffe) {
-        newRect = newRect.expandToInclude(werkstoff.clickAble.size);
+
+        //TODO: Maybe not needed
+        for (DrawedWerkstoff werkstoff in grundFlaeche!.werkstoffe) {
+          newRect = newRect.expandToInclude(werkstoff.clickAble.size);
+        }
       }
 
-      double maxScaleX = _canvasSize!.width / newRect.size.width.abs();
-      double maxScaleY = _canvasSize!.height / newRect.size.height.abs();
+      double maxScaleX = scalingData.canvasSize!.width / newRect.size.width.abs();
+      double maxScaleY = scalingData.canvasSize!.height / newRect.size.height.abs();
 
       double scale = min(maxScaleX, maxScaleY) * 0.8;
 
       Offset center = newRect.center;
 
-      center = (center * scale) - _canvasSize!.center(Offset.zero);
+      center = (center * scale) - scalingData.canvasSize!.center(Offset.zero);
 
-      scalingData = ScalingData(scale: scale, rect: newRect, center: center);
+      scalingData = ScalingData(scale: scale, rect: newRect, center: center, canvasSize: scalingData.canvasSize);
 
       updateScaleRectEvent.broadcast(scalingData);
 
@@ -595,14 +538,11 @@ class PaintController {
   }
 
   void _drawWithScale(Offset center) {
-    for (Wall wall in walls) {
+    for (Linie wall in walls) {
       wall.initScale(scalingData.scale, center);
     }
     if (grundFlaeche != null) {
       grundFlaeche!.initScale(scalingData.scale, center);
-    }
-    for (DrawedWerkstoff werkstoff in _werkstoffe) {
-      werkstoff.clickAble.initScale(scalingData.scale, center);
     }
     if (linePainter.selectedCorner != null) {
       linePainter.selectedCorner!.initScale(scalingData.scale, center);
@@ -610,8 +550,20 @@ class PaintController {
 
     linePainter.drawWalls(walls);
     polyPainter.drawGrundflaeche(grundFlaeche);
-    polyPainter.drawWerkstoffe(_werkstoffe);
     repaint();
+  }
+
+  void reset() {
+    _drawingWerkstoff = false;
+    _drawingAusnahme = false;
+    _werkstoffPopup.finish();
+    _ausnahmePopup.finish();
+    polyPainter.selectCorner = false;
+    polyPainter.hiddenCorners.clear();
+    walls.clear();
+    _wallCount = 0;
+    linePainter.reset();
+    updateDrawingState.broadcast();
   }
 
   Future<void> displayDialog(BuildContext context) async {

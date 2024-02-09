@@ -1,38 +1,26 @@
-import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/punkt.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/grundflaeche.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
-import 'package:aufmass_app/PlanPage/Paint/drawing_zone.dart';
-import 'package:aufmass_app/PlanPage/Paint/paintcontroller.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/linie.dart';
+import 'package:aufmass_app/PlanPage/Room_Parts/room_part.dart';
 import 'package:flutter/material.dart';
 
-class RoomWall {
-  final Wall wall;
+//TODO: DB Speichern
+class RoomWall extends RoomPart {
+  final Linie baseLine;
   final double height;
-  final String name;
-  final PaintController paintController;
-  late DrawingZone drawingZone;
 
   RoomWall({
-    required this.wall,
+    required this.baseLine,
     required this.height,
-    required this.name,
-    required this.paintController,
-  }) {
-    paintController.roomName = name;
+    required name,
+  }) : super(name: name) {
+    List<Linie> walls = [];
 
-    List<Wall> walls = [];
+    walls.add(Linie.fromStart(angle: 90, length: baseLine.length, start: Punkt.fromPoint(point: Offset.zero)));
+    walls.add(Linie.fromStart(angle: 180, length: height, start: walls.last.end));
+    walls.add(Linie.fromStart(angle: 270, length: baseLine.length, start: walls.last.end));
 
-    walls.add(Wall.fromStart(
-        angle: 90,
-        length: wall.length,
-        start: Corner.fromPoint(point: Offset.zero)));
-    walls
-        .add(Wall.fromStart(angle: 180, length: height, start: walls.last.end));
-    walls.add(
-        Wall.fromStart(angle: 270, length: wall.length, start: walls.last.end));
-
-    paintController.grundFlaeche = Grundflaeche(raumName: name, walls: walls);
-
-    drawingZone = DrawingZone(paintController: paintController);
+    grundflaeche = Grundflaeche(raumName: name, walls: walls);
+    paintController.grundFlaeche = grundflaeche;
   }
 }

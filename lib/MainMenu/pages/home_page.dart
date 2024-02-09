@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:provider/provider.dart';
-import 'package:aufmass_app/Hive/HiveOperator.dart';
-import 'package:aufmass_app/MainMenu/cards/BaustellenCard.dart';
-import 'package:aufmass_app/MainMenu/dialogs/textInputDialog.dart';
+import 'package:aufmass_app/Hive/hive_operator.dart';
+import 'package:aufmass_app/MainMenu/cards/baustellen_card.dart';
+import 'package:aufmass_app/MainMenu/dialogs/textinput_dialog.dart';
 import 'package:aufmass_app/MainMenu/classes/Baustelle.dart';
 
 class Home extends StatefulWidget {
@@ -23,7 +21,7 @@ class _HomeState extends State<Home> {
       builder: (context, snapshot) {
         //Hive Connection Überprüfung
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
@@ -31,7 +29,7 @@ class _HomeState extends State<Home> {
 
           return Scaffold(
             appBar: AppBar(
-              title: Text("Baustellen"),
+              title: const Text("Baustellen"),
             ),
             body: GridView.count(
               primary: false,
@@ -44,7 +42,7 @@ class _HomeState extends State<Home> {
               }),
             ),
             floatingActionButton: FloatingActionButton(
-              child: Icon(Icons.add),
+              child: const Icon(Icons.add),
               onPressed: () {
                 _showAddDialog(context);
               },
@@ -59,12 +57,12 @@ class _HomeState extends State<Home> {
     String? result = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
-        return TextInputDialog("Baustelle Hinzufügen", "Bitte Baustellenname eingeben");
+        return const TextInputDialog("Baustelle Hinzufügen", "Bitte Baustellenname eingeben");
       },
     );
 
     if (result != null) {
-      Baustelle b = new Baustelle(result);
+      Baustelle b = Baustelle(result);
       await HiveOperator().addToHive(b, HiveOperator().baustellenBoxString);
 
       List<Baustelle> baustellen = await HiveOperator().getListFromHive(HiveOperator().baustellenBoxString);

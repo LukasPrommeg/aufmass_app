@@ -1,7 +1,4 @@
-import 'dart:io';
-import 'package:aufmass_app/MainMenu//classes/Baustelle.dart';
 import 'package:hive/hive.dart';
-import 'package:aufmass_app/MainMenu//classes/Room.dart';
 
 class HiveOperator {
   final String path = "lib/Hive";

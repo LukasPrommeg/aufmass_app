@@ -2,14 +2,14 @@ import 'package:aufmass_app/PlanPage/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/PlanPage/Misc/input_utils.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff_controller.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/punkt.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 
 class WerkstoffInputPopup {
   InputState _state = InputState.selectWerkstoff;
   InputState _nextState = InputState.selectWerkstoff;
-  Corner? startingPoint;
+  Punkt? startingPoint;
   Werkstoff? selectedWerkstoff = Werkstoff(name: "", color: Colors.black, typ: WerkstoffTyp.stk);
 
   int amountOfDrawedPoints = 1;
@@ -162,7 +162,7 @@ class WerkstoffInputPopup {
     }
   }
 
-  Corner? calcStartingpointWithOffset() {
+  Punkt? calcStartingpointWithOffset() {
     try {
       double x = 0;
       double y = 0;
@@ -181,7 +181,7 @@ class WerkstoffInputPopup {
       x = einheitSelector.convertToMM(x);
       y = einheitSelector.convertToMM(y);
       Offset startingpointWithOffset = Offset(x, y) + startingPoint!.point;
-      startingPoint = Corner.fromPoint(point: startingpointWithOffset);
+      startingPoint = Punkt.fromPoint(point: startingpointWithOffset);
       return startingPoint!;
     } catch (e) {
       _changeState(InputState.selectStartingpoint);

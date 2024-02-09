@@ -1,7 +1,7 @@
 import 'package:aufmass_app/PlanPage/2D_Objects/clickable.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/punkt.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/flaeche.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/linie.dart';
 import 'package:aufmass_app/PlanPage/Einheiten/einheitcontroller.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:event/event.dart';
@@ -20,7 +20,7 @@ class DrawedWerkstoff extends EventArgs {
   String get amountStr {
     if (clickAble is Flaeche) {
       return "${EinheitController().convertToSelectedSquared(amount).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²";
-    } else if (clickAble is Wall) {
+    } else if (clickAble is Linie) {
       return "${EinheitController().convertToSelected(amount).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}";
     } else {
       return "-";
@@ -36,14 +36,14 @@ class DrawedWerkstoff extends EventArgs {
           //TODO: ERROR
         }
         break;
-      case Wall:
+      case Linie:
         if (werkstoff.typ == WerkstoffTyp.linie) {
           _werkstoff = werkstoff;
         } else {
           //TODO: ERROR
         }
         break;
-      case Corner:
+      case Punkt:
         if (werkstoff.typ == WerkstoffTyp.point) {
           _werkstoff = werkstoff;
         } else {
@@ -79,7 +79,7 @@ class DrawedWerkstoff extends EventArgs {
         amount = (clickAble as Flaeche).area;
         break;
       case WerkstoffTyp.linie:
-        amount = (clickAble as Wall).length;
+        amount = (clickAble as Linie).length;
         break;
       default:
         break;
@@ -93,16 +93,15 @@ class DrawedWerkstoff extends EventArgs {
       if (clickAble is Flaeche) {
         tempAmount = (clickAble as Flaeche).area;
         (clickAble as Flaeche).area = amount;
-      } else if (clickAble is Wall) {
-        tempAmount = (clickAble as Wall).length;
-        (clickAble as Wall).length = amount;
+      } else if (clickAble is Linie) {
+        tempAmount = (clickAble as Linie).length;
+        (clickAble as Linie).length = amount;
       }
-      clickAble.paintBeschriftung(
-          canvas, werkstoff.color, werkstoff.name, textSize);
+      clickAble.paintBeschriftung(canvas, werkstoff.color, werkstoff.name, textSize);
       if (clickAble is Flaeche) {
         (clickAble as Flaeche).area = tempAmount;
-      } else if (clickAble is Wall) {
-        (clickAble as Wall).length = tempAmount;
+      } else if (clickAble is Linie) {
+        (clickAble as Linie).length = tempAmount;
       }
     }
     if (hasLaengen) {

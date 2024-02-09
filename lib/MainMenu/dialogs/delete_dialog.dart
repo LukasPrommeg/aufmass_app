@@ -1,14 +1,12 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 
 class DeleteDialog extends StatefulWidget {
-  String title = "";
+  final String title;
 
-  DeleteDialog(this.title);
+  const DeleteDialog({required this.title, super.key});
 
   @override
-  _DeleteDialogState createState() => _DeleteDialogState();
+  State<DeleteDialog> createState() => _DeleteDialogState();
 }
 
 class _DeleteDialogState extends State<DeleteDialog> {
@@ -23,14 +21,14 @@ class _DeleteDialogState extends State<DeleteDialog> {
           onPressed: () {
             Navigator.of(context).pop(delete); // Close the dialog without returning any value
           },
-          child: Text('Abbrechen'),
+          child: const Text('Abbrechen'),
         ),
         TextButton(
           onPressed: () {
             delete = true;
             Navigator.of(context).pop(delete); // Close the dialog and pass the result (input string)
           },
-          child: Text('Weiter'),
+          child: const Text('Weiter'),
         ),
       ],
     );

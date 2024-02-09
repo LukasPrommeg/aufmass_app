@@ -1,12 +1,11 @@
 import 'package:aufmass_app/PlanPage/2D_Objects/einkerbung.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/flaeche.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/grundflaeche.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/linie.dart';
 import 'package:aufmass_app/PlanPage/Einheiten/einheitcontroller.dart';
 import 'package:aufmass_app/PlanPage/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/PlanPage/Misc/alertinfo.dart';
 import 'package:aufmass_app/PlanPage/Misc/overlap.dart';
-import 'package:aufmass_app/PlanPage/Paint/paintcontroller.dart';
 import 'package:aufmass_app/PlanPage/Room_Parts/room_wall.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
@@ -23,7 +22,7 @@ class RightPlanpageSidemenu extends StatefulWidget {
   final RepaintCallback onRepaintNeeded;
   final SwitchToWallViewCallback onWallViewGenerated;
 
-  RightPlanpageSidemenu({
+  const RightPlanpageSidemenu({
     super.key,
     required this.clickedThing,
     required this.isWallView,
@@ -75,7 +74,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
             child: Column(
               children: [
                 if (clickedThing is Flaeche) flaechenSideMenu(clickedThing),
-                if (clickedThing is Wall && !widget.isWallView) wallSideMenu(clickedThing),
+                if (clickedThing is Linie && !widget.isWallView) wallSideMenu(clickedThing),
                 if (clickedThing is DrawedWerkstoff) drawedWerkstoffSideMenu(clickedThing),
                 if (clickedThing is Grundflaeche) grundflaecheSideMeun(clickedThing),
                 if (clickedThing is Einkerbung) einkerbungSideMenu(clickedThing),
@@ -91,7 +90,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
     return Text("Fläche: ${EinheitController().convertToSelectedSquared(flaeche.area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}"); //have to reload for it to work
   }
 
-  Widget wallSideMenu(Wall wall) {
+  Widget wallSideMenu(Linie wall) {
     TextEditingController wallHeightController = TextEditingController();
     bool autoDrawWall = true;
 
@@ -124,10 +123,9 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
           onPressed: () {
             if (widget.generatedWalls.contains(wall.uuid)) {
               widget.onWallViewGenerated(RoomWall(
-                wall: wall,
+                baseLine: wall,
                 height: 0,
                 name: "",
-                paintController: PaintController(),
               ));
             } else {
               try {
@@ -135,10 +133,9 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
                   double height = double.parse(wallHeightController.text);
                   height = _einheitSelector.convertToMM(height);
                   widget.onWallViewGenerated(RoomWall(
-                    wall: wall,
+                    baseLine: wall,
                     height: height,
                     name: "Wand",
-                    paintController: PaintController(),
                   ));
                 }
               } catch (e) {
@@ -166,7 +163,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Beschriftung"),
+            const Text("Beschriftung"),
             Switch(
               value: werkstoff.hasBeschriftung,
               onChanged: (value) {
@@ -181,7 +178,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Längen"),
+            const Text("Längen"),
             Switch(
               value: werkstoff.hasLaengen,
               onChanged: (value) {
@@ -222,7 +219,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ExpansionTile(
-          title: Text("Einkerbungen"),
+          title: const Text("Einkerbungen"),
           shape: const Border(),
           children: [
             for (Einkerbung einkerbung in grundFlaeche.einkerbungen)
@@ -247,7 +244,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
         Text("Fläche: ${EinheitController().convertToSelectedSquared((einkerbung).area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²"),
         const Divider(),
         ExpansionTile(
-          title: Text("Werkstoffe"),
+          title: const Text("Werkstoffe"),
           shape: const Border(),
           children: [
             for (Overlap overlap in einkerbung.overlaps)
@@ -272,7 +269,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
                 onTap: () {
                   //clickedThing = einkerbung;
                 },
-                leading: Icon(Icons.edit_square),
+                leading: const Icon(Icons.edit_square),
               ),
           ],
         ),

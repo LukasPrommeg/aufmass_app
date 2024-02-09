@@ -1,63 +1,58 @@
 import 'package:aufmass_app/PlanPage/Misc/alertinfo.dart';
 import 'package:aufmass_app/PlanPage/Misc/loadingblur.dart';
 import 'package:aufmass_app/PlanPage/li_sidemenu.dart';
+import 'package:aufmass_app/PlanPage/projekt.dart';
 import 'package:aufmass_app/PlanPage/re_sidemenu.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/punkt.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/flaeche.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/grundflaeche.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/linie.dart';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/PlanPage/Room_Parts/room.dart';
-import 'package:aufmass_app/PlanPage/Paint/paintcontroller.dart';
-import 'package:aufmass_app/PlanPage/Misc/pdfexport.dart';
 import 'Room_Parts/room_wall.dart';
 
 class PlanPage extends StatefulWidget {
-  const PlanPage({super.key});
+  const PlanPage({super.key, required this.projekt});
+
+  final Projekt projekt;
 
   @override
   State<PlanPage> createState() => PlanPageContent();
 }
 
 class PlanPageContent extends State<PlanPage> {
+  //Widgets
   RightPlanpageSidemenu? rightSidemenu;
   LeftPlanpageSidemenu? leftSidemenu;
   late Widget floatingButton;
-  final List<Room> rooms = []; //TODO: LADEN AUS DB
-  late Room currentRoom;
-  RoomWall? currentWallView;
-  late String selectedDropdownValue;
-  bool isRightColumnVisible = false;
-  bool autoDrawWall = false;
 
-  dynamic clickedThing;
-
+  //Controllers
   TextEditingController newRoomController = TextEditingController();
   TextEditingController setWallHeightController = TextEditingController();
+
+  late Room currentRoom;
+  RoomWall? currentWallView;
+  //late String selectedDropdownValue;
+
+  dynamic clickedThing;
 
   @override
   void initState() {
     super.initState();
 
-
-    rooms.add(Room(
-      name: 'Raum 1',
-      paintController: PaintController(),
-    ));
     //TODO: save and load rooms
 
-    currentRoom = rooms.first;
+    currentRoom = widget.projekt.rooms.first;
     switchRoom(currentRoom);
-
-    selectedDropdownValue = 'Option 1';
 
     floatingButton = Column(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         FloatingActionButton(
+          heroTag: "AddWall",
           onPressed: () {
             if (currentWallView != null) {
               currentWallView!.paintController.displayDialog(context);
@@ -73,8 +68,9 @@ class PlanPageContent extends State<PlanPage> {
           height: 10,
         ),
         FloatingActionButton(
+          heroTag: "drawTest",
           onPressed: () {
-            currentRoom.paintController.roomName = "testwohnzimmer";
+            currentRoom.name = "testwohnzimmer";
           },
           child: const Icon(
             Icons.polyline_rounded,
@@ -83,10 +79,13 @@ class PlanPageContent extends State<PlanPage> {
       ],
     );
 
-    setState((){
-      leftSidemenu=LeftPlanpageSidemenu(projektName: "unnamed",rooms: rooms, planPage: this,);
+    setState(() {
+      leftSidemenu = LeftPlanpageSidemenu(
+        projekt: widget.projekt,
+        selectedIndex: widget.projekt.rooms.indexOf(currentRoom),
+        switchRoomCallBack: (newRoom) => switchRoom(newRoom),
+      );
     });
-
   }
 
   void switchView(RoomWall newWallView) {
@@ -103,16 +102,22 @@ class PlanPageContent extends State<PlanPage> {
   }
 
   void switchRoom(Room newRoom) {
+    //TODO: HiveOperator.saveAll oda so
     currentWallView = null;
     setState(() {
       newRoom.paintController.updateDrawingState.unsubscribe((args) {});
       newRoom.paintController.clickedEvent.unsubscribe((args) {});
       currentRoom = newRoom;
-      currentRoom.paintController.updateDrawingState.subscribe((args) {
-        switchFloating();
-      });
+      currentRoom.paintController.updateDrawingState.subscribe((args) => switchFloating());
       currentRoom.paintController.clickedEvent.subscribe((args) => handleClickedEvent(args));
       switchFloating();
+
+      leftSidemenu = LeftPlanpageSidemenu(
+        key: UniqueKey(),
+        projekt: widget.projekt,
+        selectedIndex: widget.projekt.rooms.indexOf(currentRoom),
+        switchRoomCallBack: (newRoom) => switchRoom(newRoom),
+      );
     });
   }
 
@@ -124,28 +129,22 @@ class PlanPageContent extends State<PlanPage> {
       clickedThing = null;
     } else {
       switch (clicked.runtimeType) {
-        case Corner:
-          print("CORNER");
-          clickedThing = (clicked as Corner);
+        case Punkt:
+          clickedThing = (clicked as Punkt);
           break;
-        case Wall:
-          print("Wall-${(clicked as Wall).uuid}");
+        case Linie:
           clickedThing = clicked;
           break;
         case Flaeche:
-          print("Flaeche");
           clickedThing = (clicked as Flaeche);
           break;
         case Grundflaeche:
-          print("Grundflaeche");
           clickedThing = (clicked as Grundflaeche);
           break;
         case DrawedWerkstoff:
-          print("Werkstoff-${(clicked as DrawedWerkstoff).clickAble.runtimeType}");
           clickedThing = clicked;
           break;
         default:
-          print("Shouldn't be possible");
           break;
       }
       enableRightSidemenu(clickedThing);
@@ -202,6 +201,7 @@ class PlanPageContent extends State<PlanPage> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             FloatingActionButton(
+              heroTag: "AddWall",
               onPressed: () {
                 if (currentWallView != null) {
                   currentWallView!.paintController.displayDialog(context);
@@ -217,6 +217,7 @@ class PlanPageContent extends State<PlanPage> {
               height: 10,
             ),
             FloatingActionButton(
+              heroTag: "Undo",
               onPressed: () {
                 if (currentWallView != null) {
                   currentWallView!.paintController.undo();
@@ -236,6 +237,7 @@ class PlanPageContent extends State<PlanPage> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             FloatingActionButton(
+              heroTag: "AddWall",
               onPressed: () {
                 if (currentWallView != null) {
                   currentWallView!.paintController.displayDialog(context);
@@ -293,7 +295,17 @@ class PlanPageContent extends State<PlanPage> {
             backgroundColor: Colors.purple,
             actions: [
               IconButton(
-                icon: Icon(isRightColumnVisible ? Icons.visibility_off : Icons.visibility),
+                onPressed: () {
+                  //TODO: HiveOperator.saveAll oda so
+                  AlertInfo().newAlert("Speichern..", textColor: Colors.green);
+                },
+                icon: const Icon(Icons.save_outlined),
+              ),
+              const SizedBox(
+                width: 20,
+              ),
+              IconButton(
+                icon: Icon(rightSidemenu == null ? Icons.visibility_off : Icons.visibility),
                 onPressed: toggleRightColumnVisibility,
               ),
             ],
@@ -304,7 +316,7 @@ class PlanPageContent extends State<PlanPage> {
                 child: Stack(
                   alignment: AlignmentDirectional.topCenter,
                   children: [
-                    currentWallView != null ? currentWallView!.drawingZone : currentRoom.drawingZone,
+                    currentWallView != null ? currentWallView!.drawRoomPart() : currentRoom.drawRoomPart(),
                     SizedBox(
                       height: 100,
                       child: AlertInfo(),
@@ -324,11 +336,11 @@ class PlanPageContent extends State<PlanPage> {
   }
 
   void openWallViewCallback(RoomWall roomWall) {
-    if (currentRoom.walls.containsKey(roomWall.wall.uuid)) {
-      switchView(currentRoom.walls[roomWall.wall.uuid]!);
+    if (currentRoom.walls.containsKey(roomWall.baseLine.uuid)) {
+      switchView(currentRoom.walls[roomWall.baseLine.uuid]!);
     } else {
-      currentRoom.walls[roomWall.wall.uuid] = roomWall;
-      switchView(currentRoom.walls[roomWall.wall.uuid]!);
+      currentRoom.walls[roomWall.baseLine.uuid] = roomWall;
+      switchView(currentRoom.walls[roomWall.baseLine.uuid]!);
     }
     setState(() {
       rightSidemenu = null;

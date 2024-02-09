@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:hive/hive.dart';
-import 'package:aufmass_app/Hive/HiveOperator.dart';
+import 'package:aufmass_app/Hive/hive_operator.dart';
 import 'package:aufmass_app/MainMenu/classes/Baustelle.dart';
 import 'package:aufmass_app/MainMenu/classes/Room.dart';
-import 'package:aufmass_app/MainMenu/dialogs/deleteDialog.dart';
+import 'package:aufmass_app/MainMenu/dialogs/delete_dialog.dart';
 
-import '../pages/roomPage.dart';
+import '../pages/room_page.dart';
 
 class RoomCard extends StatefulWidget {
-  Room? _room;
+  final Room? room;
 
-  RoomCard(Room room) {
-    super.key;
-    this._room = room;
-  }
+  const RoomCard(this.room, {super.key});
 
   @override
   State<RoomCard> createState() => _RoomCardState();
@@ -40,8 +35,8 @@ class _RoomCardState extends State<RoomCard> {
                 icon: Icon(Icons.delete)
             ),*/
             Text(
-              widget._room!.name,
-              style: TextStyle(
+              widget.room!.name,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -56,14 +51,14 @@ class _RoomCardState extends State<RoomCard> {
     bool? result = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return DeleteDialog("Raum wirklich löschen");
+        return const DeleteDialog(title: "Raum wirklich löschen");
       },
     );
 
     if (result != null && result) {
-      await HiveOperator().deleteFromHive(widget._room!.key, "roomBox");
+      await HiveOperator().deleteFromHive(widget.room!.key, "roomBox");
 
-      Baustelle? b = await HiveOperator().getObjectFromHive(widget._room!.baustellenKey, "baustellenBox");
+      Baustelle? b = await HiveOperator().getObjectFromHive(widget.room!.baustellenKey, "baustellenBox");
 
       // RELOAD [
       NavigatorState navigator = Navigator.of(context);
@@ -71,10 +66,10 @@ class _RoomCardState extends State<RoomCard> {
       // Push a new route while removing the previous route
       navigator.pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (context) => Rooms(),
+          builder: (context) => const Rooms(),
           settings: RouteSettings(arguments: b!.key),
         ),
-            (route) => false,
+        (route) => false,
       );
       // ]
     }

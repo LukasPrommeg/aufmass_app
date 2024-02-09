@@ -3,24 +3,19 @@ import 'dart:ui';
 import 'package:aufmass_app/PlanPage/Einheiten/einheitcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/PlanPage/2D_Objects/clickable.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/punkt.dart';
 
 const double hbSizeDefine = 10;
 
-class Wall extends ClickAble {
+class Linie extends ClickAble {
   String uuid = UniqueKey().toString();
   late double angle;
   late double length;
-  late Corner start;
-  late Corner end;
+  late Punkt start;
+  late Punkt end;
   int id = 0;
 
-  Wall(
-      {required this.angle,
-      required this.length,
-      required this.start,
-      required this.end})
-      : super(hbSize: hbSizeDefine) {
+  Linie({required this.angle, required this.length, required this.start, required this.end}) : super(hbSize: hbSizeDefine) {
     size = size.expandToInclude(Rect.fromPoints(start.point, end.point));
 
     if (length > 0) {
@@ -28,22 +23,15 @@ class Wall extends ClickAble {
     }
   }
 
-  Wall.clone(Wall wall)
-      : this(
-            angle: wall.angle,
-            length: wall.length,
-            start: wall.start,
-            end: wall.end);
+  Linie.clone(Linie wall) : this(angle: wall.angle, length: wall.length, start: wall.start, end: wall.end);
 
-  Wall.fromStart(
-      {required this.angle, required this.length, required this.start})
-      : super(hbSize: hbSizeDefine) {
+  Linie.fromStart({required this.angle, required this.length, required this.start}) : super(hbSize: hbSizeDefine) {
     //x = sin
     double x = -sin(angle * (pi / 180)) * length * -1;
     //y = cos
     double y = cos(angle * (pi / 180)) * length * -1;
 
-    end = Corner.fromPoint(point: start.point + Offset(x, y));
+    end = Punkt.fromPoint(point: start.point + Offset(x, y));
 
     size = size.expandToInclude(Rect.fromPoints(start.point, end.point));
 
@@ -52,14 +40,13 @@ class Wall extends ClickAble {
     }
   }
 
-  Wall.fromEnd({required this.angle, required this.length, required this.end})
-      : super(hbSize: hbSizeDefine) {
+  Linie.fromEnd({required this.angle, required this.length, required this.end}) : super(hbSize: hbSizeDefine) {
     //x = sin
     double x = -sin(angle * (pi / 180)) * length * -1;
     //y = cos
     double y = cos(angle * (pi / 180)) * length * -1;
 
-    start = Corner.fromPoint(point: end.point - Offset(x, y));
+    start = Punkt.fromPoint(point: end.point - Offset(x, y));
 
     size = size.expandToInclude(Rect.fromPoints(start.point, end.point));
 
@@ -68,8 +55,7 @@ class Wall extends ClickAble {
     }
   }
 
-  Wall.fromPoints({required this.start, required this.end})
-      : super(hbSize: hbSizeDefine) {
+  Linie.fromPoints({required this.start, required this.end}) : super(hbSize: hbSizeDefine) {
     //TODO: CALC ANGLE
     angle = 0;
 
@@ -188,10 +174,7 @@ class Wall extends ClickAble {
 
     textPainter.layout();
 
-    textPainter.paint(
-        canvas,
-        Offset(
-            posBeschriftung.dx - (textPainter.width / 2), posBeschriftung.dy));
+    textPainter.paint(canvas, Offset(posBeschriftung.dx - (textPainter.width / 2), posBeschriftung.dy));
     canvas.restore();
   }
 
@@ -214,8 +197,7 @@ class Wall extends ClickAble {
       fontWeight: FontWeight.bold,
     );
     final textSpan = TextSpan(
-      text:
-          "${EinheitController().convertToSelected(length).toStringAsFixed(2)}${EinheitController().selectedEinheit.name}",
+      text: "${EinheitController().convertToSelected(length).toStringAsFixed(2)}${EinheitController().selectedEinheit.name}",
       style: textStyle,
     );
     final textPainter = TextPainter(
@@ -225,10 +207,7 @@ class Wall extends ClickAble {
 
     textPainter.layout();
 
-    textPainter.paint(
-        canvas,
-        Offset(posBeschriftung.dx - (textPainter.width / 2),
-            posBeschriftung.dy - textPainter.height));
+    textPainter.paint(canvas, Offset(posBeschriftung.dx - (textPainter.width / 2), posBeschriftung.dy - textPainter.height));
     canvas.restore();
   }
 }

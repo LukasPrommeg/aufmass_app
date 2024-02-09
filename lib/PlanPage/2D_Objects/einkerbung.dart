@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:aufmass_app/PlanPage/2D_Objects/flaeche.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/linie.dart';
 import 'package:aufmass_app/PlanPage/Misc/overlap.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ class Einkerbung extends Flaeche {
   Einkerbung({
     required this.name,
     required this.tiefe,
-    required List<Wall> walls,
+    required List<Linie> walls,
   }) : super(walls: walls);
 
   void paintIntersects(Canvas canvas) {

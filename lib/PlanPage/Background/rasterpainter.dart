@@ -6,8 +6,7 @@ import 'package:aufmass_app/PlanPage/Paint/paintcontroller.dart';
 
 class RasterPainter extends CustomPainter {
   RasterPainter({required Listenable repaint}) : super(repaint: repaint);
-  ScalingData scalingData = ScalingData(
-      scale: double.infinity, rect: Rect.largest, center: Offset.zero);
+  ScalingData scalingData = ScalingData(scale: double.infinity, rect: Rect.largest, center: Offset.zero, canvasSize: null);
   Size backgroundSize = const Size(1000, 1000);
 
   @override
@@ -26,16 +25,12 @@ class RasterPainter extends CustomPainter {
     if (scalingData.scale.isInfinite) {
       pxPerGrid = min(backgroundSize.width, backgroundSize.height) / 3;
     } else {
-      upperLeftCorner =
-          scalingData.rect.topLeft * scalingData.scale - scalingData.center;
-      pxPerGrid =
-          scalingData.scale * (120 * pow(scalingData.scale, -1) as double);
+      upperLeftCorner = scalingData.rect.topLeft * scalingData.scale - scalingData.center;
+      pxPerGrid = scalingData.scale * (120 * pow(scalingData.scale, -1) as double);
     }
 
     //Vertikale Linien
-    for (double x = upperLeftCorner.dx;
-        x < backgroundSize.width;
-        x += pxPerGrid) {
+    for (double x = upperLeftCorner.dx; x < backgroundSize.width; x += pxPerGrid) {
       pointsX.add(Offset(x, 0));
       pointsX.add(Offset(x, backgroundSize.height));
     }
@@ -45,9 +40,7 @@ class RasterPainter extends CustomPainter {
     }
 
     //Horizontale Linien
-    for (double y = upperLeftCorner.dy;
-        y < backgroundSize.height;
-        y += pxPerGrid) {
+    for (double y = upperLeftCorner.dy; y < backgroundSize.height; y += pxPerGrid) {
       pointsY.add(Offset(0, y));
       pointsY.add(Offset(backgroundSize.width, y));
     }
@@ -69,12 +62,10 @@ class RasterPainter extends CustomPainter {
 
     //Beschriftung X
     for (Offset point in pointsX) {
-      double val = EinheitController().convertToSelected(
-          (point.dx - upperLeftCorner.dx) / scalingData.scale);
+      double val = EinheitController().convertToSelected((point.dx - upperLeftCorner.dx) / scalingData.scale);
 
       final textSpan = TextSpan(
-        text:
-            "${val.toStringAsFixed(2).toString()}${EinheitController().selectedEinheit.name}",
+        text: "${val.toStringAsFixed(2).toString()}${EinheitController().selectedEinheit.name}",
         style: textStyle,
       );
       final textPainter = TextPainter(
@@ -86,23 +77,19 @@ class RasterPainter extends CustomPainter {
       Offset textPoint = Offset.zero;
 
       if (point.dy > 0) {
-        textPoint = Offset(point.dx, point.dy - offset) -
-            Offset((textPainter.width / 2), 0);
+        textPoint = Offset(point.dx, point.dy - offset) - Offset((textPainter.width / 2), 0);
       } else {
-        textPoint = Offset(point.dx, point.dy + offset) -
-            Offset((textPainter.width / 2), textPainter.height);
+        textPoint = Offset(point.dx, point.dy + offset) - Offset((textPainter.width / 2), textPainter.height);
       }
       textPainter.paint(canvas, textPoint);
     }
 
     //Beschriftung Y
     for (Offset point in pointsY) {
-      double val = EinheitController().convertToSelected(
-          (point.dy - upperLeftCorner.dy) / scalingData.scale);
+      double val = EinheitController().convertToSelected((point.dy - upperLeftCorner.dy) / scalingData.scale);
 
       final textSpan = TextSpan(
-        text:
-            "${val.toStringAsFixed(2).toString()}${EinheitController().selectedEinheit.name}",
+        text: "${val.toStringAsFixed(2).toString()}${EinheitController().selectedEinheit.name}",
         style: textStyle,
       );
       final textPainter = TextPainter(
@@ -114,11 +101,9 @@ class RasterPainter extends CustomPainter {
       Offset textPoint = Offset.zero;
 
       if (point.dx > 0) {
-        textPoint = Offset(point.dx - offset, point.dy) -
-            Offset(textPainter.width, textPainter.height / 2);
+        textPoint = Offset(point.dx - offset, point.dy) - Offset(textPainter.width, textPainter.height / 2);
       } else {
-        textPoint = Offset(point.dx + offset, point.dy) -
-            Offset(0, textPainter.height / 2);
+        textPoint = Offset(point.dx + offset, point.dy) - Offset(0, textPainter.height / 2);
       }
       textPainter.paint(canvas, textPoint);
     }

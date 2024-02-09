@@ -2,29 +2,28 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:aufmass_app/PlanPage/2D_Objects/clickable.dart';
 import 'package:aufmass_app/PlanPage/Einheiten/einheitcontroller.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/corner.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/punkt.dart';
 import 'package:flutter/material.dart';
-import 'package:aufmass_app/PlanPage/2D_Objects/wall.dart';
+import 'package:aufmass_app/PlanPage/2D_Objects/linie.dart';
 
 class Flaeche extends ClickAble {
-  List<Wall> _walls = [];
-  late Wall lastWall;
+  List<Linie> _walls = [];
+  late Linie lastWall;
   Path areaPath = Path();
   double area = 0;
 
-  List<Wall> get walls {
+  List<Linie> get walls {
     return _walls;
   }
 
   Flaeche({
-    required List<Wall> walls,
+    required List<Linie> walls,
   }) : super(hbSize: 0) {
     _walls = walls;
 
-    unscaledPath.moveTo(
-        _walls.first.start.point.dx, _walls.first.start.point.dy);
+    unscaledPath.moveTo(_walls.first.start.point.dx, _walls.first.start.point.dy);
 
-    for (Wall wall in _walls) {
+    for (Linie wall in _walls) {
       unscaledPath.lineTo(wall.end.point.dx, wall.end.point.dy);
     }
     unscaledPath.close();
@@ -34,12 +33,12 @@ class Flaeche extends ClickAble {
     _calcArea();
   }
 
-  Wall? detectClickedWall(Offset position) {
+  Linie? detectClickedWall(Offset position) {
     _calcLastWall();
     if (lastWall.contains(position)) {
       return lastWall;
     }
-    for (Wall wall in walls) {
+    for (Linie wall in walls) {
       if (wall.contains(position)) {
         return wall;
       }
@@ -47,11 +46,11 @@ class Flaeche extends ClickAble {
     return null;
   }
 
-  Corner? detectClickedCorner(Offset position) {
+  Punkt? detectClickedCorner(Offset position) {
     if (lastWall.start.scaled != null && lastWall.start.contains(position)) {
       return lastWall.start;
     }
-    for (Wall wall in walls) {
+    for (Linie wall in walls) {
       if (wall.start.scaled != null && wall.start.contains(position)) {
         return wall.start;
       }
@@ -63,7 +62,7 @@ class Flaeche extends ClickAble {
     if (lastWall.contains(position)) {
       return lastWall;
     }
-    for (Wall wall in walls) {
+    for (Linie wall in walls) {
       if (wall.contains(position)) {
         return wall;
       }
@@ -71,7 +70,7 @@ class Flaeche extends ClickAble {
     if (lastWall.start.scaled != null && lastWall.start.contains(position)) {
       return lastWall.start;
     }
-    for (Wall wall in walls) {
+    for (Linie wall in walls) {
       if (wall.start.scaled != null && wall.start.contains(position)) {
         return wall.start;
       }
@@ -81,9 +80,8 @@ class Flaeche extends ClickAble {
 
   void calcSize() {
     size = Rect.zero;
-    for (Wall wall in walls) {
-      size =
-          size.expandToInclude(Rect.fromPoints(wall.end.point, wall.end.point));
+    for (Linie wall in walls) {
+      size = size.expandToInclude(Rect.fromPoints(wall.end.point, wall.end.point));
     }
   }
 
@@ -95,16 +93,9 @@ class Flaeche extends ClickAble {
       uuid = UniqueKey().toString();
     }
 
-    double length = sqrt(
-            (pow(_walls.last.end.point.dx - _walls.first.start.point.dx, 2) +
-                pow(_walls.last.end.point.dy - _walls.first.start.point.dy, 2)))
-        .abs();
-    lastWall = Wall.fromStart(angle: 0, length: length, start: _walls.last.end);
-    lastWall = Wall(
-        angle: 0,
-        length: length,
-        start: walls.last.end,
-        end: walls.first.start);
+    double length = sqrt((pow(_walls.last.end.point.dx - _walls.first.start.point.dx, 2) + pow(_walls.last.end.point.dy - _walls.first.start.point.dy, 2))).abs();
+    lastWall = Linie.fromStart(angle: 0, length: length, start: _walls.last.end);
+    lastWall = Linie(angle: 0, length: length, start: walls.last.end, end: walls.first.start);
     lastWall.start.scaled = walls.last.end.scaled;
     lastWall.end.scaled = walls.first.start.scaled;
 
@@ -133,7 +124,7 @@ class Flaeche extends ClickAble {
     posBeschriftung = Offset.zero;
     area = 0;
 
-    for (Wall wall in walls) {
+    for (Linie wall in walls) {
       wall.initScale(scale, center);
     }
 
@@ -152,10 +143,7 @@ class Flaeche extends ClickAble {
       }
       posBeschriftung += walls[i].start.point;
     }
-    posBeschriftung = (Offset(posBeschriftung.dx / (walls.length),
-                posBeschriftung.dy / (walls.length)) *
-            scale) -
-        center;
+    posBeschriftung = (Offset(posBeschriftung.dx / (walls.length), posBeschriftung.dy / (walls.length)) * scale) - center;
 
     walls.removeLast();
     areaPath.close();
@@ -179,10 +167,9 @@ class Flaeche extends ClickAble {
     paintWalls(canvas, color, size, debug: debug);
   }
 
-  void paintWalls(Canvas canvas, Color color, double size,
-      {bool debug = false}) {
+  void paintWalls(Canvas canvas, Color color, double size, {bool debug = false}) {
     walls.add(lastWall);
-    for (Wall wall in _walls) {
+    for (Linie wall in _walls) {
       wall.paint(canvas, color, size);
       if (debug) {
         wall.start.paintHB(canvas);
@@ -193,8 +180,7 @@ class Flaeche extends ClickAble {
   }
 
   @override
-  void paintBeschriftung(Canvas canvas, Color color, String text, double size,
-      {bool debug = false}) {
+  void paintBeschriftung(Canvas canvas, Color color, String text, double size, {bool debug = false}) {
     Einheit selectedEinheit = EinheitController().selectedEinheit;
 
     TextStyle textStyle = TextStyle(
@@ -214,8 +200,7 @@ class Flaeche extends ClickAble {
     double displayArea = EinheitController().convertToSelectedSquared(area);
 
     final textSpan = TextSpan(
-      text:
-          "$text\nFLÄCHE: ${(displayArea).toStringAsFixed(2)} ${selectedEinheit.name}²",
+      text: "$text\nFLÄCHE: ${(displayArea).toStringAsFixed(2)} ${selectedEinheit.name}²",
       style: textStyle,
     );
     final textPainter = TextPainter(
@@ -224,15 +209,11 @@ class Flaeche extends ClickAble {
     );
     textPainter.layout();
 
-    textPainter.paint(
-        canvas,
-        posBeschriftung -
-            Offset((textPainter.width / 2), textPainter.height / 2));
+    textPainter.paint(canvas, posBeschriftung - Offset((textPainter.width / 2), textPainter.height / 2));
   }
 
   @override
-  void paintLaengen(Canvas canvas, Color color, double size,
-      {bool debug = false}) {
+  void paintLaengen(Canvas canvas, Color color, double size, {bool debug = false}) {
     Einheit selectedEinheit = EinheitController().selectedEinheit;
 
     TextStyle textStyle = TextStyle(
@@ -242,10 +223,8 @@ class Flaeche extends ClickAble {
     );
     walls.add(lastWall);
 
-    for (Wall wall in walls) {
-      Offset centerLine = posBeschriftung +
-          ((wall.end.scaled! + wall.start.scaled!) / 2) -
-          posBeschriftung;
+    for (Linie wall in walls) {
+      Offset centerLine = posBeschriftung + ((wall.end.scaled! + wall.start.scaled!) / 2) - posBeschriftung;
 
       if (debug) {
         Paint paint = Paint()
@@ -295,10 +274,10 @@ class Flaeche extends ClickAble {
     walls.removeLast();
   }
 
-  void paintCornerHB(Canvas canvas, [List<Corner>? hidden, Color? override]) {
+  void paintCornerHB(Canvas canvas, [List<Punkt>? hidden, Color? override]) {
     walls.add(lastWall);
 
-    for (Wall wall in walls) {
+    for (Linie wall in walls) {
       if (hidden != null && !hidden.contains(wall.start)) {
         wall.start.paintHB(canvas, override);
       }
@@ -306,10 +285,10 @@ class Flaeche extends ClickAble {
     walls.removeLast();
   }
 
-  Corner? findCornerAtPoint(Offset position) {
+  Punkt? findCornerAtPoint(Offset position) {
     walls.add(lastWall);
-    Corner? found;
-    for (Wall wall in walls) {
+    Punkt? found;
+    for (Linie wall in walls) {
       if (wall.start.point == position) {
         found = wall.start;
         break;
@@ -320,15 +299,15 @@ class Flaeche extends ClickAble {
     return found;
   }
 
-  List<Wall> findWallsAroundCorner(Corner corner) {
-    List<Wall> around = [];
+  List<Linie> findWallsAroundCorner(Punkt corner) {
+    List<Linie> around = [];
     if (walls.first.start == corner) {
       around.add(lastWall);
       around.add(walls.first);
       return around;
     }
     walls.add(lastWall);
-    for (Wall wall in walls) {
+    for (Linie wall in walls) {
       if (wall.start == corner) {
         around.add(wall);
       } else if (wall.end == corner) {

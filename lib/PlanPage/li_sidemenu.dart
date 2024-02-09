@@ -1,28 +1,27 @@
 import 'package:aufmass_app/PlanPage/Misc/pdfexport.dart';
-import 'package:aufmass_app/PlanPage/Paint/paintcontroller.dart';
 import 'package:aufmass_app/PlanPage/Room_Parts/room.dart';
-import 'package:aufmass_app/PlanPage/planpage.dart';
+import 'package:aufmass_app/PlanPage/projekt.dart';
 import 'package:flutter/material.dart';
 
-class LeftPlanpageSidemenu extends StatefulWidget {
-  late String projektName;
-  final List<Room> rooms; //TODO: LADEN AUS DB
-  final PlanPageContent planPage;
+typedef SwitchRoomCallBack = void Function(Room);
 
-  LeftPlanpageSidemenu({
+class LeftPlanpageSidemenu extends StatefulWidget {
+  final Projekt projekt;
+  final int selectedIndex;
+  final SwitchRoomCallBack switchRoomCallBack;
+
+  const LeftPlanpageSidemenu({
     super.key,
-    required this.projektName,
-    required this.rooms,    
-    required this.planPage,
+    required this.projekt,
+    required this.selectedIndex,
+    required this.switchRoomCallBack,
   });
 
   @override
   State<LeftPlanpageSidemenu> createState() => _LeftPlanpageSidemenuState();
 }
 
-
 class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
-
   TextEditingController newRoomController = TextEditingController();
   TextEditingController renameRoomController = TextEditingController();
   TextEditingController renameProjectController = TextEditingController();
@@ -43,12 +42,34 @@ class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
             decoration: const BoxDecoration(
               color: Colors.deepPurple,
             ),
-            child: Text(
-              widget.projektName,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    //TODO: HiveOperator.saveAll oda so
+                    Navigator.pushReplacementNamed(
+                      context,
+                      "/home",
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  widget.projekt.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
             ),
           ),
           ExpansionTile(
@@ -69,8 +90,8 @@ class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
                 title: const Text('Projekt umbenennen'),
                 onTap: () {
                   // Set the initial text to the current room's name
-                  if (widget.projektName != "unnamed") {
-                    renameProjectController.text = widget.projektName;
+                  if (widget.projekt.name != "unnamed") {
+                    renameProjectController.text = widget.projekt.name;
                   }
 
                   showDialog(
@@ -114,12 +135,12 @@ class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
             ),
             shape: const Border(),
             children: [
-              for (var room in widget.rooms)
+              for (var room in widget.projekt.rooms)
                 ListTile(
                   title: Text(room.name),
-                  tileColor: room == widget.planPage.currentRoom ? Colors.grey[300] : null,
+                  tileColor: room == widget.projekt.rooms[widget.selectedIndex] ? Colors.grey[300] : null,
                   onTap: () {
-                    switchRoom(room);
+                    widget.switchRoomCallBack(room);
                     Navigator.pop(context);
                   },
                 ),
@@ -159,7 +180,7 @@ class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
                 title: const Text('Raum umbenennen'),
                 onTap: () {
                   // Set the initial text to the current room's name
-                  renameRoomController.text = widget.planPage.currentRoom.name;
+                  renameRoomController.text = widget.projekt.rooms[widget.selectedIndex].name;
 
                   showDialog(
                     context: context,
@@ -195,43 +216,42 @@ class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
       ),
     );
   }
+
   void createPDF() {
-    PDFExport().generatePDF(widget.projektName);
+    PDFExport().generatePDF(widget.projekt.name);
   }
+
   void renameProject() {
     String newName = renameProjectController.text.trim();
     setState(() {
-      widget.projektName = newName;
+      widget.projekt.name = newName;
     });
     renameRoomController.clear();
     Navigator.pop(context);
   }
+
   void renameRoom() {
     String newName = renameRoomController.text.trim();
     if (newName.isNotEmpty) {
       setState(() {
-        widget.planPage.currentRoom.name = newName;
+        widget.projekt.rooms[widget.selectedIndex].name = newName;
       });
-      widget.planPage.currentRoom.paintController.roomName = newName;
       renameRoomController.clear();
       Navigator.pop(context);
     }
   }
+
   void addNewRoom() {
     setState(() {
       String newRoomName = newRoomController.text.trim();
-    if (newRoomName.isNotEmpty) {
-      widget.rooms.add(Room(
-        name: newRoomName,
-        paintController: PaintController(),
-      ));
-      switchRoom(widget.rooms.last);
-      newRoomController.clear();
-      Navigator.pop(context);
-    }
+      if (newRoomName.isNotEmpty) {
+        widget.projekt.rooms.add(Room(
+          name: newRoomName,
+        ));
+        widget.switchRoomCallBack(widget.projekt.rooms.last);
+        newRoomController.clear();
+        Navigator.pop(context);
+      }
     });
-  }
-  void switchRoom(Room newRoom) {
-    widget.planPage.switchRoom(newRoom);
   }
 }

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -15,7 +14,7 @@ class PDFExport {
   PDFExport._internal();
 
   // Test Variablen
-  List<tempRoom> rooms = [new tempRoom(name: "Wohnzimmer", size: 20), new tempRoom(name: "Küche", size: 10), new tempRoom(name: "Bad", size: 5)];
+  List<TempRoom> rooms = [TempRoom(name: "Wohnzimmer", size: 20), TempRoom(name: "Küche", size: 10), TempRoom(name: "Bad", size: 5)];
 
   Future<void> generatePDF(String projectName) async {
     final pdf = pw.Document();
@@ -51,7 +50,7 @@ class PDFExport {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: pw.EdgeInsets.all(10),
+        margin: const pw.EdgeInsets.all(10),
         build: (pw.Context context) => [
           header,
           pw.Text('Räume', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
@@ -74,7 +73,7 @@ class PDFExport {
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
-          margin: pw.EdgeInsets.all(10),
+          margin: const pw.EdgeInsets.all(10),
           build: (pw.Context context) => [
             header,
             pw.SizedBox(height: 20),
@@ -92,11 +91,11 @@ class PDFExport {
 }
 
 //testklasse
-class tempRoom {
+class TempRoom {
   String name;
   int size;
 
-  tempRoom({
+  TempRoom({
     required this.name,
     required this.size,
   });

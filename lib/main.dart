@@ -1,12 +1,13 @@
-import 'package:aufmass_app/Hive/HiveOperator.dart';
+import 'package:aufmass_app/Hive/hive_operator.dart';
 import 'package:aufmass_app/MainMenu/classes/Baustelle.dart';
 import 'package:aufmass_app/MainMenu/classes/Room.dart';
-import 'package:aufmass_app/MainMenu/pages/homePage.dart';
-import 'package:aufmass_app/MainMenu/pages/roomPage.dart';
+import 'package:aufmass_app/MainMenu/pages/home_page.dart';
+import 'package:aufmass_app/MainMenu/pages/room_page.dart';
+import 'package:aufmass_app/PlanPage/projekt.dart';
+// ignore: unused_import
 import 'package:dcdg/dcdg.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/PlanPage/planpage.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
@@ -39,11 +40,15 @@ class Controller extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      initialRoute: "/home",
+      initialRoute: "/planpage",
       routes: {
-        "/home": (context) => Home(),
-        "/rooms": (context) => Rooms(),
-        "/planpage": (context) => PlanPage(),
+        "/home": (context) => const Home(),
+        "/rooms": (context) => const Rooms(),
+        "/planpage": (context) => PlanPage(
+              projekt: Projekt(
+                rooms: [],
+              ),
+            ),
       },
     );
   }
