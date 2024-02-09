@@ -76,7 +76,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
                 if (clickedThing is Flaeche) flaechenSideMenu(clickedThing),
                 if (clickedThing is Linie && !widget.isWallView) wallSideMenu(clickedThing),
                 if (clickedThing is DrawedWerkstoff) drawedWerkstoffSideMenu(clickedThing),
-                if (clickedThing is Grundflaeche) grundflaecheSideMeun(clickedThing),
+                if (clickedThing is Grundflaeche) grundflaecheSideMenu(clickedThing),
                 if (clickedThing is Einkerbung) einkerbungSideMenu(clickedThing),
               ],
             ),
@@ -213,7 +213,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
     );
   }
 
-  Widget grundflaecheSideMeun(Grundflaeche grundFlaeche) {
+  Widget grundflaecheSideMenu(Grundflaeche grundFlaeche) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
