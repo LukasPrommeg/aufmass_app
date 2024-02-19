@@ -46,9 +46,12 @@ class Overlap {
     if (werkstoff.werkstoff.typ == WerkstoffTyp.flaeche && walls.isNotEmpty) {
       laibungOverlaps.addAll(calcBorderInsideWerkstoffarea());
 
+      walls.addAll(laibungOverlaps);
+
       walls = sortWallsAndRemoveDuplicates(walls);
 
       walls.removeLast();
+
       flaeche = Flaeche(walls: walls);
       flaeche!.selected = true;
       laibungIntersects.clear();
@@ -89,13 +92,17 @@ class Overlap {
 
   List<Linie> removeDuplicateWalls(List<Linie> walls) {
     List<Linie> avaivable = List.from(walls);
+    int nmatches = 0;
     for (int i = 0; i < avaivable.length; i++) {
       List<Linie> matches = avaivable.where((element) => wallsAreEqual(avaivable[i], element)).toList();
       matches.removeLast();
       for (Linie match in matches) {
         avaivable.remove(match);
       }
+      nmatches += matches.length;
     }
+    print("REMOVED ${nmatches} MATCHES OF ${walls.length} ENTRIES");
+
     return avaivable;
   }
 
@@ -105,6 +112,8 @@ class Overlap {
     }
 
     List<Linie> avaivable = removeDuplicateWalls(walls);
+    //TODO: Sometime removeDuplicateWalls doesnt work on 1 Wall
+    //avaivable = removeDuplicateWalls(avaivable);
 
     List<Linie> out = [avaivable.first];
     avaivable.removeAt(0);
@@ -143,10 +152,10 @@ class Overlap {
         wall1.end.point.dx.roundToDouble() == wall2.end.point.dx.roundToDouble() &&
         wall1.end.point.dy.roundToDouble() == wall2.end.point.dy.roundToDouble()) {
       return true;
-    } else if (wall2.start.point.dx.roundToDouble() == wall1.start.point.dx.roundToDouble() &&
-        wall2.start.point.dy.roundToDouble() == wall1.start.point.dy.roundToDouble() &&
-        wall2.end.point.dx.roundToDouble() == wall1.end.point.dx.roundToDouble() &&
-        wall2.end.point.dy.roundToDouble() == wall1.end.point.dy.roundToDouble()) {
+    } else if (wall1.start.point.dx.roundToDouble() == wall2.end.point.dx.roundToDouble() &&
+        wall1.start.point.dy.roundToDouble() == wall2.end.point.dy.roundToDouble() &&
+        wall1.end.point.dx.roundToDouble() == wall2.start.point.dx.roundToDouble() &&
+        wall1.end.point.dy.roundToDouble() == wall2.start.point.dy.roundToDouble()) {
       return true;
     }
     return false;
@@ -169,8 +178,10 @@ class Overlap {
             }
           } else {
             Linie laibungOverlap = calcLengthOfOverlap(Linie.clone(borderSide));
-            laibungOverlap.selected = true;
-            result.add(laibungOverlap);
+            if (laibungOverlap.length > 0) {
+              laibungOverlap.selected = true;
+              result.add(laibungOverlap);
+            }
           }
         }
       }

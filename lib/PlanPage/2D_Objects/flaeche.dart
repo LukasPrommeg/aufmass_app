@@ -94,7 +94,6 @@ class Flaeche extends ClickAble {
     }
 
     double length = sqrt((pow(_walls.last.end.point.dx - _walls.first.start.point.dx, 2) + pow(_walls.last.end.point.dy - _walls.first.start.point.dy, 2))).abs();
-    lastWall = Linie.fromStart(angle: 0, length: length, start: _walls.last.end);
     lastWall = Linie(angle: 0, length: length, start: walls.last.end, end: walls.first.start);
     lastWall.start.scaled = walls.last.end.scaled;
     lastWall.end.scaled = walls.first.start.scaled;
