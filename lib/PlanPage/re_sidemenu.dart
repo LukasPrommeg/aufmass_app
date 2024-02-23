@@ -40,12 +40,43 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
     setGlobal: true,
   );
   dynamic clickedThing;
+  late Widget content;
 
   @override
   void initState() {
     super.initState();
 
     clickedThing = widget.clickedThing;
+
+    content = Column(
+      children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              clickedThing.runtimeType.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Divider(),
+            _einheitSelector,
+            const Divider(),
+          ],
+        ),
+        SingleChildScrollView(
+          child: Column(
+            children: [
+              if (clickedThing is Flaeche) flaechenSideMenu(clickedThing),
+              if (clickedThing is Linie && !widget.isWallView) wallSideMenu(clickedThing),
+              if (clickedThing is DrawedWerkstoff) drawedWerkstoffSideMenu(clickedThing),
+              if (clickedThing is Grundflaeche) grundflaecheSideMenu(clickedThing),
+              if (clickedThing is Einkerbung) einkerbungSideMenu(clickedThing),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -54,35 +85,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
     return Container(
       width: 250,
       color: Colors.grey[200],
-      child: Column(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                clickedThing.runtimeType.toString(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Divider(),
-              _einheitSelector,
-              const Divider(),
-            ],
-          ),
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                if (clickedThing is Flaeche) flaechenSideMenu(clickedThing),
-                if (clickedThing is Linie && !widget.isWallView) wallSideMenu(clickedThing),
-                if (clickedThing is DrawedWerkstoff) drawedWerkstoffSideMenu(clickedThing),
-                if (clickedThing is Grundflaeche) grundflaecheSideMenu(clickedThing),
-                if (clickedThing is Einkerbung) einkerbungSideMenu(clickedThing),
-              ],
-            ),
-          ),
-        ],
-      ),
+      child: content,
     );
   }
 
