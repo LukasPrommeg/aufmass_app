@@ -7,6 +7,7 @@ import 'package:aufmass_app/PlanPage/Einheiten/einheitselector.dart';
 import 'package:aufmass_app/PlanPage/Misc/alertinfo.dart';
 import 'package:aufmass_app/PlanPage/Misc/overlap.dart';
 import 'package:aufmass_app/PlanPage/Room_Parts/room_wall.dart';
+import 'package:aufmass_app/PlanPage/SidemenuInputs/inputhandler.dart';
 import 'package:aufmass_app/Werkstoffe/drawed_werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff.dart';
 import 'package:aufmass_app/Werkstoffe/werkstoff_controller.dart';
@@ -19,6 +20,7 @@ class RightPlanpageSidemenu extends StatefulWidget {
   final dynamic clickedThing;
   final bool isWallView;
   final List<String> generatedWalls;
+  final InputHandler inputHandler;
   final RepaintCallback onRepaintNeeded;
   final SwitchToWallViewCallback onWallViewGenerated;
 
@@ -27,6 +29,7 @@ class RightPlanpageSidemenu extends StatefulWidget {
     required this.clickedThing,
     required this.isWallView,
     required this.generatedWalls,
+    required this.inputHandler,
     required this.onRepaintNeeded,
     required this.onWallViewGenerated,
   });
@@ -48,42 +51,72 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
 
     clickedThing = widget.clickedThing;
 
-    content = Column(
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    initContent();
+
+    widget.inputHandler.needsRepaintEvent.subscribe((args) => repaintHandler());
+  }
+
+  @override
+  void dispose() {
+    widget.inputHandler.needsRepaintEvent.unsubscribeAll();
+    super.dispose();
+  }
+
+  void repaintHandler() {
+    setState(() {
+      initContent();
+    });
+  }
+
+  void initContent() {
+    if (widget.inputHandler.currentlyHandling != CurrentlyHandling.nothing) {
+      content = Container(
+        margin: const EdgeInsets.all(10),
+        child: Column(
           children: [
-            Text(
-              clickedThing.runtimeType.toString(),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Divider(),
-            _einheitSelector,
-            const Divider(),
+            widget.inputHandler.display(),
           ],
         ),
-        SingleChildScrollView(
-          child: Column(
+      );
+    } else {
+      content = Column(
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (clickedThing is Flaeche) flaechenSideMenu(clickedThing),
-              if (clickedThing is Linie && !widget.isWallView) wallSideMenu(clickedThing),
-              if (clickedThing is DrawedWerkstoff) drawedWerkstoffSideMenu(clickedThing),
-              if (clickedThing is Grundflaeche) grundflaecheSideMenu(clickedThing),
-              if (clickedThing is Einkerbung) einkerbungSideMenu(clickedThing),
+              Text(
+                clickedThing.runtimeType.toString(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Divider(),
+              _einheitSelector,
+              const Divider(),
             ],
           ),
-        ),
-      ],
-    );
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                if (clickedThing is Flaeche) flaechenSideMenu(clickedThing),
+                if (clickedThing is Linie && !widget.isWallView) wallSideMenu(clickedThing),
+                if (clickedThing is DrawedWerkstoff) drawedWerkstoffSideMenu(clickedThing),
+                if (clickedThing is Grundflaeche) grundflaecheSideMenu(clickedThing),
+                if (clickedThing is Einkerbung) einkerbungSideMenu(clickedThing),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    initContent();
     // Sidemenü rechts
     return Container(
-      width: 250,
+      width: 300,
       color: Colors.grey[200],
       child: content,
     );
@@ -231,6 +264,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
                 onTap: () {
                   setState(() {
                     clickedThing = einkerbung;
+                    initContent();
                   });
                 },
               ),

@@ -14,4 +14,24 @@ class Werkstoff {
   final WerkstoffTyp typ;
 
   Werkstoff({required this.name, required this.color, required this.typ});
+
+  bool needsmorePoints(double amountOfDrawedPoints) {
+    switch (typ) {
+      case WerkstoffTyp.flaeche:
+        break;
+      case WerkstoffTyp.linie:
+        if (amountOfDrawedPoints == 2) {
+          return false;
+        }
+        break;
+      case WerkstoffTyp.point:
+        if (amountOfDrawedPoints == 1) {
+          return false;
+        }
+        break;
+      default:
+        return false;
+    }
+    return true;
+  }
 }

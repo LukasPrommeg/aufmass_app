@@ -1,5 +1,6 @@
 import 'package:aufmass_app/PlanPage/Misc/alertinfo.dart';
 import 'package:aufmass_app/PlanPage/Misc/loadingblur.dart';
+import 'package:aufmass_app/PlanPage/SidemenuInputs/inputhandler.dart';
 import 'package:aufmass_app/PlanPage/li_sidemenu.dart';
 import 'package:aufmass_app/PlanPage/projekt.dart';
 import 'package:aufmass_app/PlanPage/re_sidemenu.dart';
@@ -156,15 +157,18 @@ class PlanPageContent extends State<PlanPage> {
 
     if (rightSidemenu == null) {
       bool isWallView = false;
+      InputHandler inputHandler = currentRoom.paintController.inputHandler;
 
       if (currentWallView != null) {
         isWallView = true;
+        inputHandler = currentWallView!.paintController.inputHandler;
       }
 
       side = RightPlanpageSidemenu(
         clickedThing: clickedThing,
         isWallView: isWallView,
         generatedWalls: currentRoom.walls.keys.toList(),
+        inputHandler: inputHandler,
         onRepaintNeeded: repaintDrawing,
         onWallViewGenerated: (roomWall) => openWallViewCallback(roomWall),
       );
@@ -176,9 +180,11 @@ class PlanPageContent extends State<PlanPage> {
 
   void enableRightSidemenu(dynamic clicked) {
     bool isWallView = false;
+    InputHandler inputHandler = currentRoom.paintController.inputHandler;
 
     if (currentWallView != null) {
       isWallView = true;
+      inputHandler = currentWallView!.paintController.inputHandler;
     }
 
     setState(() {
@@ -187,6 +193,7 @@ class PlanPageContent extends State<PlanPage> {
         clickedThing: clickedThing,
         isWallView: isWallView,
         generatedWalls: currentRoom.walls.keys.toList(),
+        inputHandler: inputHandler,
         onRepaintNeeded: repaintDrawing,
         onWallViewGenerated: (roomWall) => openWallViewCallback(roomWall),
       );

@@ -22,5 +22,6 @@ class RoomWall extends RoomPart {
 
     grundflaeche = Grundflaeche(raumName: name, walls: walls);
     paintController.grundFlaeche = grundflaeche;
+    paintController.reset();
   }
 }
