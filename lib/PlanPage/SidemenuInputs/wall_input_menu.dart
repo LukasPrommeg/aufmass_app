@@ -94,7 +94,7 @@ class WallInputMenu extends StatelessWidget {
               ElevatedButton(
                 onPressed: undoCallback,
                 child: Container(
-                    width: 80,
+                    width: 90,
                     height: 50,
                     alignment: Alignment.bottomCenter,
                     child: const Column(
@@ -120,7 +120,7 @@ class WallInputMenu extends StatelessWidget {
                   addWallCallback(wall);
                 },
                 child: Container(
-                    width: 80,
+                    width: 90,
                     alignment: Alignment.center,
                     child: const Column(
                       children: [
@@ -140,7 +140,7 @@ class WallInputMenu extends StatelessWidget {
               ElevatedButton(
                 onPressed: cancelCallback,
                 child: Container(
-                    width: 80,
+                    width: 90,
                     alignment: Alignment.center,
                     child: const Column(
                       children: [
@@ -152,7 +152,7 @@ class WallInputMenu extends StatelessWidget {
               ElevatedButton(
                 onPressed: finishCallback,
                 child: Container(
-                    width: 80,
+                    width: 90,
                     alignment: Alignment.center,
                     child: const Column(
                       children: [
@@ -174,7 +174,7 @@ class WallInputMenu extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () => presetCallback("testWohnzimmer"),
                   child: Container(
-                      width: 80,
+                      width: 90,
                       alignment: Alignment.center,
                       child: const Column(
                         children: [

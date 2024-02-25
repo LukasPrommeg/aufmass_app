@@ -576,7 +576,11 @@ class PaintController {
     linePainter.reset();
     updateInputHandler();
     inputHandler.updateStartingpointInput();
-    inputHandler.currentlyHandling = CurrentlyHandling.nothing;
+    if (grundFlaeche == null) {
+      inputHandler.currentlyHandling = CurrentlyHandling.lines;
+    } else {
+      inputHandler.currentlyHandling = CurrentlyHandling.nothing;
+    }
     refreshMenuElements.broadcast();
   }
 
