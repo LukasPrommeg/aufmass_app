@@ -9,12 +9,14 @@ typedef UndoCallback = void Function();
 typedef CancelCallback = void Function();
 typedef FinishCallback = void Function();
 typedef AddWallCallback = void Function(Linie wall);
+typedef PresetCallback = void Function(String presetName);
 
 class WallInputMenu extends StatelessWidget {
   final UndoCallback undoCallback;
   final CancelCallback cancelCallback;
   final FinishCallback finishCallback;
   final AddWallCallback addWallCallback;
+  final PresetCallback presetCallback;
 
   final bool drawingGrundflache;
   final double lastWallAngle;
@@ -27,6 +29,7 @@ class WallInputMenu extends StatelessWidget {
     required this.cancelCallback,
     required this.finishCallback,
     required this.addWallCallback,
+    required this.presetCallback,
     this.drawingGrundflache = false,
     this.lastWallAngle = 0,
     this.isFirstWall = false,
@@ -160,6 +163,28 @@ class WallInputMenu extends StatelessWidget {
               ),
             ],
           ),
+          if (drawingGrundflache)
+            const SizedBox(
+              height: 15,
+            ),
+          if (drawingGrundflache)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () => presetCallback("testWohnzimmer"),
+                  child: Container(
+                      width: 80,
+                      alignment: Alignment.center,
+                      child: const Column(
+                        children: [
+                          Icon(Icons.polyline),
+                          Text("Preset"),
+                        ],
+                      )),
+                ),
+              ],
+            ),
         ],
       ),
     );

@@ -27,16 +27,6 @@ class LinePainter extends CustomPainter {
     }
   }
 
-  bool finishArea() {
-    if (_walls.length > 1) {
-      _walls.clear();
-      isDrawing = false;
-      selectedCorner = null;
-      return true;
-    }
-    return false;
-  }
-
   void reset() {
     _walls.clear();
     isDrawing = false;

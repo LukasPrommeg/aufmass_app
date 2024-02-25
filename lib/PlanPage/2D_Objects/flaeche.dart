@@ -21,10 +21,12 @@ class Flaeche extends ClickAble {
   }) : super(hbSize: 0) {
     _walls = walls;
 
-    unscaledPath.moveTo(_walls.first.start.point.dx, _walls.first.start.point.dy);
+    Offset start = _walls.first.start.getRounded();
+    unscaledPath.moveTo(start.dx, start.dy);
 
     for (Linie wall in _walls) {
-      unscaledPath.lineTo(wall.end.point.dx, wall.end.point.dy);
+      Offset point = wall.end.getRounded();
+      unscaledPath.lineTo(point.dx, point.dy);
     }
     unscaledPath.close();
 

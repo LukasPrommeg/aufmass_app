@@ -26,6 +26,21 @@ class Punkt extends ClickAble {
 
   Punkt.clone(Punkt corner) : this(point: corner.point, scaled: corner.scaled, path: corner.path);
 
+  bool equals(Punkt other) {
+    if (point.dx.roundToDouble() == other.point.dx.roundToDouble() && point.dy.roundToDouble() == other.point.dy.roundToDouble()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Offset getRounded() {
+    double dx = double.parse(point.dx.toStringAsFixed(2));
+    double dy = double.parse(point.dy.toStringAsFixed(2));
+
+    return Offset(dx, dy);
+  }
+
   @override
   @protected
   void calcHitbox() {

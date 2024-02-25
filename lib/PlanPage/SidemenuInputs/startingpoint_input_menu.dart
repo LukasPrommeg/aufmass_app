@@ -7,14 +7,13 @@ typedef CancelCallback = void Function();
 typedef SetStartingpointCallback = void Function(Punkt punkt);
 typedef SubmitCallback = void Function(Punkt punkt);
 
+// ignore: must_be_immutable
 class StartingpointInputMenu extends StatelessWidget {
   final CancelCallback cancelCallback;
   final SetStartingpointCallback setStartingpointCallback;
   final SubmitCallback submitCallback;
 
-  final EinheitSelector einheitSelector = EinheitSelector(
-    setGlobal: true,
-  );
+  late EinheitSelector einheitSelector;
 
   final TextEditingController _negX = TextEditingController();
   final TextEditingController _posX = TextEditingController();
@@ -29,7 +28,17 @@ class StartingpointInputMenu extends StatelessWidget {
     required this.cancelCallback,
     required this.setStartingpointCallback,
     required this.submitCallback,
-  });
+  }) {
+    einheitSelector = EinheitSelector(
+      setGlobal: true,
+      onChangeCallback: (p0) {
+        Punkt? calc = calcStartingpoint();
+        if (calc != null) {
+          setStartingpointCallback(calc);
+        }
+      },
+    );
+  }
 
   Punkt? calcStartingpoint() {
     try {

@@ -59,7 +59,7 @@ class PaintController {
 
   //Events
   final updateScaleRectEvent = Event<ScalingData>();
-  final updateDrawingState = Event();
+  final refreshMenuElements = Event();
   final clickedEvent = Event<EventArgs>();
   final clickedGrundEvent = Event<ClickAble>();
 
@@ -67,26 +67,42 @@ class PaintController {
     inputHandler = InputHandler(
       undoCallback: undo,
       cancelCallback: reset,
-      finishCallback: () => addWall(null),
-      addLinieCallback: (wall) async {
-        LoadingBlur().enableBlur();
-        addWall(wall).then((value) => LoadingBlur().disableBlur());
-        /*
-        Linie added = walls.singleWhere((element) => _wallCount == element.id);
-        if (added == walls.first && _wallCount != 1) {
-          linePainter.selectedCorner = walls.first.start;
+      finishCallback: () {
+        if (walls.length > 1) {
+          addWall(null);
+          return true;
         } else {
-          linePainter.selectedCorner = walls.last.end;
-        }*/
-        updateInputHandler();
+          AlertInfo().newAlert("Nicht genügend Punkte!");
+          return false;
+        }
       },
+      addLinieCallback: (wall) => addLinieCallback(wall),
       setStartingpointCallback: (punkt) {
-        punkt.initScale(scalingData.scale, scalingData.center);
-        linePainter.selectedCorner = punkt;
-        repaint();
+        if (grundFlaeche == null) {
+          return;
+        }
+        if (grundFlaeche!.unscaledPath.contains(punkt.getRounded())) {
+          punkt.initScale(scalingData.scale, scalingData.center);
+          linePainter.selectedCorner = punkt;
+          repaint();
+        } else {
+          linePainter.selectedCorner = null;
+        }
       },
-      submitCallback: (punkt) {
-        startDrawing(punkt);
+      submitStartingpointCallback: (punkt) {
+        if (grundFlaeche == null) {
+          return false;
+        }
+        if (grundFlaeche!.unscaledPath.contains(punkt.getRounded())) {
+          startDrawing(punkt);
+          return true;
+        }
+        AlertInfo().newAlert("Punkt außerhalb des Raumes");
+        linePainter.selectedCorner = null;
+        return false;
+      },
+      presetCallback: (presetName) {
+        flaechenName = presetName;
       },
     );
 
@@ -168,11 +184,13 @@ class PaintController {
   void selectStartingpoint() {
     polyPainter.selectCorner = true;
     inputHandler.currentlyHandling = CurrentlyHandling.startingPoint;
+    refreshMenuElements.broadcast();
     repaint();
   }
 
   void startDrawing(Punkt punkt) {
     punkt.initScale(scalingData.scale, scalingData.center);
+    polyPainter.selectedCorner = null;
     switch (_selectActionPopup.selected) {
       case "Werkstoff":
         _drawingWerkstoff = true;
@@ -185,6 +203,7 @@ class PaintController {
           linePainter.selectedCorner = punkt;
 
           inputHandler.currentlyHandling = CurrentlyHandling.lines;
+          refreshMenuElements.broadcast();
         } else {
           finishWerkstoff();
         }
@@ -199,6 +218,7 @@ class PaintController {
         linePainter.selectedCorner = punkt;
 
         inputHandler.currentlyHandling = CurrentlyHandling.lines;
+        refreshMenuElements.broadcast();
 
         break;
       default:
@@ -207,98 +227,36 @@ class PaintController {
     }
   }
 
-/*
-  void handleWerkstoffInputState(InputStateEventArgs? args) {
-    if (args != null) {
-      polyPainter.selectCorner = false;
-      polyPainter.selectedCorner = null;
-      _drawingWerkstoff = false;
-      polyPainter.hiddenCorners.clear();
-      switch (args.value) {
-        case InputState.selectWerkstoff:
-          _selectActionPopup.selected = "";
-          break;
-        case InputState.selectStartingpoint:
-          polyPainter.selectCorner = true;
-          break;
-        case InputState.draw:
-          _werkstoffPopup.calcStartingpointWithOffset();
-          if (_werkstoffPopup.startingPoint != null) {
-            _werkstoffPopup.startingPoint!.initScale(scalingData.scale, scalingData.center);
-            if (_werkstoffPopup.werkStoffneedsmorePoints()) {
-              _drawingWerkstoff = true;
-              polyPainter.selectCorner = true;
-              _selectActionPopup.selected = "";
-              Punkt? startPoly = grundFlaeche!.findCornerAtPoint(_werkstoffPopup.startingPoint!.point);
-              if (startPoly != null) {
-                polyPainter.hiddenCorners.add(startPoly);
-              }
-              linePainter.isDrawing = true;
-              linePainter.selectedCorner = _werkstoffPopup.startingPoint;
-            } else {
-              finishWerkstoff();
-            }
-          } else {
-            //Fehlercode 2
-            AlertInfo().newAlert("Ihre Eingabe waren keine Zahlen! (Code: 2)");
-          }
-
-          break;
-        default:
-          break;
+  void addLinieCallback(Linie wall) async {
+    LoadingBlur().enableBlur();
+    addWall(wall).then((value) {
+      Linie? added = walls.singleWhereOrNull((element) => _wallCount == element.id);
+      if (added == null) {
+        //TODO: Keine ahnung wos donn passieren suit mann
+        AlertInfo().newAlert("Letzte Wand nicht gefunden!");
+      } else if (added == walls.first && _wallCount != 1) {
+        linePainter.selectedCorner = walls.first.start;
+      } else {
+        linePainter.selectedCorner = walls.last.end;
       }
-      repaint();
-    }
+
+      updateInputHandler();
+
+      LoadingBlur().disableBlur();
+    });
   }
 
-  void handleEinkerbungInput(InputStateEventArgs? args) {
-    if (args != null) {
-      polyPainter.selectCorner = false;
-      polyPainter.selectedCorner = null;
-      _drawingAusnahme = false;
-      polyPainter.hiddenCorners.clear();
-      switch (args.value) {
-        case InputState.inputEinkerbung:
-          _selectActionPopup.selected = "";
-          break;
-        case InputState.selectStartingpoint:
-          polyPainter.selectCorner = true;
-          break;
-        case InputState.draw:
-          _ausnahmePopup.calcStartingpointWithOffset();
-          if (_ausnahmePopup.startingPoint != null) {
-            _ausnahmePopup.startingPoint!.initScale(scalingData.scale, scalingData.center);
-            _drawingAusnahme = true;
-            polyPainter.selectCorner = true;
-            _selectActionPopup.selected = "";
-            Punkt? startPoly = grundFlaeche!.findCornerAtPoint(_ausnahmePopup.startingPoint!.point);
-            if (startPoly != null) {
-              polyPainter.hiddenCorners.add(startPoly);
-            }
-            linePainter.isDrawing = true;
-            linePainter.selectedCorner = _ausnahmePopup.startingPoint;
-          } else {
-            //Fehlercode 3
-            AlertInfo().newAlert("Ihre Eingabe waren keine Zahlen! (Code: 3)");
-          }
-          break;
-        default:
-          break;
-      }
-      repaint();
-    }
-  }
-*/
   Future<void> addWall(Linie? wall) async {
     if (wall != null) {
       if (wall.length == 0 && inputHandler.currentlyHandling == CurrentlyHandling.lines) {
         try {
-          Punkt startPoint = inputHandler.selectedPunkt;
-          if (walls.isNotEmpty && linePainter.selectedCorner != null) {
-            startPoint = linePainter.selectedCorner!;
-          }
+          Punkt startPoint = linePainter.selectedCorner!;
           double length = await grundFlaeche!.findMaxLength(startPoint, wall.angle);
-          wall = Linie.fromStart(angle: wall.angle, length: length, start: Punkt.fromPoint(point: Offset.zero));
+          if (length > 0) {
+            wall = Linie.fromStart(angle: wall.angle, length: length, start: Punkt.fromPoint(point: Offset.zero));
+          } else {
+            AlertInfo().newAlert("Fehler bei der Ermittlung der maximalen Länge");
+          }
         } catch (ex) {
           AlertInfo().newAlert("Fehler beim Startpunkt!");
         }
@@ -307,8 +265,7 @@ class PaintController {
         if (_drawingWerkstoff || _drawingAusnahme) {
           wall = Linie.fromStart(angle: wall!.angle, length: wall.length, start: linePainter.selectedCorner!);
           if (!grundFlaeche!.containsFullWall(wall, forEinkerbung: _drawingAusnahme)) {
-            polyPainter.hiddenCorners
-                .removeWhere((element) => element.point.dx.roundToDouble() == wall!.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
+            polyPainter.hiddenCorners.removeWhere((element) => element.equals(wall!.end));
             AlertInfo().newAlert("Außerhalb des Raums");
             return;
           }
@@ -316,7 +273,7 @@ class PaintController {
         _wallCount++;
         wall!.id = _wallCount;
         walls.add(wall);
-        updateDrawingState.broadcast();
+        refreshMenuElements.broadcast();
       } else {
         if (linePainter.selectedCorner == null) {
           //Fehlercode 1
@@ -330,8 +287,7 @@ class PaintController {
               wall = Linie.fromEnd(angle: wall.angle - 180, length: wall.length, end: walls.first.start);
             }
             if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall, forEinkerbung: _drawingAusnahme)) {
-              polyPainter.hiddenCorners
-                  .removeWhere((element) => element.point.dx.roundToDouble() == wall!.start.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.start.point.dy.roundToDouble());
+              polyPainter.hiddenCorners.removeWhere((element) => element.equals(wall!.start));
               AlertInfo().newAlert("Außerhalb des Raums");
               return;
             }
@@ -341,8 +297,7 @@ class PaintController {
           } else if (linePainter.selectedCorner! == walls.last.end) {
             wall = Linie.fromStart(angle: wall!.angle, length: wall.length, start: walls.last.end);
             if ((_drawingAusnahme || _drawingWerkstoff) && !grundFlaeche!.containsFullWall(wall, forEinkerbung: _drawingAusnahme)) {
-              polyPainter.hiddenCorners
-                  .removeWhere((element) => element.point.dx.roundToDouble() == wall!.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
+              polyPainter.hiddenCorners.removeWhere((element) => element.equals(wall!.end));
               AlertInfo().newAlert("Außerhalb des Raums");
               return;
             }
@@ -385,7 +340,7 @@ class PaintController {
             double length = sqrt(pow(diff.dx, 2) + pow(diff.dy, 2));
             Linie wall = Linie(angle: angle, length: length, start: linePainter.selectedCorner!, end: wallEnd);
             polyPainter.hiddenCorners.add(wallEnd);
-            addWall(wall);
+            addLinieCallback(wall);
           } else if (walls.isNotEmpty) {
             linePainter.selectedCorner = linePainter.detectClickedCorner(position);
             updateInputHandler();
@@ -399,6 +354,7 @@ class PaintController {
       polyPainter.selectedCorner = grundFlaeche?.detectClickedCorner(position);
       if (polyPainter.selectedCorner != null) {
         inputHandler.updateStartingpointInput(selectedPunkt: polyPainter.selectedCorner!);
+        refreshMenuElements.broadcast();
         linePainter.selectedCorner = null;
       } else {
         inputHandler.updateStartingpointInput();
@@ -485,10 +441,8 @@ class PaintController {
   }
 
   void finishArea() {
-    if (linePainter.finishArea()) {
-      grundFlaeche = Grundflaeche(raumName: _flaechenName, walls: List.from(walls));
-      reset();
-    }
+    grundFlaeche = Grundflaeche(raumName: _flaechenName, walls: List.from(walls));
+    reset();
   }
 
   void finishWerkstoff() {
@@ -539,11 +493,9 @@ class PaintController {
       walls.removeWhere((wall) {
         if (wall.id == _wallCount) {
           if (wall == walls.first) {
-            polyPainter.hiddenCorners
-                .removeWhere((element) => element.point.dx.roundToDouble() == wall.start.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.start.point.dy.roundToDouble());
+            polyPainter.hiddenCorners.removeWhere((element) => element.equals(wall.start));
           } else {
-            polyPainter.hiddenCorners
-                .removeWhere((element) => element.point.dx.roundToDouble() == wall.end.point.dx.roundToDouble() && element.point.dy.roundToDouble() == wall.end.point.dy.roundToDouble());
+            polyPainter.hiddenCorners.removeWhere((element) => element.equals(wall.end));
           }
           return true;
         }
@@ -625,7 +577,7 @@ class PaintController {
     updateInputHandler();
     inputHandler.updateStartingpointInput();
     inputHandler.currentlyHandling = CurrentlyHandling.nothing;
-    updateDrawingState.broadcast();
+    refreshMenuElements.broadcast();
   }
 
   Future<void> displayDialog(BuildContext context) async {

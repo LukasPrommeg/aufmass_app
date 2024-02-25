@@ -120,7 +120,7 @@ class Grundflaeche extends Flaeche {
 
     double length = 0;
     Offset einheitsVektor = Offset.fromDirection((angle - 90) * pi / 180, stepLengths.first);
-    Offset origin = startingPoint.point;
+    Offset origin = Offset(startingPoint.point.dx.roundToDouble(), startingPoint.point.dy.roundToDouble());
 
     Path temp = Path.from(unscaledPath);
 
@@ -135,15 +135,23 @@ class Grundflaeche extends Flaeche {
       //await Future<void>.delayed(Duration.zero);
 
       einheitsVektor = Offset.fromDirection((angle - 90) * pi / 180, step);
+      double dx = double.parse(einheitsVektor.dx.toStringAsFixed(3));
+      double dy = double.parse(einheitsVektor.dy.toStringAsFixed(3));
+      einheitsVektor = Offset(dx, dy);
 
       Offset next = origin + einheitsVektor;
+
+      print("$next ${temp.contains(next)}");
 
       while (temp.contains(next)) {
         origin = next;
         length += step;
         next += einheitsVektor;
       }
+      print("Step $step finished");
     }
+
+    print(temp.getBounds());
 
     return double.parse(length.toStringAsFixed(2));
   }

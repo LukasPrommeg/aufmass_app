@@ -13,10 +13,10 @@ enum CurrentlyHandling {
 
 typedef UndoCallback = void Function();
 typedef CancelCallback = void Function();
-typedef FinishCallback = void Function();
+typedef FinishCallback = bool Function();
 typedef AddLinieCallback = void Function(Linie wall);
 typedef SetStartingpointCallback = void Function(Punkt punkt);
-typedef SubmitCallback = void Function(Punkt punkt);
+typedef SubmitCallback = bool Function(Punkt punkt);
 
 class InputHandler {
   CurrentlyHandling _currentlyHandling = CurrentlyHandling.lines;
@@ -36,7 +36,8 @@ class InputHandler {
   final FinishCallback finishCallback;
   final AddLinieCallback addLinieCallback;
   final SetStartingpointCallback setStartingpointCallback;
-  final SubmitCallback submitCallback;
+  final SubmitCallback submitStartingpointCallback;
+  final PresetCallback presetCallback;
 
   bool _drawingGrundflache = true;
   double _lastWallAngle = 0;
@@ -78,7 +79,8 @@ class InputHandler {
     required this.finishCallback,
     required this.addLinieCallback,
     required this.setStartingpointCallback,
-    required this.submitCallback,
+    required this.submitStartingpointCallback,
+    required this.presetCallback,
   });
 
   Widget display() {
@@ -94,18 +96,22 @@ class InputHandler {
           key: UniqueKey(),
           undoCallback: undoCallback,
           cancelCallback: () {
-            _currentlyHandling = CurrentlyHandling.nothing;
             cancelCallback();
+            if (_drawingGrundflache) {
+              _currentlyHandling = CurrentlyHandling.lines;
+            }
           },
           finishCallback: () {
-            finishCallback();
-            _currentlyHandling = CurrentlyHandling.nothing;
+            if (finishCallback()) {
+              _currentlyHandling = CurrentlyHandling.nothing;
+            }
             needsRepaintEvent.broadcast();
           },
           addWallCallback: (wall) {
             addLinieCallback(wall);
             needsRepaintEvent.broadcast();
           },
+          presetCallback: (presetName) => presetCallback(presetName),
         );
       case CurrentlyHandling.startingPoint:
         return StartingpointInputMenu(
@@ -118,7 +124,7 @@ class InputHandler {
             setStartingpointCallback(punkt);
           },
           submitCallback: (punkt) {
-            submitCallback(punkt);
+            submitStartingpointCallback(punkt);
             startingPoint = punkt;
             needsRepaintEvent.broadcast();
           },

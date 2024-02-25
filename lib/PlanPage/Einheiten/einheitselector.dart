@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/PlanPage/Einheiten/einheitcontroller.dart';
 
+typedef OnChangeCallback = void Function(Einheit);
+
 //ignore: must_be_immutable
 class EinheitSelector extends StatefulWidget {
-  EinheitSelector({super.key, this.setGlobal = false}) {
+  EinheitSelector({super.key, this.setGlobal = false, this.onChangeCallback}) {
     selected = controller.selectedEinheit;
   }
 
   final controller = EinheitController();
+  final OnChangeCallback? onChangeCallback;
   final bool setGlobal;
   late Einheit selected;
 
@@ -34,8 +37,7 @@ class _EinheitSelectorState extends State<EinheitSelector> {
 
   _EinheitSelectorState() {
     for (Einheit einheit in Einheit.values) {
-      _segments.add(
-          ButtonSegment<Einheit>(value: einheit, label: Text(einheit.name)));
+      _segments.add(ButtonSegment<Einheit>(value: einheit, label: Text(einheit.name)));
     }
   }
 
@@ -53,6 +55,9 @@ class _EinheitSelectorState extends State<EinheitSelector> {
             widget.controller.selectedEinheit = newVal.first;
           }
           widget.selected = newVal.first;
+          if (widget.onChangeCallback != null) {
+            widget.onChangeCallback!(widget.selected);
+          }
         });
       },
     );

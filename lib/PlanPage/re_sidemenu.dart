@@ -24,7 +24,7 @@ class RightPlanpageSidemenu extends StatefulWidget {
   final RepaintCallback onRepaintNeeded;
   final SwitchToWallViewCallback onWallViewGenerated;
 
-  const RightPlanpageSidemenu({
+  RightPlanpageSidemenu({
     super.key,
     required this.clickedThing,
     required this.isWallView,
@@ -36,6 +36,11 @@ class RightPlanpageSidemenu extends StatefulWidget {
 
   @override
   State<RightPlanpageSidemenu> createState() => _RightPlanpageSidemenuState();
+
+  final ValueNotifier<int> _unsubscribeTrigger = ValueNotifier<int>(0);
+  void unsubscribeInputHandler() {
+    _unsubscribeTrigger.value++;
+  }
 }
 
 class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
@@ -54,11 +59,22 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
     initContent();
 
     widget.inputHandler.needsRepaintEvent.subscribe((args) => repaintHandler());
+
+    widget._unsubscribeTrigger.addListener(() => unsubscribeInputHandler());
+  }
+
+  bool unsubscribed = false;
+
+  void unsubscribeInputHandler() {
+    widget.inputHandler.needsRepaintEvent.unsubscribeAll();
+    unsubscribed = true;
   }
 
   @override
   void dispose() {
-    widget.inputHandler.needsRepaintEvent.unsubscribeAll();
+    if (!unsubscribed) {
+      unsubscribeInputHandler();
+    }
     super.dispose();
   }
 
@@ -116,8 +132,16 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
     initContent();
     // Sidemenü rechts
     return Container(
-      width: 300,
-      color: Colors.grey[200],
+      width: widget.inputHandler.currentlyHandling == CurrentlyHandling.nothing ? 200 : 325,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        border: const Border(
+          left: BorderSide(
+            color: Colors.deepPurple,
+            width: 5,
+          ),
+        ),
+      ),
       child: content,
     );
   }
