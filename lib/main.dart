@@ -22,8 +22,8 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(BaustelleAdapter());
   Hive.registerAdapter(RoomAdapter());
-  await Hive.openBox<Baustelle>(HiveOperator().baustellenBoxString, path: HiveOperator().path);
-  await Hive.openBox<Room>(HiveOperator().roomBoxString, path: HiveOperator().path);
+  await Hive.openBox<Baustelle>(HiveOperator().baustellenBoxString /*, path: HiveOperator().path*/);
+  await Hive.openBox<Room>(HiveOperator().roomBoxString /*, path: HiveOperator().path*/);
 
   // ]
 

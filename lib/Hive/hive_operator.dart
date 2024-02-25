@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 
 class HiveOperator {
-  final String path = "lib/Hive";
+  //final String path = "lib/Hive";
   final String baustellenBoxString = "baustellenBox";
   final String roomBoxString = "roomBox";
 
@@ -18,7 +18,7 @@ class HiveOperator {
   // ]
 
   Future<List<T>> getListFromHive<T>(String boxName) async {
-    final box = await Hive.openBox<T>(boxName, path: path);
+    final box = await Hive.openBox<T>(boxName /*, path: path*/);
     //final box = Hive.box<T>(boxName);
     try {
       return box.values.toList();
@@ -28,23 +28,21 @@ class HiveOperator {
   }
 
   Future<T?> getObjectFromHive<T>(dynamic key, String boxName) async {
-    final box = await Hive.openBox<T>(boxName, path: path);
+    final box = await Hive.openBox<T>(boxName /*, path: path*/);
     try {
       T? object = box.get(key);
-      if(object != null) {
+      if (object != null) {
         return object;
-      }
-      else {
+      } else {
         return null;
       }
-    }
-    finally {
+    } finally {
       await box.close();
     }
   }
 
   Future<void> addToHive<HiveObject>(HiveObject object, String boxName) async {
-    final box = await Hive.openBox<HiveObject>(boxName, path: path);
+    final box = await Hive.openBox<HiveObject>(boxName /*, path: path*/);
     try {
       await box.add(object);
     } finally {
@@ -54,27 +52,25 @@ class HiveOperator {
   }
 
   Future<void> changeInHive<T>(T newObject, dynamic oldObjectKey, String boxName) async {
-    final box = await Hive.openBox<T>(boxName, path: path);
+    final box = await Hive.openBox<T>(boxName /*, path: path*/);
     try {
       await box.put(oldObjectKey, newObject);
-    }
-    finally {
+    } finally {
       await box.close();
     }
   }
 
   Future<void> deleteFromHive<T>(dynamic objectKey, String boxName) async {
-    final box = await Hive.openBox<T>(boxName, path: path);
+    final box = await Hive.openBox<T>(boxName /*, path: path*/);
     try {
       await box.delete(objectKey);
-    }
-    finally {
+    } finally {
       await box.close();
     }
   }
 
   Future<void> deleteAllObjectsWithKeyFromHive<T extends HiveObject>(dynamic parameterKey, String boxName) async {
-    final box = await Hive.openBox<T>(boxName, path: path);
+    final box = await Hive.openBox<T>(boxName /*, path: path*/);
 
     try {
       // Get a list of keys to delete
@@ -89,8 +85,7 @@ class HiveOperator {
       for (dynamic key in keysToDelete) {
         await box.delete(key);
       }
-    }
-    finally {
+    } finally {
       await box.close();
     }
   }
