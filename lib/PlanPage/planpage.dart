@@ -312,7 +312,7 @@ class PlanPageContent extends State<PlanPage> {
                     currentWallView != null ? currentWallView!.drawRoomPart() : currentRoom.drawRoomPart(),
                     SizedBox(
                       height: 100,
-                      child: AlertInfo(),
+                      child: AlertInfo().widget(),
                     ),
                     Align(
                       alignment: Alignment.centerRight,

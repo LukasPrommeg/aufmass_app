@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-//ignore: must_be_immutable
-class AlertInfo extends StatefulWidget {
+class AlertInfo {
   static final AlertInfo _instance = AlertInfo._internal();
 
   @protected
   final ValueNotifier<int> _newValNotifier = ValueNotifier<int>(0);
+  String text = "";
+  Color textColor = Colors.red;
 
   factory AlertInfo() {
     return _instance;
@@ -17,18 +18,43 @@ class AlertInfo extends StatefulWidget {
     _instance._newValNotifier.value++;
   }
 
+  Widget widget() {
+    return AlertInfoWidget(
+      newValNotifier: _newValNotifier,
+    );
+  }
+
   AlertInfo._internal() {
     //Constructor
   }
+}
 
+//ignore: must_be_immutable
+class AlertInfoWidget extends StatefulWidget {
   String text = "";
   Color textColor = Colors.red;
 
+  @protected
+  final ValueNotifier<int> _showAlertNotifier = ValueNotifier<int>(0);
+
+  AlertInfoWidget({
+    super.key,
+    required ValueNotifier<int> newValNotifier,
+  }) {
+    newValNotifier.addListener(showAlert);
+  }
+
+  showAlert() {
+    text = AlertInfo().text;
+    textColor = AlertInfo().textColor;
+    _showAlertNotifier.value++;
+  }
+
   @override
-  State<AlertInfo> createState() => _AlertInfoState();
+  State<AlertInfoWidget> createState() => _AlertInfoWidgetState();
 }
 
-class _AlertInfoState extends State<AlertInfo> {
+class _AlertInfoWidgetState extends State<AlertInfoWidget> {
   static bool blocked = false;
 
   TextStyle _style = const TextStyle(
@@ -40,7 +66,13 @@ class _AlertInfoState extends State<AlertInfo> {
   @override
   void initState() {
     super.initState();
-    widget._newValNotifier.addListener(() => _fadeOut());
+    widget._showAlertNotifier.addListener(_fadeOut);
+  }
+
+  @override
+  void dispose() {
+    widget._showAlertNotifier.removeListener(_fadeOut);
+    super.dispose();
   }
 
   Future<void> _fadeOut() async {
