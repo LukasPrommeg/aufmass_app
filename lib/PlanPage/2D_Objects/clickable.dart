@@ -10,9 +10,6 @@ abstract class ClickAble extends EventArgs {
   Rect size = Rect.zero;
   Path unscaledPath = Path();
 
-  @protected
-  Offset offset = Offset.infinite;
-
   Paint _paintStyle = Paint()
     ..color = Colors.red
     ..strokeWidth = 0.5
@@ -34,17 +31,16 @@ abstract class ClickAble extends EventArgs {
       return false;
     }
   }
-
+/*
   void moveTo(Offset offset) {
     if (this.offset.isFinite) {
       hitbox = hitbox.shift(-this.offset);
     }
     this.offset = offset;
     hitbox = hitbox.shift(this.offset);
-  }
+  }*/
 
-  void paintHB(Canvas canvas,
-      [Color? overrideBaseColor, Color? overrideSelectedColor]) {
+  void paintHB(Canvas canvas, [Color? overrideBaseColor, Color? overrideSelectedColor]) {
     if (selected) {
       if (overrideSelectedColor == null) {
         _paintStyle = Paint()

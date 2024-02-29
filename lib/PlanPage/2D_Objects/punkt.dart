@@ -7,24 +7,14 @@ const double hbSizeDefine = 20;
 class Punkt extends ClickAble {
   final Offset point;
   Offset? scaled;
-  late Path path;
 
-  Punkt({required this.point, required this.scaled, required this.path}) : super(hbSize: hbSizeDefine);
+  Punkt({required this.point, required this.scaled}) : super(hbSize: hbSizeDefine);
 
   Punkt.fromPoint({required this.point, double hitboxSize = hbSizeDefine}) : super(hbSize: hitboxSize) {
-    path = Path();
-    Radius radius = Radius.circular(hbSize);
-
-    path.moveTo(0, 0 - hbSize);
-    path.arcToPoint(Offset(hbSize, 0), radius: radius);
-    path.arcToPoint(Offset(0, hbSize), radius: radius);
-    path.arcToPoint(Offset(-hbSize, 0), radius: radius);
-    path.arcToPoint(Offset(0, -hbSize), radius: radius);
-
     size = size.expandToInclude(Rect.fromPoints(point, point));
   }
 
-  Punkt.clone(Punkt corner) : this(point: corner.point, scaled: corner.scaled, path: corner.path);
+  Punkt.clone(Punkt corner) : this(point: corner.point, scaled: corner.scaled);
 
   bool equals(Punkt other) {
     if (point.dx.roundToDouble() == other.point.dx.roundToDouble() && point.dy.roundToDouble() == other.point.dy.roundToDouble()) {
@@ -45,9 +35,13 @@ class Punkt extends ClickAble {
   @protected
   void calcHitbox() {
     if (scaled != null) {
-      hitbox = path;
-      offset = Offset.zero;
-      moveTo(scaled!);
+      Radius radius = Radius.circular(hbSize);
+
+      hitbox.moveTo(scaled!.dx, scaled!.dy - hbSize);
+      hitbox.arcToPoint(Offset(scaled!.dx + hbSize, scaled!.dy), radius: radius);
+      hitbox.arcToPoint(Offset(scaled!.dx, scaled!.dy + hbSize), radius: radius);
+      hitbox.arcToPoint(Offset(scaled!.dx - hbSize, scaled!.dy), radius: radius);
+      hitbox.arcToPoint(Offset(scaled!.dx, scaled!.dy - hbSize), radius: radius);
     }
   }
 
