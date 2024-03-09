@@ -1,7 +1,11 @@
 import 'dart:io';
+import 'package:aufmass_app/PlanPage/planpage.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:aufmass_app/PlanPage/Room_Parts/room.dart';
+import 'package:flutter_to_pdf/flutter_to_pdf.dart';
 
 class PDFExport {
   // Singleton instance
@@ -16,7 +20,7 @@ class PDFExport {
   // Test Variablen
   List<TempRoom> rooms = [TempRoom(name: "Wohnzimmer", size: 20), TempRoom(name: "Küche", size: 10), TempRoom(name: "Bad", size: 5)];
 
-  Future<void> generatePDF(String projectName) async {
+  Future<void> generatePDF(String projectName, PlanPageContent planPage, ExportDelegate exportDelegate) async {
     final pdf = pw.Document();
 
     final ByteData image = await rootBundle.load('assets/eberl_logo.png');
@@ -46,6 +50,45 @@ class PDFExport {
         ),
       ),
     );
+
+    // paint room
+    /*pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) => Test2(planPage: planPage //Test ist StatelessWidget; Probieren: Statt Test drawing_zone einfügen; problem, kein zugriff auf drawingzone
+        ),
+      ),
+    );*/
+
+    /*final ExportDelegate exportDelegate=ExportDelegate();
+    dynamic test =ExportFrame(
+      frameId: 'someFrameId',
+      exportDelegate: exportDelegate,
+      child: planPage.getCurrentRoom().drawRoomPart(),
+    );*/
+    // export the frame to a PDF Widget
+
+  final ExportOptions overrideOptions = ExportOptions(
+  pageFormatOptions: PageFormatOptions.a4(clip: true),
+);
+
+    final pdf2 = await exportDelegate.exportToPdfDocument('main', overrideOptions: overrideOptions);
+    final file1 = File('example1.pdf');
+    await file1.writeAsBytes(await pdf2.save());
+
+    final widget = await exportDelegate.exportToPdfWidget('main'); //is somehow empty
+    final page = await exportDelegate.exportToPdfPage('main');
+    pdf.addPage(
+      page
+    );
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) => pw.Center(
+          child: widget,
+        ),
+      ),
+    );
+
+    
     //Auflistung von Räumen
     pdf.addPage(
       pw.MultiPage(
@@ -88,7 +131,9 @@ class PDFExport {
     await file.writeAsBytes(await pdf.save());
     print('PDF saved to ${file.path}');
   }
+
 }
+
 
 //testklasse
 class TempRoom {
@@ -99,4 +144,39 @@ class TempRoom {
     required this.name,
     required this.size,
   });
+}
+
+class Test2 extends pw.StatelessWidget{
+
+final PlanPageContent planPage;
+
+  Test2({
+    required this.planPage,
+  });
+
+  @override
+  pw.Widget build(pw.Context context) {
+    return pw.Stack(
+            children:[
+                //planPage.getCurrentRoom().drawRoomPart(),
+              ]
+          );
+  }
+}
+class Test{
+
+final PlanPageContent planPage;
+
+  Test({
+    required this.planPage,
+  });
+
+  @override
+  Widget build(pw.Context context) {
+    return Stack(
+            children:[
+                planPage.getCurrentRoom().drawRoomPart(),
+              ]
+          );
+  }
 }

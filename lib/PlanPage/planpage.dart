@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:aufmass_app/PlanPage/Misc/alertinfo.dart';
 import 'package:aufmass_app/PlanPage/Misc/loadingblur.dart';
 import 'package:aufmass_app/PlanPage/li_sidemenu.dart';
@@ -12,6 +15,7 @@ import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:aufmass_app/PlanPage/Room_Parts/room.dart';
 import 'Room_Parts/room_wall.dart';
+import 'package:flutter_to_pdf/flutter_to_pdf.dart';
 
 class PlanPage extends StatefulWidget {
   const PlanPage({super.key, required this.projekt});
@@ -34,6 +38,9 @@ class PlanPageContent extends State<PlanPage> {
 
   late Room currentRoom;
   RoomWall? currentWallView;
+
+  final ExportDelegate exportDelegate = ExportDelegate();
+
   //late String selectedDropdownValue;
 
   dynamic clickedThing;
@@ -84,6 +91,8 @@ class PlanPageContent extends State<PlanPage> {
         projekt: widget.projekt,
         selectedIndex: widget.projekt.rooms.indexOf(currentRoom),
         switchRoomCallBack: (newRoom) => switchRoom(newRoom),
+        planPage: this,
+        exportDelegate: exportDelegate,
       );
     });
   }
@@ -117,6 +126,8 @@ class PlanPageContent extends State<PlanPage> {
         projekt: widget.projekt,
         selectedIndex: widget.projekt.rooms.indexOf(currentRoom),
         switchRoomCallBack: (newRoom) => switchRoom(newRoom),
+        planPage: this,
+        exportDelegate: exportDelegate,
       );
     });
   }
@@ -316,6 +327,7 @@ class PlanPageContent extends State<PlanPage> {
                 child: Stack(
                   alignment: AlignmentDirectional.topCenter,
                   children: [
+                    ExportFrame(frameId: 'main',exportDelegate: exportDelegate,child: Container(child:currentRoom.drawRoomPart())),
                     currentWallView != null ? currentWallView!.drawRoomPart() : currentRoom.drawRoomPart(),
                     SizedBox(
                       height: 100,
@@ -345,5 +357,9 @@ class PlanPageContent extends State<PlanPage> {
     setState(() {
       rightSidemenu = null;
     });
+  }
+
+  Room getCurrentRoom(){
+    return currentRoom;
   }
 }
