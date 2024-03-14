@@ -18,7 +18,7 @@ class _ActionSelectorState extends State<ActionSelector> {
     ),
     const ButtonSegment(
       value: "Ausnahme",
-      label: Text("Ausnahme"),
+      label: Text("Einkerbung"),
     )
   ];
 

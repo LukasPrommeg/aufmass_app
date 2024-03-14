@@ -116,7 +116,7 @@ class Flaeche extends ClickAble {
         area -= walls[i].end.point.dy * (walls[i + 1].end.point).dx;
       }
     }
-    area = area.abs() / 2;
+    area = (area.abs() / 2).roundToDouble();
     walls.removeLast();
   }
 
