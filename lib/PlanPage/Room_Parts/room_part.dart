@@ -29,7 +29,7 @@ abstract class RoomPart {
 
   RoomPart({required String name}) : _name = name {
     _paintController.flaechenName = _name;
-    _drawingZone = DrawingZone(paintController: _paintController);
+    _drawingZone = DrawingZone(key: UniqueKey(),paintController: _paintController);
   }
 
   Widget drawRoomPart() {

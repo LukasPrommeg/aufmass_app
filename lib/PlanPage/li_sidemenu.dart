@@ -90,7 +90,9 @@ class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
             children: [
               ListTile(
                 title: const Text('Als PDF exportieren'),
-                onTap: createPDF,
+                onTap: (){
+                  createPDF(context);
+                },
               ),
               const Divider(),
               ListTile(
@@ -224,8 +226,8 @@ class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
     );
   }
 
-  void createPDF() {
-    PDFExport().generatePDF(widget.projekt.name, widget.planPage, widget.exportDelegate);
+  void createPDF(BuildContext context) {
+    PDFExport().generatePDF(widget.projekt.name, widget.planPage, widget.exportDelegate, context);
   }
 
   void renameProject() {

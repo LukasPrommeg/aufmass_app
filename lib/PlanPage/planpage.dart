@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'dart:math';
-
+import 'dart:typed_data';
 import 'package:aufmass_app/PlanPage/Misc/alertinfo.dart';
 import 'package:aufmass_app/PlanPage/Misc/loadingblur.dart';
+import 'package:aufmass_app/PlanPage/Paint/polypainter.dart';
 import 'package:aufmass_app/PlanPage/li_sidemenu.dart';
 import 'package:aufmass_app/PlanPage/projekt.dart';
 import 'package:aufmass_app/PlanPage/re_sidemenu.dart';
@@ -16,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:aufmass_app/PlanPage/Room_Parts/room.dart';
 import 'Room_Parts/room_wall.dart';
 import 'package:flutter_to_pdf/flutter_to_pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:screenshot/screenshot.dart';
 
 class PlanPage extends StatefulWidget {
   const PlanPage({super.key, required this.projekt});
@@ -35,6 +38,7 @@ class PlanPageContent extends State<PlanPage> {
   //Controllers
   TextEditingController newRoomController = TextEditingController();
   TextEditingController setWallHeightController = TextEditingController();
+  ScreenshotController screenshotController = ScreenshotController();
 
   late Room currentRoom;
   RoomWall? currentWallView;
@@ -88,6 +92,7 @@ class PlanPageContent extends State<PlanPage> {
 
     setState(() {
       leftSidemenu = LeftPlanpageSidemenu(
+        key:UniqueKey(),
         projekt: widget.projekt,
         selectedIndex: widget.projekt.rooms.indexOf(currentRoom),
         switchRoomCallBack: (newRoom) => switchRoom(newRoom),
@@ -95,6 +100,9 @@ class PlanPageContent extends State<PlanPage> {
         exportDelegate: exportDelegate,
       );
     });
+  }
+  Projekt getProject() {
+    return widget.projekt;
   }
 
   void switchView(RoomWall newWallView) {
@@ -327,7 +335,6 @@ class PlanPageContent extends State<PlanPage> {
                 child: Stack(
                   alignment: AlignmentDirectional.topCenter,
                   children: [
-                    ExportFrame(frameId: 'main',exportDelegate: exportDelegate,child: Container(child:currentRoom.drawRoomPart())),
                     currentWallView != null ? currentWallView!.drawRoomPart() : currentRoom.drawRoomPart(),
                     SizedBox(
                       height: 100,
@@ -363,3 +370,5 @@ class PlanPageContent extends State<PlanPage> {
     return currentRoom;
   }
 }
+
+
