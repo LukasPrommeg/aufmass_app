@@ -127,6 +127,7 @@ class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
           const Divider(),
           // Rooms Section
           ExpansionTile(
+            initiallyExpanded: true,
             title: const Text(
               'Räume',
               style: TextStyle(

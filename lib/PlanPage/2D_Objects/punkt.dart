@@ -37,6 +37,8 @@ class Punkt extends ClickAble {
     if (scaled != null) {
       Radius radius = Radius.circular(hbSize);
 
+      hitbox=Path();
+      
       hitbox.moveTo(scaled!.dx, scaled!.dy - hbSize);
       hitbox.arcToPoint(Offset(scaled!.dx + hbSize, scaled!.dy), radius: radius);
       hitbox.arcToPoint(Offset(scaled!.dx, scaled!.dy + hbSize), radius: radius);

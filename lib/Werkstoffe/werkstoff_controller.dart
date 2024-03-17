@@ -14,6 +14,8 @@ class WerkstoffController {
     werkstoffe.add(Werkstoff(
         name: "Fliese", color: Colors.purple, typ: WerkstoffTyp.flaeche));
     werkstoffe.add(Werkstoff(
+    name: "andere Fliese", color: Colors.blue, typ: WerkstoffTyp.flaeche));
+    werkstoffe.add(Werkstoff(
         name: "Dichtband", color: Colors.blue, typ: WerkstoffTyp.linie));
     werkstoffe.add(Werkstoff(
         name: "Manschette", color: Colors.brown, typ: WerkstoffTyp.point));

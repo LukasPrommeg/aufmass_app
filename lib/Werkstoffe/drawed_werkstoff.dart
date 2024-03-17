@@ -19,9 +19,9 @@ class DrawedWerkstoff extends EventArgs {
 
   String get amountStr {
     if (clickAble is Flaeche) {
-      return "${EinheitController().convertToSelectedSquared(amount).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²";
+      return "Fläche: ${EinheitController().convertToSelectedSquared(amount).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²";
     } else if (clickAble is Linie) {
-      return "${EinheitController().convertToSelected(amount).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}";
+      return "Länge: ${EinheitController().convertToSelected(amount).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}";
     } else {
       return "-";
     }

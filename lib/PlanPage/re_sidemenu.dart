@@ -84,6 +84,11 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
     });
   }
 
+   Map<Type, String> typeDisplayNames = {
+    DrawedWerkstoff: 'Werkstoff',
+    Grundflaeche: 'Fläche',
+  };
+
   void initContent() {
     if (widget.inputHandler.currentlyHandling != CurrentlyHandling.nothing) {
       content = Container(
@@ -101,7 +106,9 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                clickedThing.runtimeType.toString(),
+                clickedThing==null
+                ? "Nichts ausgewählt"
+                : typeDisplayNames[clickedThing.runtimeType] ?? clickedThing.runtimeType.toString(),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
@@ -114,7 +121,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
           SingleChildScrollView(
             child: Column(
               children: [
-                if (clickedThing is Flaeche) flaechenSideMenu(clickedThing),
+                if (clickedThing is Flaeche && clickedThing is! Einkerbung) flaechenSideMenu(clickedThing),
                 if (clickedThing is Linie && !widget.isWallView) wallSideMenu(clickedThing),
                 if (clickedThing is DrawedWerkstoff) drawedWerkstoffSideMenu(clickedThing),
                 if (clickedThing is Grundflaeche) grundflaecheSideMenu(clickedThing),
@@ -147,7 +154,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
   }
 
   Widget flaechenSideMenu(Flaeche flaeche) {
-    return Text("Fläche: ${EinheitController().convertToSelectedSquared(flaeche.area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}"); //have to reload for it to work
+    return Text("Fläche: ${EinheitController().convertToSelectedSquared(flaeche.area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²"); //have to reload for it to work
   }
 
   Widget wallSideMenu(Linie wall) {
@@ -213,11 +220,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
   Widget drawedWerkstoffSideMenu(DrawedWerkstoff werkstoff) {
     return Column(
       children: [
-        Text(
-          "Selected Werkstoff: ${werkstoff.werkstoff.name}",
-          style: const TextStyle(fontSize: 18),
-        ),
-        const Divider(),
+        Text(werkstoff.werkstoff.name),
         Text(werkstoff.amountStr),
         const Divider(),
         Row(
@@ -250,11 +253,8 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
             ),
           ],
         ),
-        //dropdownbutton with different werkstoffe; unklar: nur Werkstoffe vom selben Typ (wenn Fläche nur Flächen etc)
         DropdownButton<Werkstoff>(
-          value: WerkstoffController()
-              .werkstoffe
-              .first, //cant be: cant have value: clickedThing?.werkstoff ?? WerkstoffController().werkstoffe.first, because clickedThing.werkstoff is not in the list of werkstoffe
+          value: clickedThing?.werkstoff ?? WerkstoffController().werkstoffe.first,
           onChanged: (Werkstoff? newValue) {
             setState(() {
               if (newValue != null) {
@@ -262,7 +262,9 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
               }
             });
           },
-          items: WerkstoffController().werkstoffe.map<DropdownMenuItem<Werkstoff>>((Werkstoff werkstoff2) {
+          items: WerkstoffController().werkstoffe
+          .where((werkstoff) => werkstoff.typ==clickedThing?.werkstoff?.typ)
+          .map<DropdownMenuItem<Werkstoff>>((Werkstoff werkstoff2) {
             return DropdownMenuItem<Werkstoff>(
               value: werkstoff2,
               child: Text(werkstoff2.name),
@@ -301,6 +303,8 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
   Widget einkerbungSideMenu(Einkerbung einkerbung) {
     return Column(
       children: [
+        Text(einkerbung.name),
+        if(einkerbung.tiefe!= double.infinity)
         Text("Tiefe: ${EinheitController().convertToSelected((einkerbung).tiefe).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}"),
         Text("Fläche: ${EinheitController().convertToSelectedSquared((einkerbung).area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²"),
         const Divider(),
