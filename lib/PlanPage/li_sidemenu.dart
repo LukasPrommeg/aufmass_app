@@ -2,6 +2,7 @@ import 'package:aufmass_app/PlanPage/Misc/pdfexport.dart';
 import 'package:aufmass_app/PlanPage/Room_Parts/room.dart';
 import 'package:aufmass_app/PlanPage/projekt.dart';
 import 'package:flutter/material.dart';
+import 'package:aufmass_app/PlanPage/planpage.dart';
 
 typedef SwitchRoomCallBack = void Function(Room);
 
@@ -9,12 +10,14 @@ class LeftPlanpageSidemenu extends StatefulWidget {
   final Projekt projekt;
   final int selectedIndex;
   final SwitchRoomCallBack switchRoomCallBack;
+  final PlanPageContent planPage;
 
   const LeftPlanpageSidemenu({
     super.key,
     required this.projekt,
     required this.selectedIndex,
     required this.switchRoomCallBack,
+    required this.planPage,
   });
 
   @override
@@ -83,7 +86,9 @@ class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
             children: [
               ListTile(
                 title: const Text('Als PDF exportieren'),
-                onTap: createPDF,
+                onTap: (){
+                  createPDF(context);
+                },
               ),
               const Divider(),
               ListTile(
@@ -218,8 +223,8 @@ class _LeftPlanpageSidemenuState extends State<LeftPlanpageSidemenu> {
     );
   }
 
-  void createPDF() {
-    PDFExport().generatePDF(widget.projekt.name);
+  void createPDF(BuildContext context) {
+    PDFExport().generatePDF(widget.projekt.name, widget.planPage, context);
   }
 
   void renameProject() {

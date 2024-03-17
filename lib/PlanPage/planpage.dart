@@ -61,8 +61,13 @@ class PlanPageContent extends State<PlanPage> {
         projekt: widget.projekt,
         selectedIndex: widget.projekt.rooms.indexOf(currentRoom),
         switchRoomCallBack: (newRoom) => switchRoom(newRoom),
+        planPage: this,
       );
     });
+  }
+
+  Projekt getProject(){
+    return widget.projekt;
   }
 
   void switchView(RoomWall newWallView) {
@@ -92,6 +97,7 @@ class PlanPageContent extends State<PlanPage> {
         projekt: widget.projekt,
         selectedIndex: widget.projekt.rooms.indexOf(currentRoom),
         switchRoomCallBack: (newRoom) => switchRoom(newRoom),
+        planPage: this,
       );
     });
   }
