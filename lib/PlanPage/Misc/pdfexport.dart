@@ -151,7 +151,7 @@ class PDFExport {
               pw.Text(projectName),
             ],
           ),
-          pw.Container(width: 50.0, height: 50.0, child: pw.Image(pw.MemoryImage(imageData))),
+          pw.Container(width: 50.0, height: 50.0, padding: const pw.EdgeInsets.symmetric(vertical: 5,horizontal: 0), child: pw.Image(pw.MemoryImage(imageData))),
         ],
       ),
     );
