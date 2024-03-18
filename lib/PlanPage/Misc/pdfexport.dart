@@ -6,6 +6,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:aufmass_app/PlanPage/Room_Parts/room.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:printing/printing.dart'; 
 
 class PDFExport {
   // Singleton instance
@@ -20,7 +21,13 @@ class PDFExport {
   ScreenshotController screenshotController = ScreenshotController();
 
   Future<void> generatePDF(String projectName, PlanPageContent planPage,BuildContext context) async {
-    final pdf = pw.Document();
+    var theme = pw.ThemeData.withFont(
+      base: await PdfGoogleFonts.openSansRegular(),
+      bold: await PdfGoogleFonts.openSansBold(),
+      icons: await PdfGoogleFonts.materialIcons(),
+    );
+    
+    final pdf = pw.Document(theme: theme);
 
     final ByteData image = await rootBundle.load('assets/eberl_logo.png');
     Uint8List imageData = (image).buffer.asUint8List();
@@ -33,14 +40,6 @@ class PDFExport {
         ),
       ),
     );
-
-    // paint room
-    /*pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) => Test2(planPage: planPage //Test ist StatelessWidget; Probieren: Statt Test drawing_zone einfügen; problem, kein zugriff auf drawingzone
-        ),
-      ),
-    );*/
 
     /*final ExportDelegate exportDelegate=ExportDelegate();
     dynamic test =ExportFrame(
@@ -84,9 +83,21 @@ class PDFExport {
             itemCount: planPage.getProject().rooms.length,
             itemBuilder: (pw.Context context, int index) {
               var room = planPage.getProject().rooms[index];
-              return pw.Container(
-                alignment: pw.Alignment.centerLeft,
-                child: pw.Text(room.name),
+              return pw.Column(
+                children:[
+                  pw.Text('\u2022 ${room.name}'),
+                  pw.ListView.builder(
+                    itemCount: room.walls.values.toList().length,
+                    itemBuilder: (pw.Context context, int index){
+                      var roomWall=room.walls.values.toList()[index];
+                      return pw.Column(
+                        children:[
+                          pw.Text('\u2022 ${roomWall.name}'), //\u25E6
+                        ]
+                      );
+                    }
+                  )
+                ],
               );
             },
           ),
@@ -107,13 +118,37 @@ class PDFExport {
             footer: (context)=>buildFooter(context, projectName),
             build: (pw.Context context) => [
               pw.SizedBox(height: 20),
-              pw.Text('Room Name: ${room.name}'),
+              pw.Text(room.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 10),
               pw.Container(child: pw.Image(pw.MemoryImage(capturedImage))),
             ],
           ),
         );
       });
+
+      //Seite pro roomWall
+      for(var roomWall in room.walls.values.toList()){
+        await screenshotController
+        .captureFromWidget(roomWall.drawRoomPart())
+        .then((capturedImage) {
+          pdf.addPage(
+            pw.MultiPage(
+              pageFormat: PdfPageFormat.a4,
+              margin: const pw.EdgeInsets.all(10),
+              header: (context)=>buildHeader(projectName, imageData),
+              footer: (context)=>buildFooter(context, projectName),
+              build: (pw.Context context) => [
+                pw.SizedBox(height: 20),
+                pw.Text(room.name),
+                pw.SizedBox(height: 5),
+                pw.Text(roomWall.name,style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 10),
+                pw.Container(child: pw.Image(pw.MemoryImage(capturedImage))),
+              ],
+            ),
+          );
+        });
+      }
     }
 
     final file = File('example.pdf');

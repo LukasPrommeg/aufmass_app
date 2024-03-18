@@ -159,32 +159,43 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
 
   Widget wallSideMenu(Linie wall) {
     TextEditingController wallHeightController = TextEditingController();
+    TextEditingController wallNameController = TextEditingController();
     bool autoDrawWall = true;
 
     return Column(
       children: [
-        Text(clickedThing.length.toString()),
+        Text('Länge: ${EinheitController().convertToSelected(clickedThing.length).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}'),
         const Divider(),
         if (!widget.generatedWalls.contains(wall.uuid))
-          Column(
-            children: [
-              TextField(
-                controller: wallHeightController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Wandhöhe',
+          Padding(
+            padding:  const EdgeInsets.only(left: 15, right: 15),
+            child: Column(
+              children: [
+                TextField(
+                  controller: wallNameController,
+                  keyboardType: TextInputType.text,
+                  decoration: const InputDecoration(
+                    labelText: 'Name der Wand',
+                  ),
                 ),
-              ),
-              const Text("Wand automatisch zeichnen?"), //Wand kann direkt mit länge * eingestellter höhe gezeichnet werden
-              Checkbox(
-                value: autoDrawWall,
-                onChanged: (bool? value) {
-                  setState(() {
-                    autoDrawWall = value!;
-                  });
-                },
-              ),
-            ],
+                TextField(
+                    controller: wallHeightController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Wandhöhe',
+                    ),
+                ),
+                const Text("Wand automatisch zeichnen?"), //Wand kann direkt mit länge * eingestellter höhe gezeichnet werden
+                Checkbox(
+                  value: autoDrawWall,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      autoDrawWall = value!;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
         ElevatedButton(
           onPressed: () {
@@ -194,7 +205,8 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
                 height: 0,
                 name: "",
               ));
-            } else {
+            } 
+            else {
               try {
                 if (autoDrawWall) {
                   double height = double.parse(wallHeightController.text);
@@ -202,10 +214,11 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
                   widget.onWallViewGenerated(RoomWall(
                     baseLine: wall,
                     height: height,
-                    name: "Wand",
+                    name: wallNameController.text=="" ? "Wand" : wallNameController.text,
                   ));
                 }
-              } catch (e) {
+              } 
+              catch (e) {
                 //TODO: ERROR
                 AlertInfo().newAlert("ALARM");
               }
