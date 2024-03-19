@@ -129,6 +129,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
                 if (clickedThing is DrawedWerkstoff) drawedWerkstoffSideMenu(clickedThing),
                 if (clickedThing is Grundflaeche) grundflaecheSideMenu(clickedThing),
                 if (clickedThing is Einkerbung) einkerbungSideMenu(clickedThing),
+                if (clickedThing is Linie && widget.isWallView) linienSideMenu(clickedThing),
               ],
             ),
           ),
@@ -379,5 +380,8 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
         const Divider(),
       ],
     );
+  }
+  Widget linienSideMenu(Linie linie) {
+    return Text('Länge: ${EinheitController().convertToSelected(clickedThing.length).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}');
   }
 }
