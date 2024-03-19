@@ -151,6 +151,7 @@ class PlanPageContent extends State<PlanPage> {
         inputHandler: inputHandler,
         onRepaintNeeded: repaintDrawing,
         onWallViewGenerated: (roomWall) => openWallViewCallback(roomWall),
+        onWallDelete: (roomWall) => deleteWallViewCallback(roomWall),
       );
     }
     setState(() {
@@ -176,6 +177,7 @@ class PlanPageContent extends State<PlanPage> {
         inputHandler: inputHandler,
         onRepaintNeeded: repaintDrawing,
         onWallViewGenerated: (roomWall) => openWallViewCallback(roomWall),
+        onWallDelete: (roomWall) => deleteWallViewCallback(roomWall),
       );
     });
   }
@@ -377,6 +379,21 @@ class PlanPageContent extends State<PlanPage> {
     }
     setState(() {
       rightSidemenu = null;
+    });
+  }
+  void deleteWallViewCallback(RoomWall roomWall) {
+    currentRoom.walls.remove(roomWall.baseLine.uuid);
+    setState(() {
+      rightSidemenu = RightPlanpageSidemenu(
+        key: UniqueKey(),
+        clickedThing: clickedThing,
+        isWallView: false,
+        generatedWalls: currentRoom.walls.keys.toList(),
+        inputHandler: currentRoom.paintController.inputHandler,
+        onRepaintNeeded: repaintDrawing,
+        onWallViewGenerated: (roomWall) => openWallViewCallback(roomWall),
+        onWallDelete: (roomWall) => deleteWallViewCallback(roomWall),
+      );
     });
   }
 }

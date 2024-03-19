@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 
 typedef RepaintCallback = void Function();
 typedef SwitchToWallViewCallback = void Function(RoomWall roomWall);
+typedef DeleteWallCallback=void Function(RoomWall roomWall);
 
 class RightPlanpageSidemenu extends StatefulWidget {
   final dynamic clickedThing;
@@ -23,6 +24,7 @@ class RightPlanpageSidemenu extends StatefulWidget {
   final InputHandler inputHandler;
   final RepaintCallback onRepaintNeeded;
   final SwitchToWallViewCallback onWallViewGenerated;
+  final DeleteWallCallback onWallDelete;
 
   RightPlanpageSidemenu({
     super.key,
@@ -32,6 +34,7 @@ class RightPlanpageSidemenu extends StatefulWidget {
     required this.inputHandler,
     required this.onRepaintNeeded,
     required this.onWallViewGenerated,
+    required this.onWallDelete,
   });
 
   @override
@@ -156,6 +159,7 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
   Widget flaechenSideMenu(Flaeche flaeche) {
     return Text("Fläche: ${EinheitController().convertToSelectedSquared(flaeche.area).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²"); //have to reload for it to work
   }
+  
 
   Widget wallSideMenu(Linie wall) {
     TextEditingController wallHeightController = TextEditingController();
@@ -185,46 +189,67 @@ class _RightPlanpageSidemenuState extends State<RightPlanpageSidemenu> {
                       labelText: 'Wandhöhe',
                     ),
                 ),
-                const Text("Wand automatisch zeichnen?"), //Wand kann direkt mit länge * eingestellter höhe gezeichnet werden
-                Checkbox(
+                //const Text("Wand automatisch zeichnen?"), //Wand kann direkt mit länge * eingestellter höhe gezeichnet werden
+                /*Checkbox(
                   value: autoDrawWall,
                   onChanged: (bool? value) {
                     setState(() {
                       autoDrawWall = value!;
                     });
                   },
+                ),*/
+                const SizedBox(height: 15),
+                ElevatedButton(
+                  onPressed: () {
+                    try {
+                      if (autoDrawWall) {
+                        double height = double.parse(wallHeightController.text);
+                        height = _einheitSelector.convertToMM(height);
+                        widget.onWallViewGenerated(RoomWall(
+                          baseLine: wall,
+                          height: height,
+                          name: wallNameController.text=="" ? "Wand" : wallNameController.text,
+                        ));
+                      }
+                    } 
+                    catch (e) {
+                      AlertInfo().newAlert("ERROR: Eingegebene Wandhöhe ist keine Zahl");
+                    }
+                  },
+                  child: const Text('Wand Generieren'),
                 ),
               ],
             ),
-          ),
-        ElevatedButton(
-          onPressed: () {
-            if (widget.generatedWalls.contains(wall.uuid)) {
-              widget.onWallViewGenerated(RoomWall(
-                baseLine: wall,
-                height: 0,
-                name: "",
-              ));
-            } 
-            else {
-              try {
-                if (autoDrawWall) {
-                  double height = double.parse(wallHeightController.text);
-                  height = _einheitSelector.convertToMM(height);
-                  widget.onWallViewGenerated(RoomWall(
-                    baseLine: wall,
-                    height: height,
-                    name: wallNameController.text=="" ? "Wand" : wallNameController.text,
-                  ));
-                }
-              } 
-              catch (e) {
-                //TODO: ERROR
-                AlertInfo().newAlert("ALARM");
-              }
-            }
-          },
-          child: const Text('Wand anzeigen'),
+          )
+        else
+        Padding(
+          padding: const EdgeInsets.only(right: 15, left: 15),
+          child:
+          Column(
+            children: [
+              const SizedBox(height: 10),
+              ElevatedButton(
+              onPressed: () {
+                widget.onWallViewGenerated(RoomWall(
+                  baseLine: wall,
+                  height: 0,
+                  name: "",
+                ));
+              },
+              child: const Text('Wand Anzeigen'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                widget.onWallDelete(RoomWall(
+                  baseLine: wall,
+                  height: 0,
+                  name: "",
+                ));
+              },
+              child: const Text('Wand Löschen'),
+            ),
+          ],)
         ),
       ],
     );
