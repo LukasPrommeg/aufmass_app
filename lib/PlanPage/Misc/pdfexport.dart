@@ -130,6 +130,7 @@ class PDFExport {
               pw.Text(room.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 10),
               pw.Container(child: pw.Image(pw.MemoryImage(capturedImage))),
+              pw.SizedBox(height: 10),
               buildSizeInfo(sizes),
             ],
           ),
@@ -157,6 +158,7 @@ class PDFExport {
                 pw.Text(roomWall.name,style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                 pw.SizedBox(height: 10),
                 pw.Container(child: pw.Image(pw.MemoryImage(capturedImage))),
+                pw.SizedBox(height: 10),
                 buildSizeInfo(sizes),
               ],
             ),
@@ -174,13 +176,14 @@ class PDFExport {
         header: (context)=>buildHeader(projectName, imageData),
         footer: (context)=>buildFooter(context, projectName),
         build: (pw.Context context) => [
+          pw.Text("Projektzusammenfassung:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 20)),
           buildSizeInfo(sizes),
         ],
       ),
     );
 
 
-    final file = File('example.pdf');
+    final file = File('output.pdf');
     await file.writeAsBytes(await pdf.save());
     print('PDF saved to ${file.path}');
 
@@ -229,6 +232,7 @@ class PDFExport {
           pw.Text('Fläche ${EinheitController().convertToSelectedSquared((sizes.firstWhere((element) => element.name=="Room")).amount).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
           if(sizes.indexWhere((sizeInfo) => sizeInfo.name == "Wall")!=-1)
             pw.Text('Wände ${EinheitController().convertToSelectedSquared((sizes.firstWhere((element) => element.name=="Wall")).amount).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}²', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 10),
           pw.Text('Verwendete Werkstoffe:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
           pw.ListView.builder(
             itemCount: sizes.length,
@@ -246,6 +250,11 @@ class PDFExport {
                       pw.Column(
                         children: [
                           pw.Text('\u2022 ${size.name}: ${EinheitController().convertToSelected(size.amount).toStringAsFixed(2)} ${EinheitController().selectedEinheit.name}'),
+                      ])
+                      else if(size.werkstoffTyp==WerkstoffTyp.point)
+                      pw.Column(
+                        children: [
+                          pw.Text('\u2022 ${size.name}: ${size.amount.toStringAsFixed(0)} Stück'),
                       ])
                   ],
                 );

@@ -81,6 +81,9 @@ class DrawedWerkstoff extends EventArgs {
       case WerkstoffTyp.linie:
         amount = (clickAble as Linie).length;
         break;
+      case WerkstoffTyp.point:
+        amount = 1;
+        break;
       default:
         break;
     }
