@@ -22,8 +22,6 @@ dependencies:
   provider: ^6.1.1
   screenshot: ^2.3.0
   printing: ^5.6.0
-  flutter_file_dialog: ^3.0.2
-  file_picker_cross: ^4.4.2
 
 dev_dependencies:
   flutter_test:
