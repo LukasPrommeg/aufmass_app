@@ -12,6 +12,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:screenshot/screenshot.dart';
 import 'package:printing/printing.dart'; 
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:file_picker_cross/file_picker_cross.dart';
 
 class PDFExport {
   // Singleton instance
@@ -126,8 +128,7 @@ class PDFExport {
             header: (context)=>buildHeader(projectName, imageData),
             footer: (context)=>buildFooter(context, projectName),
             build: (pw.Context context) => [
-              pw.SizedBox(height: 20),
-              pw.Text(room.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text(room.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 20)),
               pw.SizedBox(height: 10),
               pw.Container(child: pw.Image(pw.MemoryImage(capturedImage))),
               pw.SizedBox(height: 10),
@@ -152,10 +153,9 @@ class PDFExport {
               header: (context)=>buildHeader(projectName, imageData),
               footer: (context)=>buildFooter(context, projectName),
               build: (pw.Context context) => [
-                pw.SizedBox(height: 20),
-                pw.Text(room.name),
+                pw.Text(room.name, style: pw.TextStyle(fontSize: 20)),
                 pw.SizedBox(height: 5),
-                pw.Text(roomWall.name,style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                pw.Text(roomWall.name,style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 20)),
                 pw.SizedBox(height: 10),
                 pw.Container(child: pw.Image(pw.MemoryImage(capturedImage))),
                 pw.SizedBox(height: 10),
@@ -188,6 +188,9 @@ class PDFExport {
     print('PDF saved to ${file.path}');
 
     LoadingBlur().disableBlur();
+
+    final pickedDirectory = await FlutterFileDialog.pickDirectory();
+    print(pickedDirectory.toString());
   }
 
   pw.Widget buildFooter(pw.Context context,String projectName) {
@@ -224,6 +227,11 @@ class PDFExport {
     );
   }
   pw.Widget buildSizeInfo(List<SizeInfo> sizes){
+    if (sizes.isEmpty){
+      return pw.Container(
+        child: pw.Text("Raum ist leer"),
+      );
+    }
     return pw.Container(
       child: pw.Column(
         mainAxisAlignment: pw.MainAxisAlignment.center,
